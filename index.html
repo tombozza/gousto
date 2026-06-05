@@ -1,0 +1,1769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gousto Meal Planner</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F4F7FA;--card:#ffffff;--card2:#eef1f5;
+  --teal:#29333C;--teal-light:#F4F7FA;--teal-dark:#1a2028;
+  --coral:#ff0032;--coral-light:#fff0f3;--coral-dark:#d9002b;
+  --primary:#412DEE;--primary-light:#eceafd;--primary-dark:#3424c9;
+  --text:#29333C;--muted:#5E7182;--border:#d8dee5;
+  --cream:#F4F7FA;--warm:#eef1f5;
+  --green:#1a7a4f;--red:#d93025;
+  --radius:12px;
+}
+body{font-family:'Gill Sans','Gill Sans MT',Calibri,'Trebuchet MS',sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+a{color:var(--coral);text-decoration:none}
+
+nav{background:var(--teal);position:sticky;top:0;z-index:100}
+.nav-inner{max-width:1440px;margin:auto;padding:8px 20px;display:flex;align-items:center;gap:12px;overflow-x:auto}
+.nav-logo{font-size:1.3rem;font-weight:800;color:#fff;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.nav-logo b{background:var(--coral);padding:3px 10px;border-radius:6px;font-size:.95rem;letter-spacing:.5px}
+.nav-tabs{display:flex;gap:2px;flex:1;flex-wrap:nowrap}
+.nav-tab{padding:7px 14px;border-radius:8px;cursor:pointer;font-size:.82rem;font-weight:600;color:rgba(255,255,255,.7);background:none;border:2px solid transparent;white-space:nowrap;transition:background .15s,color .15s,border-color .15s;font-family:inherit;min-width:max-content}
+.nav-tab:hover{color:#fff;background:rgba(255,255,255,.12)}
+.nav-tab.active{color:var(--teal);background:#fff;border-color:#fff}
+
+.container{max-width:1440px;margin:auto;padding:16px 20px;overflow-x:hidden}
+.page{display:none}.page.active{display:block}
+.grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+
+.card{background:var(--card);border-radius:var(--radius);padding:18px;border:1px solid var(--border);transition:.15s;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.card h2{font-size:1.05rem;margin-bottom:10px;color:var(--teal)}
+
+.recipe-card{cursor:pointer;position:relative}
+.recipe-card .title{font-size:.95rem;font-weight:700;color:var(--teal);margin-bottom:6px;padding-right:28px;line-height:1.3}
+.recipe-card .meta{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:4px}
+.pill{display:inline-flex;align-items:center;padding:2px 9px;border-radius:999px;font-size:.72rem;font-weight:600}
+.pill-cuisine{background:var(--primary);color:#fff}
+.pill-time{background:#333D47;color:#fff}
+.pill-cal{background:var(--coral);color:#fff}
+.pill-country{background:var(--warm);color:var(--muted)}
+.pill-note{background:#6b4c8a;color:#f3eef8}
+.pill-freeze{background:#1a6f5c;color:#d4f0ea}
+.pill-bulk{background:#8a6d3b;color:#faf3e5}
+.fav-btn{position:absolute;top:14px;right:14px;background:none;border:none;font-size:1.2rem;cursor:pointer;opacity:.4;transition:.15s;color:var(--coral)}
+.fav-btn:hover,.fav-btn.active{opacity:1}
+
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;justify-content:center;align-items:start;padding:40px 20px;overflow-y:auto}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:16px;max-width:700px;width:100%;padding:28px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.12)}
+.modal .close{position:absolute;top:12px;right:16px;background:none;border:none;color:var(--muted);font-size:1.5rem;cursor:pointer}
+.modal h2{color:var(--coral);margin-bottom:14px;font-size:1.3rem}
+.modal .ingredients{list-style:none;padding:0}
+.modal .ingredients li{padding:5px 0;border-bottom:1px solid var(--border);font-size:.88rem}
+.modal .ingredients li:last-child{border:none}
+
+input[type=text],input[type=number],select,textarea{width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--text);font-size:.88rem;font-family:inherit}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 2px rgba(0,85,74,.12)}
+label{font-size:.82rem;color:var(--muted);margin-bottom:3px;display:block;font-weight:600}
+textarea{resize:vertical;min-height:80px}
+
+.btn{padding:9px 18px;border-radius:8px;border:none;font-weight:700;cursor:pointer;font-size:.84rem;transition:.15s;font-family:inherit}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-dark)}
+.btn-green{background:var(--primary);color:#fff}
+.btn-green:hover{background:var(--primary-dark)}
+.btn-red{background:var(--red);color:#fff}
+.btn-outline{background:none;border:1px solid var(--border);color:var(--text)}
+.btn-outline:hover{border-color:var(--teal);color:var(--teal)}
+.btn-sm{padding:5px 11px;font-size:.78rem}
+
+.filter-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;align-items:end}
+.filter-bar>div{flex:1;min-width:130px}
+
+.plan-day{background:#fff;border-radius:var(--radius);padding:14px;border-left:4px solid var(--teal);border:1px solid var(--border);border-left:4px solid var(--teal)}
+.plan-day .day-label{font-size:.78rem;font-weight:700;color:var(--teal);text-transform:uppercase;margin-bottom:6px}
+.plan-day .recipe-name{font-weight:600;margin-bottom:4px;color:var(--text);cursor:pointer}
+.plan-day .recipe-name:hover{color:var(--coral)}
+.plan-day .remove-btn{background:none;border:none;color:var(--red);cursor:pointer;font-size:.78rem;font-weight:600}
+.plan-day .plan-actions{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.plan-day .plan-actions button{padding:3px 8px;font-size:.72rem;border-radius:6px;border:1px solid var(--border);background:#fff;cursor:pointer;font-weight:600;font-family:inherit;transition:.15s}
+.plan-day .plan-actions button:hover{border-color:var(--teal);color:var(--teal)}
+.plan-day .plan-actions .swap-btn{color:var(--coral);border-color:var(--coral-light)}
+.plan-day .plan-actions .swap-btn:hover{background:var(--coral-light);border-color:var(--coral)}
+.plan-history-btn{padding:5px 10px;font-size:.76rem;border-radius:6px;border:1px solid var(--border);background:#fff;cursor:pointer;font-weight:600;font-family:inherit;transition:.15s}
+.plan-history-btn:hover{border-color:var(--teal);color:var(--teal)}
+.plan-history-btn.active{background:var(--teal);color:#fff;border-color:var(--teal)}
+
+.chip-select{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:8px 18px;border-radius:999px;border:2px solid var(--border);background:#fff;cursor:pointer;font-weight:700;font-size:.88rem;font-family:inherit;transition:.15s;color:var(--text)}
+.chip:hover{border-color:var(--teal);color:var(--teal)}
+.chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+.slider-wrap{display:flex;align-items:center;gap:10px}
+.slider-wrap input[type=range]{flex:1;accent-color:var(--primary);height:6px}
+.slider-val{font-size:.82rem;font-weight:700;color:var(--primary);min-width:60px;text-align:right}
+
+.toggle-chip{display:inline-flex;align-items:center;cursor:pointer;margin:0}
+.toggle-chip input{display:none}
+.toggle-chip span{padding:7px 14px;border-radius:999px;border:2px solid var(--border);font-size:.82rem;font-weight:600;transition:.15s;background:#fff;color:var(--muted)}
+.toggle-chip input:checked+span{background:var(--primary);color:#fff;border-color:var(--primary)}
+.toggle-chip:hover span{border-color:var(--teal)}
+
+.shop-category{margin-bottom:14px}
+.shop-category h3{font-size:.88rem;color:var(--teal);border-bottom:2px solid var(--teal-light);padding-bottom:5px;margin-bottom:6px}
+.shop-item{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:.88rem}
+.shop-item input[type=checkbox]{accent-color:var(--teal);width:16px;height:16px}
+.shop-item.checked{text-decoration:line-through;opacity:.4}
+.shop-item .in-pantry{color:var(--green);font-size:.75rem;font-weight:600;margin-left:4px}
+
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:18px}
+.stat{background:#fff;border-radius:var(--radius);padding:14px;text-align:center;border:1px solid var(--border)}
+.stat .num{font-size:1.8rem;font-weight:800;color:var(--coral)}
+.stat .label{font-size:.72rem;color:var(--muted);margin-top:2px}
+
+.random-display{text-align:center;padding:40px 20px}
+.random-display h2{font-size:1.6rem;color:var(--coral)}
+.spin-btn{font-size:1rem;padding:12px 36px;margin-top:16px}
+
+.empty-state{text-align:center;padding:50px 20px;color:var(--muted)}
+.empty-state .icon{font-size:2.5rem;margin-bottom:10px}
+
+.overlap-badge{background:var(--teal);color:white;font-size:.68rem;padding:2px 6px;border-radius:4px;margin-left:4px}
+
+.toast{position:fixed;bottom:20px;right:20px;background:var(--teal);color:white;padding:10px 18px;border-radius:8px;font-weight:600;font-size:.88rem;z-index:300;opacity:0;transform:translateY(16px);transition:.25s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+
+.portion-toggle{display:flex;align-items:center;gap:6px}
+.portion-num{font-weight:700;font-size:1rem;min-width:18px;text-align:center}
+
+.bump{animation:bump .25s ease}
+@keyframes bump{0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
+
+.constraint-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.constraint-row label{margin:0;min-width:100px}
+.constraint-row input,.constraint-row select{width:70px;min-width:auto}
+
+.pantry-grid{columns:3;column-gap:14px}
+.pantry-category{break-inside:avoid;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.pantry-category h3{font-size:.88rem;color:var(--teal);border-bottom:2px solid var(--teal-light);padding-bottom:5px;margin-bottom:8px}
+.pantry-sub{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:10px 0 4px;padding-top:6px;border-top:1px solid var(--border)}
+.pantry-category h3+.pantry-sub{margin-top:4px;padding-top:0;border-top:none}
+
+.filing-binder{margin-bottom:24px}
+.filing-binder-header{background:var(--teal);color:#fff;padding:10px 16px;border-radius:var(--radius) var(--radius) 0 0;font-weight:800;font-size:.95rem;display:flex;justify-content:space-between;align-items:center}
+.filing-binder-header .count{font-weight:400;font-size:.82rem;opacity:.7}
+.filing-cat-header{background:var(--primary-light);color:var(--primary);padding:7px 16px;font-weight:700;font-size:.82rem;border-bottom:1px solid var(--border)}
+.filing-row{display:flex;align-items:center;gap:8px;padding:7px 12px;border-bottom:1px solid var(--border);background:#fff;font-size:.86rem;transition:background .15s}
+.filing-row:hover{background:var(--cream)}
+.filing-row.dragging{opacity:.4;background:var(--primary-light)}
+.filing-row.drag-over{border-top:2px solid var(--primary)}
+.filing-row .num{min-width:52px;font-weight:800;color:var(--teal);font-size:.82rem;white-space:nowrap}
+.filing-row .name{flex:1;cursor:pointer;font-weight:600;color:var(--text)}
+.filing-row .name:hover{color:var(--coral)}
+.filing-row .cat-pill{font-size:.68rem;padding:2px 8px;border-radius:999px;background:var(--warm);color:var(--muted);white-space:nowrap}
+.filing-row .new-badge{font-size:.68rem;padding:2px 8px;border-radius:999px;background:var(--coral);color:#fff;font-weight:700;animation:pulse 1.5s infinite}
+.filing-row .move-input{width:48px;padding:3px 6px;font-size:.78rem;text-align:center;border-radius:6px;border:1px solid var(--border)}
+.filing-row .drag-handle{cursor:grab;color:var(--muted);font-size:1rem;user-select:none;padding:0 4px}
+.filing-row .drag-handle:active{cursor:grabbing}
+.binder-ref{font-size:.68rem;font-weight:700;padding:2px 7px;border-radius:4px;background:var(--teal);color:#fff;white-space:nowrap;margin-right:2px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.pantry-item{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:.86rem;break-inside:avoid}
+.pantry-item input{accent-color:var(--teal);width:15px;height:15px}
+
+.saved-plan{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px}
+.saved-plan h3{color:var(--teal);font-size:.95rem;margin-bottom:4px}
+.saved-plan .sp-meals{font-size:.82rem;color:var(--muted);margin-bottom:6px}
+
+.upload-area{border:2px dashed var(--border);border-radius:var(--radius);padding:30px;text-align:center;cursor:pointer;transition:.15s;background:var(--cream)}
+.upload-area:hover{border-color:var(--teal);background:var(--teal-light)}
+.upload-area img{max-width:100%;max-height:400px;border-radius:8px;margin-top:10px}
+
+.add-form{display:grid;gap:10px}
+.add-form .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+@media(max-width:768px){
+  .filter-bar{flex-direction:column}.filter-bar>div{min-width:100%}
+  .grid2,.grid3{grid-template-columns:1fr}
+  .stat-grid{grid-template-columns:repeat(2,1fr)}
+  .container{padding:10px}
+  .pantry-grid{columns:2}
+  .add-form .row{grid-template-columns:1fr}
+  .constraint-row{flex-direction:column;align-items:stretch}
+  .constraint-row input,.constraint-row select{width:100%}
+}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+</style>
+</head>
+<body>
+<nav>
+<div class="nav-inner">
+  <div class="nav-logo"><b>gousto</b> planner</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('browse',this)">Browse</button>
+    <button class="nav-tab" onclick="showPage('plan',this)">Meal Plan</button>
+    <button class="nav-tab" onclick="showPage('pantry',this)">Pantry</button>
+    <button class="nav-tab" onclick="showPage('admin',this)">Admin</button>
+  </div>
+</div>
+</nav>
+
+<div class="container">
+
+<!-- BROWSE -->
+<div id="page-browse" class="page active">
+  <div style="display:flex;gap:6px;margin-bottom:14px">
+    <button class="btn btn-sm btn-green browse-tab active" onclick="showBrowseTab('all',this)">All Recipes</button>
+    <button class="btn btn-sm btn-outline browse-tab" onclick="showBrowseTab('favs',this)">Favourites</button>
+    <button class="btn btn-sm btn-outline browse-tab" onclick="showBrowseTab('plans',this)">Saved Plans</button>
+  </div>
+  <div id="browseAll">
+  <div class="card" style="margin-bottom:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <h2 style="margin:0">Browse Recipes</h2>
+      <button class="btn btn-primary" onclick="pickRandomModal()" style="display:flex;align-items:center;gap:6px">🎲 Pick Random</button>
+    </div>
+    <div style="margin-bottom:12px">
+      <input type="text" id="searchInput" placeholder="Search by name or ingredient..." oninput="renderBrowse()" style="font-size:.95rem;padding:11px 14px">
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px">
+      <div style="flex:1;min-width:140px">
+        <label>Cuisine</label>
+        <select id="filterCuisine" onchange="updateCascadingFilters();renderBrowse()"><option value="">All</option></select>
+      </div>
+      <div style="flex:1;min-width:140px">
+        <label>Country</label>
+        <select id="filterCountry" onchange="renderBrowse()"><option value="">All</option></select>
+      </div>
+      <div style="flex:1;min-width:100px">
+        <label>Sort</label>
+        <select id="sortBy" onchange="renderBrowse()">
+          <option value="name">Name A-Z</option><option value="name-desc">Z-A</option>
+          <option value="cal-asc">Calories ↑</option><option value="cal-desc">Calories ↓</option>
+          <option value="time-asc">Time ↑</option><option value="time-desc">Time ↓</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:16px;margin-bottom:12px">
+      <div style="flex:1;min-width:140px">
+        <label>Max Calories</label>
+        <div class="slider-wrap">
+          <input type="range" id="filterCal" min="300" max="900" value="900" step="50" oninput="document.getElementById('filterCalLabel').textContent=this.value>=900?'Any':this.value+' kcal';renderBrowse()">
+          <span class="slider-val" id="filterCalLabel">Any</span>
+        </div>
+      </div>
+      <div style="flex:1;min-width:140px">
+        <label>Max Cook Time</label>
+        <div class="slider-wrap">
+          <input type="range" id="filterTime" min="15" max="90" value="90" step="5" oninput="document.getElementById('filterTimeLabel').textContent=this.value>=90?'Any':this.value+' min';renderBrowse()">
+          <span class="slider-val" id="filterTimeLabel">Any</span>
+        </div>
+      </div>
+    </div>
+    <div style="margin-bottom:8px">
+      <label style="margin-bottom:6px">Filter</label>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        <label class="toggle-chip"><input type="checkbox" id="filterFreeze" onchange="renderBrowse()"><span>Freezable</span></label>
+        <label class="toggle-chip"><input type="checkbox" id="filterQuick" onchange="renderBrowse()"><span>Quick (≤25m)</span></label>
+        <label class="toggle-chip"><input type="checkbox" id="filterPrep5" onchange="renderBrowse()"><span>Prepped in 5</span></label>
+        <label class="toggle-chip"><input type="checkbox" id="filterFav" onchange="renderBrowse()"><span>Favourites</span></label>
+      </div>
+    </div>
+    <div id="filterSummary" style="font-size:.82rem;color:var(--muted)"></div>
+  </div>
+  <div id="browseCount" style="margin-bottom:10px;font-size:.82rem;color:var(--muted)"></div>
+  <div id="browseGrid" class="grid3"></div>
+  </div>
+  <div id="browseFavs" style="display:none">
+    <div id="favGrid" class="grid3"></div>
+    <div id="favEmpty" class="empty-state"><div class="icon">⭐</div><p>Star a recipe to save it here.</p></div>
+  </div>
+  <div id="browsePlans" style="display:none">
+    <div id="savedPlansGrid"></div>
+    <div id="savedPlansEmpty" class="empty-state"><div class="icon">📋</div><p>Save a meal plan to see it here.</p></div>
+  </div>
+</div>
+
+<!-- RANDOM -->
+<div id="page-random" class="page">
+  <div class="random-display">
+    <div id="randomResult"><div class="empty-state"><div class="icon">🎲</div><p>Click to pick a random recipe!</p></div></div>
+    <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;align-items:end">
+      <div><label>Cuisine</label><select id="randomCuisine" style="width:140px"><option value="">Any</option></select></div>
+      <div><label>Max Cal</label><input type="number" id="randomMaxCal" placeholder="Any" style="width:90px"></div>
+    </div>
+    <button class="btn btn-primary spin-btn" onclick="pickRandom()">Pick Random Recipe</button>
+  </div>
+</div>
+
+<!-- MEAL PLAN -->
+<div id="page-plan" class="page">
+  <div style="display:flex;gap:6px;margin-bottom:14px">
+    <button class="btn btn-sm btn-green plan-tab active" onclick="showPlanTab('builder',this)">Meal Plan</button>
+    <button class="btn btn-sm btn-outline plan-tab" onclick="showPlanTab('shopping',this)">Shopping List</button>
+  </div>
+  <div id="planBuilder">
+  <div class="card" style="margin-bottom:14px">
+    <h2>Smart Meal Plan Builder</h2>
+    <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px">Set your preferences and generate a plan that maximises shared ingredients to reduce your shopping list.</p>
+    <div style="margin-bottom:16px">
+      <label style="margin-bottom:8px">How many days?</label>
+      <div class="chip-select" id="planDaysChips">
+        <button class="chip" data-val="2">2</button>
+        <button class="chip" data-val="3">3</button>
+        <button class="chip" data-val="4">4</button>
+        <button class="chip" data-val="5">5</button>
+        <button class="chip" data-val="6">6</button>
+        <button class="chip active" data-val="7">7</button>
+        <button class="chip" data-val="14">14</button>
+      </div>
+      <input type="hidden" id="planDays" value="7">
+    </div>
+    <div style="margin-bottom:16px">
+      <label style="margin-bottom:8px">Portions per meal</label>
+      <div class="chip-select" id="planPortionsChips">
+        <button class="chip" data-val="1">1</button>
+        <button class="chip active" data-val="2">2</button>
+        <button class="chip" data-val="3">3</button>
+        <button class="chip" data-val="4">4</button>
+      </div>
+      <input type="hidden" id="planPortions" value="2">
+    </div>
+    <div style="margin-bottom:16px;max-width:300px">
+      <label style="margin-bottom:8px">Cuisine</label>
+      <select id="planCuisine"><option value="">Any</option></select>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:16px;margin-bottom:16px">
+      <div style="flex:1;min-width:140px">
+        <label style="margin-bottom:6px">Max Calories</label>
+        <div class="slider-wrap">
+          <input type="range" id="planMaxCal" min="300" max="900" value="900" step="50" oninput="document.getElementById('planMaxCalLabel').textContent=this.value>=900?'Any':this.value+' kcal'">
+          <span class="slider-val" id="planMaxCalLabel">Any</span>
+        </div>
+      </div>
+      <div style="flex:1;min-width:140px">
+        <label style="margin-bottom:6px">Max Cook Time</label>
+        <div class="slider-wrap">
+          <input type="range" id="planMaxTime" min="15" max="90" value="90" step="5" oninput="document.getElementById('planMaxTimeLabel').textContent=this.value>=90?'Any':this.value+' min'">
+          <span class="slider-val" id="planMaxTimeLabel">Any</span>
+        </div>
+      </div>
+    </div>
+    <div style="margin-bottom:16px">
+      <label style="margin-bottom:8px">Preferences</label>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <label class="toggle-chip"><input type="checkbox" id="cVaryProtein" checked><span>Vary proteins</span></label>
+        <label class="toggle-chip"><input type="checkbox" id="cFreeze"><span>Include freezable</span></label>
+        <label class="toggle-chip"><input type="checkbox" id="cPrep5"><span>Prepped in 5</span></label>
+        <label class="toggle-chip"><input type="checkbox" id="cQuick"><span>Quick meals (≤25m)</span></label>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-green" onclick="generatePlan()" style="padding:12px 28px;font-size:.95rem">Generate Smart Plan</button>
+      <button class="btn btn-outline" onclick="clearPlan()">Clear</button>
+      <button class="btn btn-primary btn-sm" onclick="savePlanAsFav()">Save Plan</button>
+    </div>
+  </div>
+  <div id="planInfo" style="margin-bottom:10px;font-size:.84rem;color:var(--muted)"></div>
+  <div id="planGrid" class="grid2"></div>
+  <div id="planEmpty" class="empty-state"><div class="icon">📅</div><p>Generate a meal plan above, or add recipes from Browse.</p></div>
+  <div id="planHistory" style="margin-top:20px;display:none">
+    <div class="card">
+      <h2 style="font-size:.95rem">Plan History</h2>
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:10px">Previously generated plans — click to restore.</p>
+      <div style="display:flex;gap:6px;flex-wrap:wrap" id="planHistoryBtns"></div>
+    </div>
+  </div>
+  </div>
+  <div id="planShopping" style="display:none">
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
+      <div class="portion-toggle">
+        <label style="margin:0">Portions:</label>
+        <button class="btn btn-sm btn-outline" onclick="changePortion(-1)">−</button>
+        <span class="portion-num" id="portionNum">2</span>
+        <button class="btn btn-sm btn-outline" onclick="changePortion(1)">+</button>
+      </div>
+      <label style="margin:0;display:flex;align-items:center;gap:4px"><input type="checkbox" id="hidePantry" onchange="renderShopping()" style="width:auto;accent-color:var(--teal)"> Hide pantry items</label>
+      <button class="btn btn-outline btn-sm" onclick="copyShoppingList()">Copy List</button>
+      <button class="btn btn-outline btn-sm" onclick="exportShoppingPDF()">Save as PDF</button>
+      <button class="btn btn-outline btn-sm" onclick="shareToNotes()">Share to Notes</button>
+      <button class="btn btn-outline btn-sm" onclick="uncheckAll()">Uncheck All</button>
+    </div>
+    <div id="shoppingContent"></div>
+    <div id="shoppingEmpty" class="empty-state"><div class="icon">🛒</div><p>Add recipes to your meal plan to generate a shopping list.</p></div>
+  </div>
+</div>
+
+<!-- PANTRY -->
+<div id="page-pantry" class="page">
+  <div class="card" style="margin-bottom:14px">
+    <h2>My Pantry</h2>
+    <p style="font-size:.85rem;color:var(--muted);margin-bottom:10px">Tick ingredients you have at home. These will be highlighted on your shopping list so you know what you already have.</p>
+    <input type="text" id="pantrySearch" placeholder="Search ingredients..." oninput="renderPantry()" style="margin-bottom:12px">
+  </div>
+  <div id="pantryGrid" class="pantry-grid"></div>
+</div>
+
+<!-- ADMIN -->
+<div id="page-admin" class="page">
+  <div style="display:flex;gap:6px;margin-bottom:14px">
+    <button class="btn btn-sm btn-green admin-tab active" onclick="showAdminTab('recipes',this)">Recipes</button>
+    <button class="btn btn-sm btn-outline admin-tab" onclick="showAdminTab('stats',this)">Stats</button>
+  </div>
+  <div id="adminRecipes">
+    <div class="card" style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <div>
+          <h2 style="margin:0">Recipes</h2>
+          <p style="font-size:.85rem;color:var(--muted);margin-top:4px">Organise your recipe cards across two binders. Drag to reorder, or use the move button.</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="openAddRecipeModal()">+ Add Recipe</button>
+          <button class="btn btn-green" onclick="autoSortFiling()">Auto-Sort</button>
+          <button class="btn btn-outline" onclick="clearNewFlags()">Clear New Flags</button>
+        </div>
+      </div>
+    </div>
+    <div id="filingList"></div>
+  </div>
+  <div id="adminStats" style="display:none">
+    <div class="stat-grid" id="statsGrid"></div>
+    <div class="grid2" style="margin-top:14px">
+      <div class="card"><h2>Recipes by Cuisine</h2><div id="statsCuisine"></div></div>
+      <div class="card"><h2>Recipes by Country</h2><div id="statsCountry"></div></div>
+      <div class="card"><h2>Calorie Distribution</h2><div id="statsCal"></div></div>
+      <div class="card"><h2>Cook Time Distribution</h2><div id="statsTime"></div></div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="modal-overlay" id="recipeModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal"><button class="close" onclick="closeModal()">&times;</button><div id="modalContent"></div></div>
+</div>
+<div class="modal-overlay" id="addRecipeModal" onclick="if(event.target===this)closeAddRecipeModal()">
+  <div class="modal" style="max-width:800px">
+    <button class="close" onclick="closeAddRecipeModal()">&times;</button>
+    <h2>Add New Recipe</h2>
+    <div class="grid2" style="gap:16px">
+      <div>
+        <div class="upload-area" onclick="document.getElementById('cardUpload').click()" id="uploadArea" style="margin-bottom:14px">
+          <input type="file" id="cardUpload" accept="image/*" style="display:none" onchange="previewCard(this)">
+          <p style="color:var(--muted)">Click to upload a recipe card image</p>
+          <div id="cardPreview"></div>
+        </div>
+      </div>
+      <div class="add-form">
+        <div><label>Recipe Name</label><input type="text" id="addName" placeholder="e.g. Creamy Chicken Pesto Orzo"></div>
+        <div class="row">
+          <div><label>Country/Region</label><input type="text" id="addCountry" placeholder="e.g. Italy"></div>
+          <div><label>Cuisine Type</label><input type="text" id="addCuisine" placeholder="e.g. pasta"></div>
+        </div>
+        <div class="row">
+          <div><label>Cook Time (min)</label><input type="number" id="addTime" placeholder="30"></div>
+          <div><label>Calories (per person)</label><input type="number" id="addCal" placeholder="650"></div>
+        </div>
+        <div class="row">
+          <div><label>Notes</label><input type="text" id="addNotes" placeholder="e.g. Prepped in 5"></div>
+          <div style="display:flex;gap:14px;align-items:end;padding-bottom:4px">
+            <label style="display:flex;align-items:center;gap:4px;margin:0"><input type="checkbox" id="addFreeze" style="width:auto"> Freezable</label>
+            <label style="display:flex;align-items:center;gap:4px;margin:0"><input type="checkbox" id="addBulk" style="width:auto"> Bulk</label>
+          </div>
+        </div>
+        <div><label>Ingredients (one per line, include quantities)</label>
+          <textarea id="addIngredients" rows="6" placeholder="Chicken breast strips 250g&#10;Garlic clove 2&#10;Orzo 150g&#10;Spinach 80g"></textarea>
+        </div>
+        <button class="btn btn-green" onclick="addRecipe()">Add Recipe</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const BASE_RECIPES=JSON.parse('[{"i":["Baby leaf salad 50g","Balsamic vinegar 15ml","Brown onion 1","Chicken stock mix (intense) 5.5g","Chinese rice wine 15ml","Cornish clotted cream 40g","Fennel seeds 1tsp","Garlic clove 2","Grated Italian hard cheese 30g","Mafaldine 200g","Red chilli 1","Sausage meat 150g"],"n":"Creamy Fennel Sausage & Chilli Ragù With Mafaldine","c":"Italy","t":"pasta","m":30,"k":744,"o":"","f":0,"b":1},{"i":["Butternut squash cubes 160g","Chicken stock mix 5.5g","Diced chorizo 100g","Farfalle 2x100g","Garlic clove 1","Shallot 1","Soft cheese 2x50g"],"n":"Creamy Chorizo & Butternut Squash Farfalle","c":"Spain","t":"pasta","m":30,"k":715,"o":"Everyday Favourites","f":0,"b":0},{"i":["Chicken stock mix (intense) 5.5g","Chinese rice wine 15ml","Cracked black pepper 2.5g","Dried bay leaves 1","Fresh orecchiette 250g","Garlic clove 1","Grated Italian hard cheese 30g","Saffron 1pkt","Sausage meat 150g","Tomato paste 2x16g"],"n":"Sausage & Saffron Ragù With Fresh Orecchiette","c":"Italy","t":"pasta","m":20,"k":636,"o":"Pasta Pronto","f":0,"b":0},{"i":["Balsamic sun-dried tomato paste 30g","Chicken stock mix (intense) 5.5g","Diced chicken thigh 250g","Fresh orecchiette 250g","Garlic clove 2","Grated Italian hard cheese 30g","Pepper 1","Shallot 1","Tomato paste 32g"],"n":"Chicken Thigh Cacciatora-Style Sauce With Fresh Orecchiette","c":"Italy","t":"pasta","m":20,"k":689,"o":"Pasta Pronto","f":0,"b":0},{"i":["Chicken stock mix 11g","Fennel seeds 1tsp","Fresh orecchiette 250g","Garlic clove 1","Grated Italian hard cheese 30g","Leek 1","Sausage meat 150g","Soft cheese 50g"],"n":"Sausage, Leek & Fennel Sauce With Fresh Orecchiette","c":"Italy","t":"pasta","m":20,"k":725,"o":"Pasta Pronto","f":0,"b":0},{"i":["Bacon lardons 100g","Basil 5g","Blanched peas 160g","Fresh orecchiette 250g","Garlic clove 2","Grated Italian hard cheese 30g"],"n":"Creamy Bacon & Pea Sauce With Fresh Orecchiette","c":"Italy","t":"pasta","m":20,"k":581,"o":"Pasta Pronto","f":0,"b":0},{"i":["Conchiglie 200g","Cornish clotted cream 2x40g","Dried chilli flakes 0.5tsp","Garlic clove 2","Gochujang paste 30g","Raw peeled king prawns 171g","Spinach 80g","Tomato paste 32g","Vegetable stock mix 5.5g"],"n":"Creamy Korean King Prawn Rose Pasta","c":"South Korea","t":"pasta","m":25,"k":717,"o":"","f":0,"b":0},{"i":["Beef stock mix (intense) 5.5g","Fennel seeds 1tsp","Finely chopped tomatoes 200g","Garlic clove 3","Italian hard cheese 20g","Parsley 5g","Pork mince 250g","Red wine paste 10g","Shallot 1","Tomato paste 32g","Tortiglioni 200g"],"n":"Pork, Fennel & Red Wine Ragu With Tortiglioni","c":"Italy","t":"pasta","m":30,"k":654,"o":"","f":1,"b":1},{"i":["Brown onion 1","Carrot 1","Chicken stock mix (intense) 5.5g","Diced pork shoulder 250g","Dried oregano 1tsp","Finely chopped tomatoes 200g","Garlic clove 2","Grated Italian hard cheese 30g","Henderson\\u0027s Relish 15ml","Soy sauce 15ml","Tomato paste 16g","Tortiglioni 200g"],"n":"One Pot Pork Shoulder Ragu","c":"Italy","t":"pasta","m":70,"k":689,"o":"Prepped in 5","f":1,"b":1},{"i":["Chicken stock mix 5.5g","Garlic clove 3","Gochujang paste 30g","Grated Italian hard cheese 30g","Leek 1","Sausage meat 150g","Soft cheese 50g","Spinach 80g","Spring onion 1","Tortiglioni 200g"],"n":"Creamy Gochujang Sausage & Leek Tortiglioni","c":"South Korea","t":"pasta","m":30,"k":753,"o":"","f":0,"b":0},{"i":["Basil 10g","Cheddar cheese 40g","Chicken breast strips 250g","Chicken stock mix 5.5g","Red onion 1","Soft cheese 50g","Spinach 80g","Traditional Italian pesto 45g","Wholewheat tortiglioni 2x75g"],"n":"Creamy Chicken & Pesto Wholewheat Tortiglioni With Basil","c":"Italy","t":"pasta","m":30,"k":693,"o":"","f":0,"b":0},{"i":["Chicken stock mix (intense) 5.5g","Dried chilli flakes 0.5tsp","Finely chopped tomatoes 200g","Fresh tagliatelle 250g","Garlic clove 1","Grated Italian hard cheese 30g","Sausage meat 150g","Soft cheese 50g","Spinach 80g"],"n":"Spicy Sausage & Creamy Tomato Sauce With Fresh Tagliatelle","c":"Italy","t":"pasta","m":20,"k":700,"o":"Pasta Pronto","f":0,"b":0},{"i":["Beef stock mix 5.5g","Dried basil 1tsp","Dried oregano 1tsp","Fresh tagliatelle 250g","Garlic clove 1","Grated Italian hard cheese 30g","Pork & beef mince 250g","Soy sauce 8ml","Tomato 1","Tomato paste 32g"],"n":"Pork & Beef Bolognese Ragù Sauce With Fresh Tagliatelle","c":"Italy","t":"pasta","m":20,"k":690,"o":"Pasta Pronto","f":1,"b":1},{"i":["\\u0027Nduja 40g","Baby leaf salad 50g","Balsamic vinegar 15ml","Cherry tomatoes 125g","Chicken stock mix (intense) 5.5g","Chinese rice wine 15ml","Fresh tagliatelle 250g","Grated Italian hard cheese 30g","Soft cheese 50g","Tomato paste 32g","Traditional Italian pesto 45g"],"n":"Spicy \\u0027Nduja & Pesto Ragù With Fresh Tagliatelle","c":"Italy","t":"pasta","m":20,"k":750,"o":"Pasta Pronto","f":0,"b":0},{"i":["Bacon lardons 100g","Basil 10g","Brown onion 1","Cherry tomatoes 125g","Chicken stock mix 5.5g","Dried chilli flakes 0.5tsp","Dried oregano 1tsp","Garlic clove 2","Grated Italian hard cheese 30g","Spaghetti 190g","Tomato paste 32g"],"n":"Spaghetti Amatriciana With Crispy Bacon","c":"Italy","t":"pasta","m":40,"k":569,"o":"","f":0,"b":0},{"i":["Chicken breast portion 2","Chicken stock mix (intense) 5.5g","Dried oregano 1tsp","Finely chopped tomatoes 200g","Garlic clove 2","Italian hard cheese 20g","Panko breadcrumbs 40g","Spaghetti 190g","Tomato paste 32g"],"n":"Chicken Milanese & Spaghetti Pomodoro","c":"Italy","t":"pasta","m":40,"k":640,"o":"","f":0,"b":0},{"i":["Beef stock mix (intense) 5.5g","Dried chilli flakes 0.5tsp","Dried oregano 1tsp","Grated Italian hard cheese 30g","Lamb mince 250g","Red wine paste 10g","Roasted garlic paste 15g","Shallot 1","Spaghetti 190g","Tomato paste 32g"],"n":"Spicy Sardinian-Style Lamb & Chilli Spaghetti","c":"Italy","t":"pasta","m":20,"k":695,"o":"10-Minute","f":0,"b":0},{"i":["Black olives 40g","Capers 20g","Dried chilli flakes 0.5tsp","Finely chopped tomatoes 200g","Garlic clove 1","Linguine 190g","Red onion 1","Smoked mackerel fillet 1","Tomato paste 32g"],"n":"Smoked Mackerel Puttanesca With Crispy Capers","c":"Italy","t":"pasta","m":35,"k":536,"o":"","f":0,"b":0},{"i":["Chestnut mushrooms 80g","Chicken stock mix (intense) 5.5g","Crème fraîche 80g","Garlic clove 1","Ground smoked paprika 2tsp","Linguine 190g","Red onion 1","Skinless chicken thighs 320g","Thyme 5g"],"n":"Creamy Chicken Thigh & Mushroom Stroganoff","c":"Russia","t":"pasta","m":45,"k":707,"o":"","f":0,"b":0},{"i":["Baby leaf salad 50g","Balsamic vinegar 15ml","Blanched peas 160g","Cheddar cheese 2x40g","Cornflour 1tsp","Crispy onions 15g","Garlic clove 2","Macaroni 150g","Parsley & tarragon pesto 40g","Sliced prosciutto 52g","Soft cheese 50g"],"n":"One Pot Prosciutto & Tarragon Spring Mac \\u0027N\\u0027 Cheese","c":"USA","t":"pasta","m":30,"k":772,"o":"","f":0,"b":0},{"i":["Baby leaf salad 50g","Beef stock mix (intense) 5.5g","Brown onion 1","Cheddar cheese 40g","Garlic clove 1","Grated Italian hard cheese 30g","Macaroni 150g","Mustard ketchup 20g","Pork & beef mince 250g","Tomato 1","Tomato ketchup 30ml","Tomato paste 32g"],"n":"One Pot Pork & Beef \\u0027Cheeseburger\\u0027 Macaroni","c":"USA","t":"pasta","m":45,"k":729,"o":"Prepped in 5","f":0,"b":1},{"i":["Cheddar cheese 2x40g","Conchiglie 200g","Diced chorizo 100g","Finely chopped tomatoes 200g","Garlic clove 1","Soft cheese 50g","Spinach 120g"],"n":"Chorizo, Conchiglie & Spinach Pasta Bake","c":"Spain","t":"pasta bake","m":40,"k":825,"o":"","f":1,"b":1},{"i":["Balsamic vinegar 15ml","Beef stock mix (intense) 5.5g","Brown onion 1","Cheddar cheese 40g","Dried oregano 1tsp","Garlic clove 1","Ground cinnamon 0.5tsp","Lamb mince 250g","Rocket 50g","Tomato paste 32g","Tortiglioni 150g"],"n":"Greek-Style Lamb Pastitsio Bake With Salad","c":"Greece","t":"pasta bake","m":55,"k":637,"o":"","f":0,"b":0},{"i":["Chestnut mushrooms 160g","Chicken stock mix (intense) 5.5g","Chinese rice wine 15ml","Crème fraîche 80g","Dijon mustard 5.5g","Garlic clove 3","Italian hard cheese 20g","Orzo 150g","Sausage meat 150g","Spinach 80g"],"n":"One Pan Creamy Sausage, Mushroom & Spinach Orzo","c":"Italy","t":"orzo","m":35,"k":613,"o":"One Pan Wonders","f":0,"b":0},{"i":["Chicken stock mix (intense) 5.5g","Courgette 1","Dried basil 1tsp","Garlic clove 2","Italian hard cheese 20g","Orzo 150g","Pork mince 250g","Rocket 20g","Soft cheese 50g","Traditional Italian pesto 45g"],"n":"One Pan Basil Pork Meatballs With Creamy Pesto Orzo","c":"Italy","t":"orzo","m":40,"k":768,"o":"One Pan Wonders","f":0,"b":0},{"i":["Chicken stock mix (intense) 5.5g","Courgette 1","Dried basil 1tsp","Garlic clove 2","Italian hard cheese 20g","Orzo 150g","Parsley & tarragon pesto 40g","Pork mince 250g","Rocket 20g","Soft cheese 50g"],"n":"One Pan Basil Pork Meatballs With Creamy Tarragon Pesto Orzo","c":"Italy","t":"orzo","m":40,"k":750,"o":"One Pan Wonders","f":0,"b":0},{"i":["Cheddar cheese 2x40g","Chicken stock mix (intense) 5.5g","Garlic clove 1","Leek 1","Orzo 150g","Parsley 5g","Skin-on chicken thighs 320g","White cup mushrooms 160g"],"n":"Crispy Chicken With Mushroom & Parsley Orzo","c":"UK","t":"orzo","m":55,"k":779,"o":"","f":0,"b":0},{"i":["Basil 10g","Blanched peas 160g","Chicken breast strips 250g","Chicken stock mix (intense) 5.5g","Dried chilli flakes 1tsp","Flaked almonds 15g","Garlic clove 1","Italian hard cheese 20g","Orzo 150g","Spinach 80g"],"n":"Chicken & Pea Pesto Orzo With Chilli Oil","c":"Italy","t":"orzo","m":40,"k":564,"o":"Family Kitchen","f":0,"b":0},{"i":["Basil 10g","Cherry tomatoes 250g","Chicken breast portion 2","Chicken stock mix (intense) 5.5g","Garlic clove 1","Orzo 150g","Red wine vinegar 15ml"],"n":"Garlicky Chicken With Tomato & Green Butter Orzo","c":"UK","t":"orzo","m":45,"k":436,"o":"","f":0,"b":0},{"i":["Basil 5g","Cheddar cheese 40g","Chicken breast portion 2","Chicken stock mix (intense) 5.5g","Garlic clove 1","Orzo 150g","Red onion 1","Red pepper 1","Sun-dried tomato pesto 45g","Tomato paste 16g"],"n":"One Pot Pulled Chicken, Red Pepper & Pesto Orzo","c":"Italy","t":"orzo","m":35,"k":614,"o":"","f":0,"b":0},{"i":["Cheddar cheese 40g","Chicken stock mix (intense) 5.5g","Crème fraîche 80g","Diced chicken breast 250g","Orzo 150g","Sun-dried tomato pesto 45g","Sweet pointed pepper 1","Tomato paste 16g"],"n":"Creamy Red Pesto Chicken Orzo","c":"Italy","t":"orzo","m":20,"k":667,"o":"10-Minute","f":0,"b":0},{"i":["Brown onion 1","Chicken stock mix (intense) 5.5g","Garlic clove 2","Lemon 1","Orzo 150g","Parsley & mint 10g","Seasoned chicken mince 250g","Soft cheese 50g","Spinach 120g"],"n":"Herby Chicken Meatballs with Creamy Lemon Orzo","c":"UK","t":"orzo","m":30,"k":506,"o":"Delish & Healthy-ish","f":0,"b":0},{"i":["5 bean medley 240g","Chicken stock mix (intense) 5.5g","Dried oregano 1tsp","Garlic clove 3","Ground smoked paprika 2tsp","Orzo 100g","Pork mince 250g","Romesco sauce 40g","Spinach 80g","Tomato paste 32g"],"n":"Romesco Pork Meatballs, Orzo & Five Bean Stew","c":"Spain","t":"stew","m":35,"k":663,"o":"Fibre Fix","f":1,"b":1},{"i":["Beef stock mix 11g","Cannellini beans 390g","Diced pork shoulder 250g","Dried oregano 1tsp","Finely chopped tomatoes 200g","Garlic clove 2","Ground paprika 2tsp","Ground sumac 1tsp","Natural yoghurt 80g","Orzo 75g","Red onion 1","Red wine paste 10g","Soy sauce 8ml","White wine vinegar 15ml"],"n":"Greek-Style Red Wine Pork, Orzo & Bean Stew","c":"Greece","t":"stew","m":65,"k":551,"o":"Fibre Fix","f":1,"b":1},{"i":["Cherry tomatoes 125g","Garlic clove 2","Greek salad cheese 100g","Harissa paste 20g","Honey 25g","Orzo 150g","Parsley 5g","Red onion 1","Red pepper 1","Red wine paste 10g","Tomato paste 16g"],"n":"Baked Harissa & Red Wine Orzo With Honey Greek Cheese (V)","c":"Greece","t":"orzo","m":40,"k":509,"o":"","f":0,"b":0},{"i":["Arborio rice 160g","Bacon lardons 100g","Balsamic vinegar 15ml","Brown onion 1","Cherry tomatoes 125g","Chicken stock mix (intense) 5.5g","Chinese rice wine 15ml","Free range egg 2","Garlic clove 2","Grated pecorino cheese 30g","Rocket 20g"],"n":"Creamy Carbonara Risotto With Balsamic Tomatoes","c":"Italy","t":"risotto","m":50,"k":575,"o":"","f":0,"b":0},{"i":["Arborio rice 160g","Bacon lardons 100g","Brown onion 1","Chestnut mushrooms 160g","Chinese rice wine 15ml","Garlic clove 1","Grated Italian hard cheese 30g","Parsley 5g","Vegetable stock mix 11g"],"n":"Easy Mushroom Risotto With Crispy Bacon","c":"Italy","t":"risotto","m":35,"k":488,"o":"","f":0,"b":0},{"i":["Arborio rice 160g","Butternut squash cubes 160g","Chicken stock mix (intense) 5.5g","Dried sage 1tsp","Garlic clove 1","Grated Italian hard cheese 30g","Shallot 1","Smoked streaky bacon 90g"],"n":"Creamy Bacon & Butternut Squash Risotto","c":"Italy","t":"risotto","m":50,"k":508,"o":"","f":0,"b":0},{"i":["Arborio rice 160g","Brown onion 1","Cheddar cheese 40g","Chestnut mushrooms 160g","Chicken breast strips 250g","Chicken stock mix (intense) 5.5g","Garlic clove 2","Soft cheese 50g","Thyme 5g"],"n":"Creamy Chicken, Mushroom & Thyme Risotto","c":"Italy","t":"risotto","m":45,"k":595,"o":"","f":0,"b":0},{"i":["Brown onion 1","Chicken stock mix (intense) 5.5g","Cornish clotted cream 40g","Diced chicken thigh 250g","Dijon mustard 5.5g","Gnocchi 350g","Parsley 5g","Sweetcorn 150g"],"n":"One Pan Creamy Mustard Chicken Thigh & Corn Gnocchi","c":"UK","t":"gnocchi","m":35,"k":663,"o":"One Pan Wonders","f":0,"b":0},{"i":["Carrot 1","Chicken stock mix 5.5g","Diced chicken thigh 250g","Garlic clove 1","Gnocchi 350g","Leek 1","Soft cheese 50g","Spring greens 150g"],"n":"Simple Chicken Thigh, Leek & Gnocchi Bake","c":"Italy","t":"gnocchi","m":50,"k":596,"o":"","f":0,"b":0},{"i":["Chicken stock mix 5.5g","Feta 30g","Garlic clove 2","Ground turmeric 0.5tsp","Harissa paste 20g","Lamb mince 250g","Shallot 1","Tomato 1","Tomato paste 32g","White potato 3"],"n":"Harissa Lamb Meatballs With Turmeric Mash And Feta","c":"North Africa","t":"meatballs","m":40,"k":469,"o":"","f":0,"b":0},{"i":["Beef stock mix 5.5g","Bulgur wheat 130g","Carrot 1","Dried oregano 1tsp","Finely chopped tomatoes 200g","Greek salad cheese 100g","Lamb mince 250g","Parsley 5g","Red onion 1"],"n":"Greek-Style Lamb Meatball Bake With Bulgur And Greek Cheese","c":"Greece","t":"meatballs","m":60,"k":656,"o":"","f":0,"b":0},{"i":["Bulgur wheat 130g","Cherry tomatoes 250g","Dill 5g","Garlic clove 2","Ground sumac 1tsp","Harissa paste 40g","Lamb mince 250g","Natural yoghurt 80g"],"n":"Turkish-Style Harissa Lamb With Herbed Bulgur","c":"Turkey","t":"lamb dish","m":30,"k":578,"o":"","f":0,"b":0},{"i":["Beef mince 250g","Beef stock mix 5.5g","Carrot 1","Cider vinegar 15ml","Garlic clove 2","Gem lettuce 1","Ground cumin 1tsp","Ground sumac 1tsp","Ground turmeric 0.5tsp","Harissa paste 20g","Natural yoghurt 80g","Plain tortillas 6","Red onion 1","Tomato 1"],"n":"Beef Kofte Wraps With Pickled Salad And Sumac Yoghurt","c":"Turkey","t":"wraps","m":50,"k":715,"o":"Prepped in 5","f":0,"b":0},{"i":["Beef mince 250g","Brown onion 1","Cornflour 1tsp","Garlic clove 1","Gravy base 14g","Onion marmalade 20g","Tenderstem broccoli 160g","Tomato paste 16g","White potato 3"],"n":"Saucy Onion Gravy Beef Meatballs & Crushed Potatoes","c":"UK","t":"meatballs","m":25,"k":504,"o":"Prepped in 5","f":0,"b":0},{"i":["Beef stock mix (intense) 5.5g","Carrot 1","Crispy onions 15g","Diced beef 200g","Dried bay leaves 2","Dried thyme 0.5tsp","Garlic clove 2","Red wine paste 10g","Shallot 2","Tomato paste 32g","White potato 3"],"n":"Beef Bourguignon With Creamy Mash","c":"France","t":"stew","m":80,"k":368,"o":"Prepped in 5","f":1,"b":1},{"i":["Beef stock mix 11g","Carrot 2","Diced beef 200g","Dried bay leaves 2","Dried thyme 0.5tsp","Garlic clove 3","Parsley 5g","Red wine paste 10g","Shallot 2","Tomato paste 32g","White potato 3"],"n":"Beef Bourguignon with Mash","c":"France","t":"stew","m":85,"k":420,"o":"Prepped in 5","f":1,"b":1},{"i":["Beef stock mix (intense) 5.5g","Dried bay leaves 1","Dried thyme 0.5tsp","Garlic clove 2","Parsley 5g","Red wine paste 10g","Shallot 3","Skinless chicken thighs 320g","Tomato paste 32g","White cup mushrooms 80g","White potato 3"],"n":"Oven Baked Coq Au Vin With Buttery Crushed Potatoes","c":"France","t":"stew","m":55,"k":423,"o":"Prepped in 5","f":0,"b":0},{"i":["Chicken stock mix (intense) 5.5g","Cooked white long grain rice 280g","Cornflour 1tsp","Diced chicken thigh 250g","Dried thyme 0.5tsp","Green lentils 185g","Roasted garlic paste 15g","Soft cheese 50g","Spinach 80g","Wholegrain mustard 21g"],"n":"French-Style Mustard & Garlic Chicken With Rice","c":"France","t":"rice dish","m":20,"k":644,"o":"10-Minute","f":0,"b":0},{"i":["Blanched peas 160g","Chicken stock mix (intense) 5.5g","Chinese rice wine 15ml","Garlic clove 2","Skinless chicken thighs 320g","Soft cheese 50g","White cup mushrooms 80g","White potato 3"],"n":"One Pot Creamy Chicken Thigh & Vegetable Fricassée","c":"France","t":"stew","m":45,"k":516,"o":"Prepped in 5","f":0,"b":0},{"i":["Blanched broad beans 160g","Brown onion 1","Chicken stock mix 5.5g","Diced chicken thigh 250g","Fine green beans 80g","Garlic clove 2","Waxy potatoes 350g","Wild garlic paste 40g"],"n":"Creamy Wild Garlic Chicken Stew With Waxy Potatoes","c":"UK","t":"stew","m":20,"k":447,"o":"","f":0,"b":0},{"i":["Chantenay carrots 160g","Chicken stock mix 11g","Diced chicken thigh 250g","Dried cranberries 30g","Dried thyme 0.5tsp","Roasted garlic paste 15g","Soft cheese 50g","Spinach 80g","Waxy potatoes 350g"],"n":"Creamy Chicken & Cranberry Stew With Crushed Potatoes","c":"UK","t":"stew","m":20,"k":430,"o":"The Christmas Express","f":0,"b":0},{"i":["Carrot 2","Cheddar cheese 40g","Chicken breast portion 2","Chicken stock mix 5.5g","Dried sage 1tsp","Leek 1","Marmite 8g","Onion marmalade 20g","Panko breadcrumbs 40g","White potato 3"],"n":"Stuffing Crusted Chicken With Buttery Veg And Onion Gravy","c":"UK","t":"traybake","m":60,"k":523,"o":"The Christmas Express","f":0,"b":0},{"i":["Chicken breast portion 2","Crème fraîche 0.5x80g","Fine green beans 160g","Lemon 1","White potato 4"],"n":"Venetian-Style Chicken Scaloppine With Crispy Potatoes","c":"Italy","t":"pan-fried chicken","m":45,"k":364,"o":"Everyday Favourites","f":0,"b":0},{"i":["Blanched peas 160g","Chicken stock mix 11g","Dried sage 1tsp","Garlic clove 1","Pork loin steaks 300g","Shallot 1","Soft cheese 50g","White potato 3"],"n":"Pork Scaloppine With Creamy Sauce & Crackling Mash","c":"Italy","t":"pan-fried pork","m":50,"k":593,"o":"","f":0,"b":0},{"i":["Chinese rice wine 15ml","Cracked black pepper 2.5g","Dijon mustard 5.5g","Fine green beans 160g","Pork loin steaks 300g","Shallot 1","Soft cheese 50g","Waxy potatoes 350g"],"n":"Pork Loin With Crushed Potatoes And Peppercorn Sauce","c":"France","t":"pan-fried pork","m":45,"k":545,"o":"","f":0,"b":0},{"i":["Brown onion 1","Chicken stock mix (intense) 5.5g","Chinese rice wine 15ml","Diced pork shoulder 250g","Fine green beans 80g","Garlic clove 2","Grated pecorino cheese 30g","Soft cheese 50g","White potato 4"],"n":"Pork Shoulder Ragù Bianco With Pecorino Mash & Green Beans","c":"Italy","t":"stew","m":70,"k":537,"o":"Cucina Paradiso","f":1,"b":1},{"i":["Bacon lardons 100g","Chestnut mushrooms 160g","Chicken stock mix 5.5g","Cornflour 1tsp","Diced chicken breast 250g","Fine green beans 160g","Onion marmalade 40g","Parsley 5g","Soft cheese 50g","Waxy potatoes 350g"],"n":"Creamy Chicken, Bacon & Mushroom Stew","c":"UK","t":"stew","m":20,"k":506,"o":"10-Minute","f":0,"b":0},{"i":["Beef stock mix 5.5g","Carrot 2","Fine green beans 80g","Onion marmalade 20g","Proper Porker sausages 6","Red onion 1","White potato 4"],"n":"Extra Special Bangers \\u0027N\\u0027 Mash","c":"UK","t":"sausages","m":45,"k":698,"o":"Everyday Favourites","f":0,"b":0},{"i":["Coriander & parsley 10g","Dried chilli flakes 0.5tsp","Ground coriander 1tsp","Ground smoked paprika 2tsp","Honey 25g","Lime 1","Natural yoghurt 80g","Red onion 1","Pepper 1","Skinless chicken thighs 320g","Smoked sea salt flakes 1g","Sultanas 30g","White long grain rice 130g","White wine vinegar 15ml"],"n":"Spiced Honey Chicken Thigh With Green Harissa, Yoghurt And Rice","c":"North Africa","t":"rice dish","m":30,"k":662,"o":"","f":0,"b":0},{"i":["Beef stock mix (intense) 5.5g","Finely chopped tomatoes 200g","Garlic clove 2","Harissa paste 20g","Lamb mince 250g","Natural yoghurt 80g","Ras el hanout 1tbsp","Red onion 1","Red wine vinegar 15ml","White long grain rice 130g","Wholemeal pittas 2"],"n":"Oven Baked Spicy Lamb Stew With Pickled Onion, Rice & Pitta","c":"Middle East","t":"stew","m":55,"k":730,"o":"Prepped in 5","f":1,"b":1},{"i":["Beef stock mix 2x5.5g","Brown onion 1","Carrot 1","Cornflour 1tbsp","Diced beef 200g","Pepper 1","Ground smoked paprika 2tsp","Henderson\\u0027s Relish 15ml","Soured cream 80g","Tomato paste 32g","White basmati rice 130g"],"n":"Oven Baked Beef Goulash With Basmati Rice And Soured Cream","c":"Hungary","t":"stew","m":75,"k":549,"o":"Prepped in 5","f":1,"b":1},{"i":["Chicken stock mix (intense) 5.5g","Cooked white long grain rice 280g","Diced chicken thigh 250g","Dijon mustard 5.5g","Ground smoked paprika 2tsp","Henderson\\u0027s Relish 15ml","Soured cream 80g","Spinach 80g","White cup mushrooms 80g"],"n":"Chicken Thigh & Mushroom Stroganoff","c":"Russia","t":"rice dish","m":20,"k":536,"o":"10-Minute","f":0,"b":0},{"i":["Brown onion 1","Cannellini beans 390g","Chicken breast portion 2","Chicken stock mix (intense) 5.5g","Garlic clove 2","Oats 50g","Parsley & tarragon pesto 40g","Soft cheese 50g","Spinach 80g"],"n":"Oat Crusted Chicken With Creamy Tarragon Cannellini Beans","c":"France","t":"pan-fried chicken","m":40,"k":516,"o":"Fibre Fix","f":0,"b":0},{"i":["Blanched peas 160g","Chicken stock mix (intense) 5.5g","Dijon mustard 18g","Dill 5g","Dried cranberries 30g","Henderson\\u0027s Relish 15ml","Panko breadcrumbs 20g","Pork mince 250g","Redcurrant jelly 25g","White potato 4"],"n":"Swedish-Style Pork Meatballs With Mash And Peas","c":"Sweden","t":"meatballs","m":45,"k":615,"o":"","f":0,"b":0},{"i":["Baby leaf salad 50g","Puff pastry 160g","Red onion 1","Red wine vinegar 15ml","Sausage meat 150g","Soft cheese 50g"],"n":"Creamy Sausage & Red Onion Tart","c":"UK","t":"tart/pie","m":45,"k":570,"o":"","f":0,"b":0},{"i":["Blanched peas 160g","Chicken stock mix (intense) 5.5g","Dijon mustard 5.5g","Honey 25g","Leek 1","Lemon 1","Skin-on chicken thighs 320g","White potato 3"],"n":"Baked Spring Veg Casserole With Honey Chicken","c":"UK","t":"traybake","m":55,"k":572,"o":"Prepped in 5","f":0,"b":0},{"i":["Brown onion 1","Cannellini beans 185g","Chicken stock mix (intense) 5.5g","Diced pork shoulder 250g","Dried oregano 1tsp","Garlic clove 1","Grated Italian hard cheese 30g","Parsley 5g","Soft cheese 50g","White potato 2"],"n":"Creamy Pork & Cannellini Bean Stew With Parsley","c":"Italy","t":"stew","m":60,"k":487,"o":"Prepped in 5","f":1,"b":1},{"i":["Apple 1","Brown onion 1","Chicken stock mix (intense) 5.5g","Chinese rice wine 15ml","Chives 5g","Ciabatta 2","Diced chicken thigh 250g","Fine green beans 80g","Garlic clove 2","Soft cheese 50g","Wholegrain mustard 21g"],"n":"Oven Baked Normandy-Style Chicken Thigh & Apple Casserole","c":"France","t":"casserole","m":50,"k":543,"o":"","f":0,"b":0},{"i":["Apple 1","Carrot 2","Chicken stock mix (intense) 5.5g","Crème fraîche 80g","Diced pork shoulder 250g","Dried sage 1tsp","Leek 1","White potato 2","Wholegrain mustard 21g"],"n":"Creamy Pork, Apple & Mustard Casserole","c":"France","t":"casserole","m":70,"k":475,"o":"Prepped in 5","f":1,"b":1},{"i":["Beef stock mix (intense) 5.5g","Cracked black pepper 2x2.5g","Diced beef 200g","Dried bay leaves 1","Garlic clove 2","Leek 1","Orzo 150g","Red wine paste 10g","Saffron 1pkt","Tomato paste 32g"],"n":"Baked Tuscan-Style Beef Peposo With Saffron Butter Orzo","c":"Italy","t":"stew","m":65,"k":466,"o":"Prepped in 5","f":1,"b":1},{"i":["Butter beans 390g","Carrot 1","Chicken stock mix (intense) 5.5g","Ciabatta 2","Dried oregano 1tsp","Garlic clove 2","Leek 1","Parsley 5g","Pork mince 250g","Soft cheese 50g","Tomato paste 32g"],"n":"Creamy Tuscan-Style Pork Meatball & Butter Bean Stew","c":"Italy","t":"stew","m":45,"k":628,"o":"","f":1,"b":1},{"i":["Chicken stock mix (intense) 5.5g","Mirin 15ml","Crème fraîche 80g","Diced pork shoulder 250g","Dried chilli flakes 0.5tsp","Dried sage 1tsp","Garlic clove 2","Parsley 5g","White cup mushrooms 160g","White potato 3"],"n":"Baked Chilli & Sage Pork Shoulder And Creamy Mushroom Stew","c":"UK","t":"stew","m":70,"k":455,"o":"Prepped in 5","f":1,"b":1},{"i":["Basil 5g","Cherry tomatoes 125g","Chicken stock mix (intense) 5.5g","Crème fraîche 80g","Diced chicken thigh 250g","Dried oregano 1tsp","Garlic clove 2","Grated Italian hard cheese 30g","Sun-dried tomatoes 30g","Tomato paste 16g","White potato 3"],"n":"One Pot Creamy Sun-Dried Tomato & Chicken Thigh Stew","c":"Italy","t":"stew","m":45,"k":508,"o":"Prepped in 5","f":0,"b":0},{"i":["Brown onion 1","Cannellini beans 390g","Carrot 1","Chicken stock mix (intense) 5.5g","Ciabatta 2","Diced chorizo 100g","Dried thyme 0.5tsp","Garlic clove 2","Soft cheese 50g","White potato 1"],"n":"Creamy Chorizo & Bean Stew With Ciabatta","c":"Spain","t":"stew","m":40,"k":643,"o":"One Pan Wonders","f":1,"b":1},{"i":["Beef stock mix (intense) 5.5g","Brown onion 1","Cooked white long grain rice 280g","Garlic clove 2","Parsley 5g","Pepper 1","Sausage meat 150g","Southern fried seasoning 1tbsp","Tomato paste 16g"],"n":"One Pot Spicy Gumbo-Inspired Sausage Stew With Rice","c":"USA","t":"stew","m":35,"k":510,"o":"One Pan Wonders","f":1,"b":1},{"i":["Brown onion 1","Canned sweetcorn 150g","Chicken stock mix 11g","Chinese rice wine 15ml","Diced chicken thigh 250g","Garlic clove 2","Ground smoked paprika 1tsp","Soft cheese 50g","Spinach 80g","Thyme 5g","White potato 3"],"n":"Creamy Chicken Thigh & Sweetcorn Chowder","c":"USA","t":"soup","m":35,"k":436,"o":"","f":0,"b":0},{"i":["Basa fillets 2","Brown onion 1","Caribbean jerk paste 24g","Ciabatta 2","Garlic clove 2","Green chilli 1","Soft cheese 50g","Sweet potato 1","Sweetcorn 150g","Vegetable stock mix 11g","White potato 1"],"n":"One Pot Jerk-Spiced Fish Chowder With Sweet Potato & Corn","c":"Caribbean","t":"soup","m":45,"k":576,"o":"One Pan Wonders","f":0,"b":0},{"i":["Brown onion 1","Carrot 1","Chicken breast strips 250g","Chicken stock mix (intense) 5.5g","Ciabatta 1","Dried bay leaves 1","Garlic clove 3","Parsley 5g","Soy sauce 8ml","Spelt 120g","Spinach 80g"],"n":"Hearty Chicken & Spelt Soup With Parsley Oil","c":"UK","t":"soup","m":50,"k":497,"o":"","f":1,"b":1},{"i":["Diced chicken thigh 250g","Dried chilli flakes 0.5tsp","Fine egg noodle nests 2","Ginger & garlic paste 15g","Pho broth paste 25g","Soy sauce 8ml","Spinach 80g","Toasted sesame oil 10ml"],"n":"Brothy Fragrant Chicken Thigh & Spinach Noodle Soup","c":"Vietnam","t":"noodle soup","m":20,"k":526,"o":"10-Minute","f":0,"b":0},{"i":["Beef mince 250g","Beef stock mix 5.5g","Brown onion 2","Chinese rice wine 15ml","Ginger & garlic paste 15g","Ketjap manis 20g","Pho broth paste 25g","Rice noodles 150g","Soy sauce 15ml","Spring onion 1"],"n":"French Onion And Beef Pho","c":"Vietnam","t":"noodle soup","m":45,"k":648,"o":"One Pan Wonders","f":0,"b":0},{"i":["Brown onion 1","Fine green beans 80g","Garlic clove 2","Pork mince 250g","Soy sauce 8ml","Toasted sesame oil 10ml","White long grain rice 130g","Black bean paste 40g"],"n":"Pork & Black Bean Stir-Fry With Rice","c":"China","t":"stir-fry","m":30,"k":558,"o":"","f":0,"b":0},{"i":["Carrot 1","Cashew nuts 2x25g","Chinese rice wine 15ml","Cornflour 4tbsp","Diced chicken thigh 250g","Fresh root ginger 15g","Garlic clove 2","Hoisin sauce 20g","Pepper 1","Soy sauce 30ml","Spring onion 2","Toasted sesame oil 10ml","White long grain rice 130g"],"n":"Chinese-Style Cashew Chicken Thigh With Rice","c":"China","t":"stir-fry","m":40,"k":711,"o":"","f":0,"b":0},{"i":["Blanched peas 160g","Cornflour 4tbsp","Diced chicken thigh 250g","Five-spice mix 1tsp","Free range egg 1","Fresh root ginger 15g","Garlic clove 1","Red chilli 1","Soy sauce 15ml","Spring onion 3","Toasted sesame oil 10ml","White long grain rice 130g"],"n":"Salt & Pepper Chicken Thigh With Egg Fried Rice","c":"China","t":"stir-fry","m":45,"k":600,"o":"","f":0,"b":0},{"i":["Blanched peas 160g","Cooked white long grain rice 280g","Cornflour 1tbsp","Five-spice mix 1tsp","Pork strips 250g","Red chilli 1","Soy sauce 30ml","Spring onion 1","Toasted sesame oil 10ml"],"n":"Chinese-Style Salt & Pepper Pork With Sesame Rice","c":"China","t":"stir-fry","m":20,"k":578,"o":"10-Minute","f":0,"b":0},{"i":["Chinese rice wine 15ml","Coriander 5g","Cornflour 4tbsp","Diced chicken thigh 250g","Five-spice mix 1tsp","Fresh root ginger 15g","Garlic clove 2","Honey 25g","Pepper 1","Red chilli 1","Red chilli relish 25g","Soy sauce 15ml","Spring onion 1","White potato 4"],"n":"Sticky Chilli Chicken Thigh With Salt & Pepper Chips","c":"China","t":"stir-fry","m":45,"k":469,"o":"","f":0,"b":0},{"i":["Brown onion 1","Cornflour 1tsp","Diced chicken thigh 250g","Dried chilli flakes 0.5tsp","Fresh root ginger 15g","Garlic clove 2","Ketjap manis 2x20g","Rice noodles 150g","Spring onion 1","Toasted sesame oil 10ml","White cup mushrooms 80g"],"n":"Cantonese-Style Chicken Ho Fun Noodles","c":"China","t":"noodles","m":30,"k":582,"o":"","f":0,"b":0},{"i":["Beef stock mix 5.5g","Brown onion 1","Carrot 1","Dried chilli flakes 0.5tsp","Ginger & garlic paste 15g","Ground cumin 1tsp","Lamb mince 250g","Medium egg noodle nests 2","Soy sauce 30ml","Spring onion 1"],"n":"Spicy Xinjiang-Style Cumin Lamb Noodles","c":"China","t":"noodles","m":30,"k":559,"o":"","f":0,"b":0},{"i":["Crispy onions 15g","Diced chicken breast 250g","Ginger & garlic paste 15g","Red chilli relish 40g","Soy sauce 8ml","Spinach 80g","Spring onion 1","Toasted sesame oil 10ml","Udon noodles 2x200g"],"n":"Sweet Chilli & Sesame Chicken Udon","c":"Japan","t":"noodles","m":20,"k":534,"o":"10-Minute","f":0,"b":0},{"i":["Diced chicken thigh 250g","Dried chilli flakes 0.5tsp","Fine green beans 160g","Ginger & garlic paste 15g","Honey 25g","Medium egg noodle nests 2","Rice vinegar 15ml","Roasted peanuts 25g","Smooth peanut butter 26g","Soy sauce 15ml","Spring onion 1","Sriracha hot chilli sauce 8ml"],"n":"Spicy Peanut Chicken Thigh Noodles","c":"Southeast Asia","t":"noodles","m":20,"k":684,"o":"10-Minute","f":0,"b":0},{"i":["Cornflour 4tbsp","Cracked black pepper 2.5g","Cucumber 0.5","Cumin seeds 1tsp","Dried chilli flakes 0.5tsp","Fennel seeds 1tsp","Garlic clove 2","Ketjap manis 20g","Red chilli 1","Rice vinegar 15ml","Skinless chicken thighs 320g","Smoked sea salt flakes 1g","Umami seasoning 1tbsp","White long grain rice 130g"],"n":"Fiery Xi\\u0027an-Inspired Salt & Pepper Fried Chicken","c":"China","t":"fried chicken","m":40,"k":608,"o":"","f":0,"b":0},{"i":["Brown onion 1","Carrot 1","Chinese rice wine 15ml","Five-spice mix 1tsp","Ginger & garlic paste 15g","Green pepper 1","Ground smoked paprika 1tsp","Pork belly 300g","Soy sauce 30ml","White long grain rice 130g"],"n":"Oven Baked Chinese-Style Pork Belly With Rice","c":"China","t":"rice dish","m":75,"k":712,"o":"Prepped in 5","f":0,"b":0},{"i":["Beef stock mix (intense) 5.5g","Brown onion 1","Cornflour 1tsp","Diced beef 200g","Garlic clove 2","Ginger paste 15g","Gluten free soy sauce 15ml","Hoisin sauce 20g","Tenderstem broccoli 160g","White long grain rice 130g"],"n":"Oven Baked Chinese-Style Braised Beef & Broccoli With Rice","c":"China","t":"rice dish","m":75,"k":481,"o":"Prepped in 5","f":0,"b":0},{"i":["Basil 20g","Chinese rice wine 30ml","Diced chicken thigh 250g","Dried chilli flakes 0.5tsp","Fresh root ginger 15g","Garlic clove 2","Pak choi 200g","Soy sauce 30ml","Sushi rice 150g","Toasted sesame oil 20ml"],"n":"Taiwanese-Style Basil Chicken Thigh Stir-Fry & Sticky Rice","c":"Taiwan","t":"stir-fry","m":40,"k":561,"o":"","f":0,"b":0},{"i":["Chicken breast strips 250g","Chinese rice wine 15ml","Cornish clotted cream 40g","Crispy onions 15g","Garlic clove 2","Gochujang paste 30g","Soy sauce 8ml","Spinach 120g","Toasted sesame oil 10ml","Tomato paste 32g","White long grain rice 130g"],"n":"Korean-Style Rose Chicken With Sesame Soy Spinach & Rice","c":"South Korea","t":"rice dish","m":25,"k":661,"o":"","f":0,"b":0},{"i":["Carrot 1","Chicken stock mix 5.5g","Diced chicken thigh 250g","Gochujang paste 30g","Ground paprika 1tsp","Mayonnaise 30ml","Plain tortillas 6","Rice vinegar 15ml","Shredded red cabbage 150g","Spring onion 1","Toasted sesame oil 10ml","Toasted sesame seeds 5g"],"n":"Korean-Style Chicken Thigh Tacos with Sesame Slaw","c":"South Korea","t":"tacos","m":35,"k":710,"o":"","f":0,"b":0},{"i":["Carrot 1","Cornflour 4tbsp","Garlic clove 3","Gem lettuce 1","Gochujang paste 30g","Honey 25g","Mayonnaise 25ml","Rice vinegar 15ml","Skinless chicken thighs 320g","Soy sauce 15ml","Spring onion 1","Sushi rice 150g","Toasted sesame seeds 5g","Tomato ketchup 15ml"],"n":"Korean-Style Yang-Nyum Fried Chicken Thigh","c":"South Korea","t":"fried chicken","m":50,"k":788,"o":"","f":0,"b":0},{"i":["Bacon lardons 100g","Blanched peas 160g","Crème fraîche 80g","Garlic clove 1","Gochujang paste 30g","Grated Italian hard cheese 30g","Spring onion 1","Toasted sesame seeds 5g","Udon noodles 2x200g"],"n":"Creamy Carbonara-Style Bacon & Gochujang Udon","c":"South Korea","t":"noodles","m":20,"k":607,"o":"10-Minute","f":0,"b":0},{"i":["Ginger & garlic paste 15g","Marmite 2x8g","Pork mince 250g","Red chilli relish 25g","Roasted peanuts 25g","Smooth peanut butter 26g","Soy sauce 15ml","Spinach 120g","Spring onion 1","Udon noodles 2x200g"],"n":"Marmite & Peanut Butter Pork Udon","c":"Japan","t":"noodles","m":20,"k":733,"o":"10-Minute","f":0,"b":0},{"i":["Diced chicken thigh 250g","Fine egg noodle nests 2","Ginger & garlic paste 15g","Honey 25g","Pak choi 200g","Roasted peanuts 25g","Soy sauce 15ml","Spring onion 2","Toasted sesame oil 10ml","White miso paste 17g"],"n":"Honey Miso & Peanut Chicken Thigh Stir-Fry","c":"Japan","t":"stir-fry","m":20,"k":586,"o":"10-Minute","f":0,"b":0},{"i":["Brown onion 1","Carrot 1","Chicken breast strips 250g","Curry powder 1tbsp","Gem lettuce 1","Ginger & garlic paste 15g","Panko breadcrumbs 40g","Plain tortillas 4","Solid creamed coconut 25g","Soy sauce 15ml"],"n":"Crispy Chicken Katsu Curry Burritos","c":"Japan","t":"wraps","m":50,"k":751,"o":"","f":0,"b":0},{"i":["Chicken breast strips 250g","Cucumber 0.5","Lemon 1","Mayonnaise 25ml","Rocket 20g","Shichimi togarashi 2g","Soy sauce 8ml","Vegan brioche buns 2","Waxy potatoes 350g","White wine vinegar 15ml"],"n":"Ponzu Chicken Burger With Spiced Potatoes & Smashed Cucumber","c":"Japan","t":"burger","m":20,"k":551,"o":"","f":0,"b":0},{"i":["Cornflour 4tbsp","Diced chicken thigh 250g","Fine green beans 160g","Fresh lemongrass stalk 1","Garlic clove 2","Hoisin sauce 40g","Red chilli 1","Rice vinegar 15ml","Shallot 1","Soy sauce 15ml","Toasted sesame seeds 5g","White long grain rice 130g"],"n":"Crispy Pepper Chicken Thigh With Rice And Sticky Hoisin Sauce","c":"China","t":"stir-fry","m":50,"k":529,"o":"","f":0,"b":0},{"i":["Brown onion 1","Fine green beans 80g","Garlic clove 2","Hoisin sauce 40g","Pork strips 250g","Red chilli 1","Soy sauce 15ml","Spinach 80g","Spring onion 1","White long grain rice 130g"],"n":"Hoisin Pork Stir-Fry With Chilli & Garlic Oil And Steamed Rice","c":"China","t":"stir-fry","m":30,"k":480,"o":"","f":0,"b":0},{"i":["Baby button mushrooms 80g","Fish sauce 8ml","Fresh lemongrass stalk 1","Fresh root ginger 15g","Garlic clove 2","Lime 1","Raw peeled king prawns 171g","Red chilli 1","Solid creamed coconut 50g","Tomato 2","Vegetable stock mix 5.5g","White long grain rice 130g"],"n":"Creamy King Prawn Tom Yum With Lemongrass Rice","c":"Thailand","t":"curry","m":35,"k":512,"o":"","f":0,"b":0},{"i":["Cardamom pod 3","Coriander 2x10g","Diced chicken breast 250g","Fine green beans 160g","Fresh lemongrass stalk 1","Fresh root ginger 15g","Garlic clove 1","Lime 1","Red chilli 1","Shallot 1","Solid creamed coconut 25g","Vegetable stock mix (intense) 5.5g","White basmati rice 130g"],"n":"Fragrant Thai Green Chicken Curry","c":"Thailand","t":"curry","m":40,"k":496,"o":"","f":0,"b":0},{"i":["Coriander 2x10g","Fine green beans 160g","Fish sauce 8ml","Fresh lemongrass stalk 1","Fresh root ginger 15g","Garlic clove 1","Lime 1","Raw peeled king prawns 171g","Red chilli 1","Shallot 1","Solid creamed coconut 25g","White basmati rice 130g"],"n":"Fragrant Thai-Style Green King Prawn Curry","c":"Thailand","t":"curry","m":35,"k":410,"o":"","f":0,"b":0},{"i":["Brown onion 1","Diced beef 200g","Dried chilli flakes 0.5tsp","Fine green beans 160g","Fish sauce 8ml","Garlic clove 2","Ground coriander 1tsp","Ground cumin 1tsp","Red Thai curry paste 40g","Roasted peanuts 25g","Solid creamed coconut 25g","White long grain rice 130g"],"n":"Oven Baked Beef Panang Curry With Rice","c":"Thailand","t":"curry","m":70,"k":623,"o":"Prepped in 5","f":1,"b":1},{"i":["Brown onion 1","Crispy onions 15g","Fish sauce 8ml","Ground turmeric 1tsp","Haddock bites 200g","Lime 1","Pepper 1","Red Thai curry paste 20g","Smooth peanut butter 26g","Solid creamed coconut 50g","White basmati rice 130g"],"n":"Southern Thai-Style Haddock Panang Curry","c":"Thailand","t":"curry","m":35,"k":660,"o":"","f":0,"b":0},{"i":["Brown onion 1","Chicken breast strips 250g","Crispy onions 15g","Fish sauce 8ml","Pepper 1","Ground turmeric 1tsp","Lime 1","Red Thai curry paste 20g","Smooth peanut butter 26g","Solid creamed coconut 50g","White basmati rice 130g"],"n":"Southern Thai-Style Chicken Panang Curry","c":"Thailand","t":"curry","m":40,"k":713,"o":"","f":0,"b":0},{"i":["Carrot 1","Chicken breast strips 250g","Chicken stock mix 5.5g","Curry powder 0.5tbsp","Fish sauce 8ml","Garlic clove 2","Ginger paste 15g","Ground turmeric 0.5tsp","Lime 1","Red chilli 1","Shallot 2","Solid creamed coconut 25g","White long grain rice 130g"],"n":"Thai-Style Yellow Chicken Curry With Rice","c":"Thailand","t":"curry","m":35,"k":528,"o":"","f":0,"b":0},{"i":["Brown onion 1","Diced chicken thigh 250g","Ginger & garlic paste 15g","Ketjap manis 20g","Medium egg noodle nests 2","Red Thai curry paste 40g","Shredded veg mix 160g","Solid creamed coconut 25g"],"n":"Coconutty Red Thai Curry Chicken Noodle Stir Fry","c":"Thailand","t":"stir-fry","m":20,"k":560,"o":"10-Minute","f":0,"b":0},{"i":["Cooked shredded chicken 170g","Dried chilli flakes 0.5tsp","Ketjap manis 20g","Red chilli relish 25g","Rice noodles 150g","Smooth peanut butter 26g","Spinach 80g"],"n":"Chicken Satay Noodles","c":"Southeast Asia","t":"noodles","m":20,"k":535,"o":"No Cook","f":0,"b":0},{"i":["Cooked white long grain rice 280g","Cucumber 0.5","Diced chicken breast 250g","Dried chilli flakes 0.5tsp","Red chilli relish 25g","Rice vinegar 15ml","Smooth peanut butter 26g","Solid creamed coconut 25g","Soy sauce 15ml"],"n":"Chicken Satay With Pickled Chilli Cucumber","c":"Malaysia","t":"satay","m":30,"k":645,"o":"","f":0,"b":0},{"i":["Brown long grain rice 130g","Brown onion 1","Chicken breast strips 250g","Chicken stock mix (intense) 5.5g","Curry powder 1tbsp","Garlic clove 1","Gluten free soy sauce 15ml","Lime 1","Shredded kale 80g","Smooth peanut butter 26g","Solid creamed coconut 25g"],"n":"Chicken Satay Curry With Brown Rice & Kale","c":"Malaysia","t":"curry","m":45,"k":603,"o":"","f":0,"b":0},{"i":["Basil 2x5g","Cooked brown long grain rice 280g","Crispy onions 15g","Fine green beans 160g","Fish sauce 8ml","Ginger paste 15g","Hoisin sauce 40g","Pork mince 250g","Red chilli 1","Roasted garlic paste 15g","Soy sauce 8ml"],"n":"Thai-Style Basil Pork With Green Beans & Brown Rice","c":"Thailand","t":"stir-fry","m":20,"k":619,"o":"10-Minute","f":0,"b":0},{"i":["Carrot 1","Dried chilli flakes 0.5tsp","Garlic clove 1","Gluten free soy sauce 15ml","Honey 25g","Lemongrass & lime leaf paste 20g","Red onion 1","Sambal oelek 20g","Seasoned chicken mince 250g","Spinach 80g","Spring onion 1","White long grain rice 130g"],"n":"Sticky Chilli & Lemongrass Chicken Mince Stir-Fry & Veggie Rice","c":"Thailand","t":"stir-fry","m":30,"k":501,"o":"","f":0,"b":0},{"i":["Carrot 1","Coriander 10g","Cornflour 4tbsp","Crispy onions 15g","Garlic clove 4","Gem lettuce 1","Red chilli relish 40g","Pepper 1","Rice vinegar 15ml","Skinless chicken thighs 320g","Soy sauce 15ml","Sriracha hot chilli sauce 8ml","White long grain rice 130g"],"n":"Thai-Style Hat Yai Garlic Fried Chicken","c":"Thailand","t":"fried chicken","m":50,"k":701,"o":"","f":0,"b":0},{"i":["Brown onion 1","Carrot 1","Coriander 5g","Coriander seeds 1tsp","Cornflour 1tsp","Fennel seeds 0.5tsp","Fresh root ginger 15g","Garlic clove 2","Ketjap manis 20g","Pork belly 300g","Rice vinegar 15ml","White long grain rice 130g"],"n":"Thai-Style Pork Belly Moo Hong With Rice","c":"Thailand","t":"pork dish","m":60,"k":708,"o":"","f":0,"b":0},{"i":["Cooked white long grain rice 280g","Diced chicken thigh 250g","Fine green beans 80g","Massaman curry paste 30g","Red chilli 1","Roasted peanuts 25g","Solid creamed coconut 25g","Tomato paste 16g","White potato 2"],"n":"Fragrant Chicken Massaman With Peanuts & Rice","c":"Thailand","t":"curry","m":20,"k":801,"o":"10-Minute","f":0,"b":0},{"i":["Brown onion 1","Cooked white long grain rice 280g","Cornflour 1tsp","Ginger & garlic paste 15g","Pork mince 250g","Red chilli relish 40g","Soy sauce 15ml","Tenderstem broccoli 160g","Toasted sesame oil 10ml"],"n":"Vietnamese-Style Pork With Sesame Tenderstem Broccoli","c":"Vietnam","t":"rice dish","m":20,"k":693,"o":"10-Minute","f":0,"b":0},{"i":["British beef mince 250g","Beef stock mix 5.5g","Carrot 1","Dried chilli flakes 0.5tsp","Fresh root ginger 15g","Garlic clove 1","Rice noodles 150g","Roasted peanuts 25g","Soy sauce 30ml","Sugar snap peas 80g"],"n":"Vietnamese-Style Chilli Beef Meatball Noodles","c":"Vietnam","t":"noodles","m":40,"k":675,"o":"","f":0,"b":0},{"i":["Brown onion 1","Cider vinegar 30ml","Cornflour 1tbsp","Dried bay leaves 2","Garlic clove 2","Ginger paste 15g","Skinless chicken thighs 320g","Soy sauce 30ml","Spring onion 1","Tenderstem broccoli 160g","White long grain rice 130g"],"n":"Filipino-Style Chicken Thigh Adobo With Rice","c":"Philippines","t":"rice dish","m":40,"k":554,"o":"","f":0,"b":0},{"i":["Brown onion 1","Cornflour 1tbsp","Free range egg 1","Garden veg mix 160g","Garlic clove 3","Ketjap manis 20g","Rice vinegar 30ml","Skinless chicken thighs 320g","Soy sauce 8ml","White long grain rice 130g"],"n":"Filipino-Style Sticky Chicken Thigh With Egg Fried Rice","c":"Philippines","t":"rice dish","m":50,"k":611,"o":"","f":0,"b":0},{"i":["Brown onion 1","Chicken breast strips 250g","Chicken stock mix (intense) 5.5g","Garlic clove 1","Italian hard cheese 20g","Parsley 5g","Red chilli 1","Walnuts 25g","White long grain rice 130g","Yellow pepper 1"],"n":"Aji De Gallina-Style Chicken Stew With Rice","c":"Peru","t":"stew","m":25,"k":545,"o":"","f":0,"b":0},{"i":["Brown onion 1","Chicken breast portion 2","Chicken stock mix (intense) 5.5g","Cucumber 0.5","Fresh lemongrass stalk 1","Ginger & garlic paste 15g","Ground turmeric 1tsp","Red chilli 1","Solid creamed coconut 25g","Sweet pea pods 80g","White long grain rice 130g","White wine vinegar 15ml"],"n":"Malaysian-Style Turmeric Chicken With Pickled Cucumber","c":"Malaysia","t":"rice dish","m":30,"k":542,"o":"","f":0,"b":0},{"i":["Cardamom pod 1","Chipotle paste 20g","Dried chilli flakes 0.5tsp","Fine green beans 80g","Fish sauce 8ml","Fresh root ginger 15g","Garlic clove 2","Raw peeled king prawns 171g","Red onion 2","Solid creamed coconut 25g","White basmati rice 130g"],"n":"Indonesian-Style King Prawn Curry & Green Bean Rice","c":"Indonesia","t":"curry","m":40,"k":430,"o":"","f":0,"b":0},{"i":["Brown onion 1","Cardamom pod 2","Cashew nuts 25g","Finely chopped tomatoes 200g","Garam masala 1tbsp","Garden veg mix 160g","Garlic clove 1","Ginger paste 15g","Natural yoghurt 80g","Paneer 200g","Vegetable stock mix 11g","White long grain rice 130g"],"n":"Paneer Butter Masala With Rice (V)","c":"India","t":"curry","m":40,"k":708,"o":"","f":0,"b":0},{"i":["Brown onion 1","Cardamom pod 1","Chicken stock mix 5.5g","Fresh root ginger 15g","Garam masala 1tbsp","Garlic clove 2","Ground almonds 25g","Ground turmeric 0.5tsp","Natural yoghurt 80g","Skinless chicken thighs 320g","Sultanas 30g","White basmati rice 130g"],"n":"Mild Chicken Thigh Korma With Cardamom Rice","c":"India","t":"curry","m":35,"k":647,"o":"Prepped in 5","f":0,"b":0},{"i":["Brown onion 1","Cardamom pod 3","Chicken stock mix (intense) 5.5g","Curry powder 1tbsp","Diced chicken breast 250g","Dried chilli flakes 0.5tsp","Finely chopped tomatoes 200g","Garlic clove 3","Ground coriander 1tsp","Ground turmeric 1tsp","Natural yoghurt 80g","Plain naan 2","Tomato 1"],"n":"One Pot Chicken Rogan Josh With Yoghurt","c":"India","t":"curry","m":40,"k":495,"o":"Prepped in 5","f":1,"b":1},{"i":["Brown onion 1","Chicken stock mix (intense) 5.5g","Cornish clotted cream 40g","Crispy onions 15g","Flaked almonds 15g","Garam masala 1tsp","Ginger & garlic paste 15g","Ground coriander 1tsp","Ground smoked paprika 1tsp","Ground turmeric 0.5tsp","Skinless chicken thighs 320g","Tomato 1","Tomato paste 16g","White basmati rice 130g"],"n":"Creamy Chicken Pasanda Curry With Crispy Onion Rice","c":"India","t":"curry","m":60,"k":753,"o":"Spice Trail","f":1,"b":1},{"i":["Brown onion 1","Chicken breast portion 2","Chicken stock mix 5.5g","Coriander 2x5g","Crème fraîche 0.5x80g","Fresh root ginger 15g","Garam masala 1tbsp","Garlic clove 2","Ground coriander 1tsp","Ground turmeric 1tsp","Tomato paste 32g","White basmati rice 130g"],"n":"Butter Chicken With Coriander Rice","c":"India","t":"curry","m":50,"k":467,"o":"","f":1,"b":1},{"i":["Black sesame seeds 5g","Chicken breast strips 250g","Chicken stock mix (intense) 5.5g","Coriander 5g","Curry powder 1tbsp","Fresh root ginger 15g","Garlic clove 1","Ground turmeric 0.5tsp","Natural yoghurt 80g","Solid creamed coconut 25g","Spinach 80g","Tamarind paste 15g","Tomato paste 32g","White long grain rice 130g"],"n":"Chicken Tamarind Curry With Turmeric Rice","c":"India","t":"curry","m":40,"k":583,"o":"","f":1,"b":1},{"i":["Cashew nuts 25g","Cayenne pepper 0.5tsp","Chicken breast strips 250g","Chicken stock mix (intense) 5.5g","Cucumber 0.5","Fresh root ginger 15g","Garam masala 1tbsp","Garlic clove 1","Ground turmeric 0.5tsp","Natural yoghurt 80g","Red onion 1","Tomato paste 32g","White long grain rice 130g"],"n":"Creamy Chicken Makhani With Cucumber Salad","c":"India","t":"curry","m":40,"k":556,"o":"","f":1,"b":1},{"i":["Brown onion 1","Chicken stock mix (intense) 5.5g","Coriander 5g","Cornish clotted cream 40g","Curry powder 0.5tbsp","Finely chopped tomatoes 200g","Garam masala 1tsp","Garlic clove 2","Ginger paste 15g","Ground smoked paprika 1tsp","Red chilli 1","Skinless chicken thighs 320g","White long grain rice 130g"],"n":"Baked Classic Chicken Thigh Tikka Masala & Rice","c":"India","t":"curry","m":60,"k":682,"o":"Prepped in 5","f":1,"b":1},{"i":["Chicken stock mix (intense) 5.5g","Coriander & mint 10g","Curry powder 0.5tbsp","Diced chicken thigh 250g","Garam masala 1tsp","Garlic clove 2","Green chilli 1","Mango chutney 20g","Natural yoghurt 80g","Solid creamed coconut 25g","Spinach 80g","Tomato 2","Tomato paste 32g","White long grain rice 130g"],"n":"Green Tikka Masala Chicken Thigh W. Rice And Tomato & Mint Salad","c":"India","t":"curry","m":30,"k":644,"o":"","f":1,"b":1},{"i":["Chicken stock mix (intense) 5.5g","Courgette 1","Curry powder 1tbsp","Garam masala 1tsp","Garlic clove 3","Ginger paste 15g","Lime 1","Seasoned chicken mince 250g","Solid creamed coconut 25g","Tomato paste 32g","White long grain rice 130g"],"n":"Coconut Chicken Meatballs & Courgette Curry With Rice","c":"India","t":"curry","m":30,"k":543,"o":"Delish & Healthy-ish","f":0,"b":0},{"i":["Beef stock mix (intense) 5.5g","Black sesame seeds 5g","Blanched peas 160g","Curry powder 1tbsp","Finely chopped tomatoes 200g","Ginger & garlic paste 15g","Ground turmeric 0.5tsp","Lamb mince 250g","Shallot 1","White long grain rice 130g"],"n":"Saucy Lamb Keema-Style Meatballs With Turmeric Rice","c":"India","t":"curry","m":30,"k":619,"o":"","f":0,"b":0},{"i":["Beef mince 250g","Brown onion 1","Cardamom pod 4","Chicken stock mix (intense) 5.5g","Dried bay leaves 1","Garam masala 1tsp","Garlic clove 3","Green chilli 1","Ground coriander 1tsp","Tomato 2","Tomato paste 16g","White basmati rice 130g"],"n":"Bangladeshi-Style Beef Kofta Curry With Fragrant Rice","c":"Bangladesh","t":"curry","m":45,"k":572,"o":"","f":1,"b":1},{"i":["Cooked white long grain rice 280g","Diced chicken thigh 250g","Dried cranberries 30g","Ground cumin 1tsp","Ground turmeric 0.5tsp","Pistachios 25g","Roasted garlic paste 15g","Soy sauce 30ml","Spinach 120g"],"n":"Jewelled Chicken, Pistachio & Cranberry Pilaf","c":"Middle East","t":"rice dish","m":20,"k":590,"o":"10-Minute","f":0,"b":0},{"i":["Brown onion 1","Chicken breast strips 250g","Chicken stock mix 11g","Curry powder 1tbsp","Fine green beans 160g","Natural yoghurt 80g","Sultanas 30g","Tomato paste 16g","White basmati rice 130g"],"n":"One-Pot Easy Chicken Biryani","c":"India","t":"biryani","m":35,"k":513,"o":"","f":0,"b":0},{"i":["British lamb mince 250g","Chicken stock mix 11g","Curry powder 1tbsp","Garlic clove 2","Ground turmeric 0.5tsp","Mayonnaise 30ml","Mint sauce 20g","Red onion 1","Spinach 80g","White basmati rice 130g","White wine vinegar 15ml"],"n":"Lamb Meatball Biryani With Minty Mayo And Pickled Onion","c":"India","t":"biryani","m":35,"k":661,"o":"","f":0,"b":0},{"i":["Butternut squash cubes 160g","Cardamom pod 3","Chicken stock mix (intense) 5.5g","Crispy onions 15g","Curry powder 1tbsp","Diced chicken thigh 250g","Dried bay leaves 1","Garlic clove 1","Ginger paste 15g","Green chilli 1","Ground turmeric 0.5tsp","Natural yoghurt 80g","Tomato 2","White basmati rice 130g"],"n":"Oven Baked Chicken Thigh Biryani With Yoghurt","c":"India","t":"biryani","m":35,"k":587,"o":"Prepped in 5","f":0,"b":0},{"i":["Cardamom pod 2","Chicken stock mix (intense) 5.5g","Coriander 5g","Cracked black pepper 2.5g","Crispy onions 15g","Curry powder 1tbsp","Diced chicken thigh 250g","Fresh root ginger 15g","Garlic clove 1","Green lentils 185g","Ground turmeric 0.5tsp","Mint 5g","Plain naan 2","Red lentils 100g","Solid creamed coconut 25g"],"n":"One Pot Black Pepper Chicken Dal With Naan","c":"India","t":"curry/dal","m":40,"k":752,"o":"Prepped in 5","f":1,"b":1},{"i":["Brown onion 1","Chicken breast strips 250g","Chicken stock mix (intense) 5.5g","Coriander 20g","Curry powder 1tbsp","Dried chilli flakes 0.5tsp","Fresh root ginger 15g","Garlic clove 1","Green lentils 390g","Red lentils 100g","Rice vinegar 15ml","Solid creamed coconut 2x25g"],"n":"Mixed Lentil Dal With Pan-Fried Chicken & Coriander Chutney","c":"India","t":"curry/dal","m":40,"k":601,"o":"","f":1,"b":1},{"i":["Chicken stock mix (intense) 5.5g","Coriander & mint 10g","Curry powder 0.5tbsp","Diced chicken thigh 250g","Garam masala 1tsp","Garlic clove 1","Ginger paste 15g","Natural yoghurt 80g","Red onion 1","Roti 4","Solid creamed coconut 25g","Spinach 80g","Tomato paste 32g","White wine vinegar 15ml"],"n":"Loaded Coconutty Palak Chicken Thigh Roti","c":"India","t":"wraps","m":30,"k":652,"o":"","f":0,"b":0},{"i":["Black sesame seeds 5g","Carrot 1","Cider vinegar 15ml","Curry powder 1tbsp","Garlic clove 1","Gem lettuce 1","Ground cumin 1tsp","Lamb mince 250g","Mango chutney 20g","Mayonnaise 25ml","Plain tortillas 6","Shallot 1"],"n":"Lamb Tortilla Samosas With Mango Mayo","c":"India","t":"samosas","m":45,"k":741,"o":"","f":0,"b":0},{"i":["Chicken breast portion 2","Cucumber 0.5","Cumin seeds 1tsp","Fresh root ginger 15g","Garam masala 1tsp","Garlic clove 1","Ground paprika 1tsp","Ground turmeric 0.5tsp","Lemon 1","Mint sauce 20g","Natural yoghurt 80g","Vegan brioche buns 2","Waxy potatoes 350g"],"n":"Chicken Tikka Burger With Jeera Potatoes","c":"India","t":"burger","m":45,"k":521,"o":"","f":0,"b":0},{"i":["Chicken breast portion 2","Curry powder 1tbsp","Garlic clove 1","Gem lettuce 2","Grated Italian hard cheese 30g","Ground cumin 1tsp","Mayonnaise 50ml","Mini garlic & coriander naans 2","Tomato paste 32g","White wine vinegar 15ml"],"n":"Butter Chicken Caesar Salad","c":"India","t":"salad","m":40,"k":583,"o":"","f":0,"b":0},{"i":["Carrot & cabbage slaw mix 160g","Coconut & turmeric sprinkle 8g","Cornflour 4tbsp","Mayonnaise 50ml","Rice vinegar 15ml","Skinless chicken thighs 320g","Tamarind & coconut curry paste 40g","White basmati rice 130g"],"n":"Keralan-Style Fried Chicken Thigh With Turmeric Coconut Mayo","c":"India","t":"fried chicken","m":40,"k":815,"o":"Spice Trail","f":0,"b":0},{"i":["Basa fillets 2","Coriander 10g","Cultured coconut 80g","Curry powder 1tbsp","Fresh root ginger 15g","Garlic clove 1","Ground turmeric 1tsp","Red chilli 1","Red onion 1","Spinach 80g","Tomato paste 16g","Vegetable stock mix 5.5g","White basmati rice 130g"],"n":"Goan-Style Basa & Spinach Curry With Coriander Rice","c":"India","t":"curry","m":35,"k":428,"o":"","f":0,"b":0},{"i":["Chicken breast strips 250g","Chicken stock mix (intense) 5.5g","Curry powder 1tbsp","Finely chopped tomatoes 200g","Garlic clove 1","Green chilli 1","Ground turmeric 0.5tsp","Shallot 1","Solid creamed coconut 50g","Spinach 80g","Tamarind paste 15g","White basmati rice 130g"],"n":"Oven Baked Sri Lankan-Style Chicken Curry","c":"Sri Lanka","t":"curry","m":50,"k":615,"o":"Prepped in 5","f":1,"b":1},{"i":["Beef stock mix (intense) 5.5g","Ground coriander 1tsp","Ground paprika 2tsp","Lamb mince 250g","Mint 5g","Natural yoghurt 80g","Red onion 1","Spinach 80g","White long grain rice 130g"],"n":"One Pot Lebanese-Style Spiced Lamb & Rice","c":"Lebanon","t":"rice dish","m":30,"k":559,"o":"","f":0,"b":1},{"i":["Cayenne pepper 0.5tsp","Chicken breast portion 2","Chipotle paste 20g","Crème fraîche 80g","Feta 30g","Ground smoked paprika 1tsp","Plain tortillas 6","Radishes 125g","Red onion 1","Soy sauce 8ml","Tomato paste 32g"],"n":"Creamy Chicken Chilaquiles","c":"Mexico","t":"Mexican","m":35,"k":668,"o":"","f":0,"b":0},{"i":["Baby leaf salad 50g","Cheddar cheese 2x40g","Chipotle paste 20g","Garlic clove 2","Ground cumin 1tsp","Ground smoked paprika 1tsp","Lime 1","Mayonnaise 25ml","Plain tortillas 6","Skinless chicken thighs 320g","Spring onion 1","Sweetcorn 150g"],"n":"Pulled Chicken Thigh & Sweetcorn Quesadillas","c":"Mexico","t":"quesadillas","m":45,"k":884,"o":"","f":0,"b":0},{"i":["Cheddar cheese 40g","Garlic clove 2","Ground cumin 1tsp","Ground smoked paprika 2tsp","Mayonnaise 50ml","Plain tortillas 6","Red onion 1","Skinless chicken thighs 320g","Soy sauce 8ml","Tomato 1","Tomato paste 32g","White wine vinegar 15ml"],"n":"Smoky Chicken Thigh Quesadillas With Zingy Mayo & Salsa","c":"Mexico","t":"quesadillas","m":50,"k":891,"o":"","f":0,"b":0},{"i":["Apple 1","Black beans 390g","Chipotle paste 20g","Garlic clove 2","Ground smoked paprika 2tsp","Lime 1","Mayonnaise 25ml","Plain tortillas 6","Pork mince 250g","Red onion 2","Red wine vinegar 30ml","Soy sauce 15ml"],"n":"Pork & Refried Bean Tacos With Zesty Apple Slaw","c":"Mexico","t":"tacos","m":45,"k":788,"o":"","f":0,"b":0},{"i":["Chicken stock mix (intense) 5.5g","Coriander 10g","Dried chilli flakes 0.5tsp","Dried oregano 1tsp","Feta 30g","Ground coriander 1tsp","Ground smoked paprika 2tsp","Lime 1","Red pepper 1","Skinless chicken thighs 320g","Sweetcorn 150g","White long grain rice 130g"],"n":"One Pot Smoky Coriander Chicken & Rice With Esquites","c":"Mexico","t":"rice dish","m":45,"k":604,"o":"Prepped in 5","f":0,"b":0},{"i":["Chicken stock mix (intense) 5.5g","Chipotle paste 20g","Garlic clove 2","Ground coriander 1tsp","Ground smoked paprika 2tsp","Lime 1","Skinless chicken thighs 320g","Sweetcorn cobettes 2","Tomato paste 32g","White long grain rice 130g"],"n":"Chipotle Mexican-Style Chicken Stew With Buttered Corn & Rice","c":"Mexico","t":"stew","m":45,"k":584,"o":"Prepped in 5","f":1,"b":1},{"i":["Caribbean jerk paste 24g","Chicken stock mix (intense) 5.5g","Cultured coconut 80g","Curry powder 0.5tbsp","Fresh root ginger 15g","Garlic clove 3","Ground turmeric 1tsp","Lime 1","Pork mince 250g","Red pepper 1","Shallot 1","Spring onion 2","White long grain rice 130g"],"n":"Fiery Jerk-Spiced Pork Meatball Curry With Garlic & Lime Rice","c":"Caribbean","t":"curry","m":50,"k":556,"o":"","f":0,"b":0},{"i":["Brown onion 1","Caribbean jerk paste 24g","Chicken breast strips 250g","Cooked white long grain rice 280g","Lime 1","Mayonnaise 25ml","Spring onion 1","Sweetcorn 150g","Tomato 1"],"n":"Jerk-Spiced Chicken & Zingy Sweetcorn Rice Bowl","c":"Caribbean","t":"rice dish","m":20,"k":606,"o":"10-Minute","f":0,"b":0},{"i":["Coriander 5g","Ground turmeric 0.5tsp","Lime 1","Mango chutney 20g","Mayonnaise 25ml","Pineapple slices 220g","Red chilli 1","Skinless chicken thighs 320g","Spring onion 2","Tomato 1","White long grain rice 130g"],"n":"Mango & Lime Chicken, Lime Rice And Pineapple Salsa","c":"Caribbean","t":"rice dish","m":40,"k":704,"o":"","f":0,"b":0},{"i":["Brown onion 1","Diced pollock 200g","Fresh root ginger 15g","Garlic clove 2","Green chilli 1","Ground almonds 25g","Ground turmeric 1tsp","Roasted peanuts 25g","Solid creamed coconut 25g","Tomato 1","Vegetable stock mix (intense) 5.5g","White long grain rice 130g"],"n":"Nutty Brazilian-Style Pollock Stew","c":"Brazil","t":"stew","m":45,"k":597,"o":"","f":0,"b":0},{"i":["Beef stock mix (intense) 5.5g","Black beans 390g","Brown onion 1","Cider vinegar 15ml","Garlic clove 2","Ground smoked paprika 2tsp","Parsley 5g","Pork belly 300g","Red chilli 1","Umami seasoning 1tbsp","White long grain rice 130g"],"n":"Feijoada-Style Pork Belly & Black Bean Stew With Rice","c":"Brazil","t":"stew","m":70,"k":786,"o":"Prepped in 5","f":1,"b":1},{"i":["Blanched peas 160g","Cayenne pepper 0.5tsp","Chicken breast portion 2","Chicken stock mix (intense) 5.5g","Crispy onions 15g","Curry powder 1tbsp","Ginger & garlic paste 15g","Ground smoked paprika 2tsp","Natural yoghurt 80g","Roasted peanuts 25g","Solid creamed coconut 25g","White long grain rice 130g"],"n":"Suya-Style Chicken Skewers With Coconut Fried Rice","c":"West Africa","t":"rice dish","m":50,"k":715,"o":"","f":0,"b":0},{"i":["Brown long grain rice 130g","Chicken stock mix (intense) 5.5g","Coriander 5g","Diced chicken thigh 250g","Flaked almonds 15g","Ras el hanout 1tbsp","Red onion 1","Smooth peanut butter 26g","Sweet potato 1","Tomato 2","Tomato paste 16g"],"n":"West African Maffe-Style Chicken Thigh Stew","c":"West Africa","t":"stew","m":45,"k":698,"o":"","f":1,"b":1},{"i":["Brown onion 1","Chicken stock mix (intense) 5.5g","Coriander 5g","Dried chilli flakes 0.5tsp","Garlic clove 2","Ground coriander 1tsp","Roasted peanuts 25g","Skinless chicken thighs 320g","Smooth peanut butter 26g","Solid creamed coconut 25g","Tomato 2","Tomato paste 32g","White long grain rice 130g"],"n":"Mozambican-Style Chicken & Peanut Stew With Coriander Rice","c":"Mozambique","t":"stew","m":45,"k":761,"o":"","f":1,"b":1}]');
+
+let customRecipes=JSON.parse(localStorage.getItem('gousto_custom')||'[]');
+function saveCustom(){localStorage.setItem('gousto_custom',JSON.stringify(customRecipes))}
+
+// Data normalization — runs once on load, applies to all recipes including future additions
+function normalizeRecipes(recipes){
+  const cuisineMerge={'curry/dal':'curry','noodle soup':'soup','pasta bake':'pasta'};
+  const secondaryCuisines={
+    'Brothy Fragrant Chicken Thigh & Spinach Noodle Soup':['noodles'],
+    'French Onion And Beef Pho':['noodles'],
+    'Baked Tuscan-Style Beef Peposo With Saffron Butter Orzo':['orzo'],
+    'Romesco Pork Meatballs, Orzo & Five Bean Stew':['orzo'],
+    'Greek-Style Red Wine Pork, Orzo & Bean Stew':['orzo'],
+    'Herby Chicken Meatballs with Creamy Lemon Orzo':['meatballs'],
+    'One Pan Basil Pork Meatballs With Creamy Pesto Orzo':['meatballs'],
+    'One Pan Basil Pork Meatballs With Creamy Tarragon Pesto Orzo':['meatballs'],
+    'Creamy Tuscan-Style Pork Meatball & Butter Bean Stew':['meatballs'],
+    'Saucy Onion Gravy Beef Meatballs & Crushed Potatoes':['stew'],
+    'Harissa Lamb Meatballs With Turmeric Mash And Feta':['curry'],
+    'Crispy Chicken Katsu Curry Burritos':['curry'],
+    'Coconutty Red Thai Curry Chicken Noodle Stir Fry':['curry','noodles'],
+    'Creamy Chicken Thigh & Mushroom Stroganoff':['stew'],
+    'One Pot Pork & Beef \'Cheeseburger\' Macaroni':['stew'],
+    'Chicken Satay Noodles':['stir-fry'],
+    'Chicken Satay With Pickled Chilli Cucumber':['stir-fry'],
+    'Chicken Satay Curry With Brown Rice & Kale':['stir-fry'],
+    'Pork & Refried Bean Tacos With Zesty Apple Slaw':['Mexican'],
+    'Beef Kofte Wraps With Pickled Salad And Sumac Yoghurt':['meatballs'],
+    'Vietnamese-Style Chilli Beef Meatball Noodles':['meatballs'],
+    'One Pot Spicy Gumbo-Inspired Sausage Stew With Rice':['rice dish'],
+    'Oven Baked Spicy Lamb Stew With Pickled Onion, Rice & Pitta':['rice dish'],
+  };
+  const ingRenames={
+    "Henderson's Relish":"Worcestershire sauce",
+    "Henderson\\u0027s Relish":"Worcestershire sauce",
+    "Vegan brioche buns":"Brioche buns",
+    "Butternut squash cubes":"Butternut squash",
+    "Canned sweetcorn":"Sweetcorn",
+    "Marmite":"Marmite",
+  };
+  recipes.forEach(r=>{
+    // Merge cuisines
+    if(cuisineMerge[r.t])r.t=cuisineMerge[r.t];
+    // Add secondary cuisines
+    r.t2=secondaryCuisines[r.n]||[];
+    // Rename ingredients
+    r.i=r.i.map(ing=>{
+      let result=ing;
+      Object.entries(ingRenames).forEach(([from,to])=>{
+        const re=new RegExp(from.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi');
+        result=result.replace(re,to);
+      });
+      return result;
+    });
+    // Split combined herbs: "Coriander & parsley 10g" → two separate items
+    const newIngs=[];
+    r.i.forEach(ing=>{
+      const herbMatch=ing.match(/^([A-Z][a-z]+)\s*&\s*([a-z]+)\s+(\d+g?)$/);
+      if(herbMatch){
+        const wt=parseInt(herbMatch[3]);
+        const half=Math.ceil(wt/2);
+        newIngs.push(herbMatch[1]+' '+half+'g');
+        newIngs.push(herbMatch[2].charAt(0).toUpperCase()+herbMatch[2].slice(1)+' '+half+'g');
+      } else {
+        newIngs.push(ing);
+      }
+    });
+    r.i=newIngs;
+  });
+  return recipes;
+}
+normalizeRecipes(BASE_RECIPES);
+
+function getAllRecipes(){return [...BASE_RECIPES,...normalizeRecipes([...customRecipes])]}
+
+let favourites=JSON.parse(localStorage.getItem('gousto_favs')||'[]');
+let mealPlan=JSON.parse(localStorage.getItem('gousto_plan')||'[]');
+let planPortions=parseInt(localStorage.getItem('gousto_plan_portions')||'2');
+let portions=parseInt(localStorage.getItem('gousto_portions')||'2');
+let checkedItems=JSON.parse(localStorage.getItem('gousto_checked')||'[]');
+let pantryItems=JSON.parse(localStorage.getItem('gousto_pantry')||'[]');
+let savedPlans=JSON.parse(localStorage.getItem('gousto_saved_plans')||'[]');
+let planHistory=JSON.parse(localStorage.getItem('gousto_plan_history')||'[]');
+let filingOrder=JSON.parse(localStorage.getItem('gousto_filing')||'[]');
+let filingNewFlags=JSON.parse(localStorage.getItem('gousto_filing_new')||'[]');
+function savePlanHistory(){save('gousto_plan_history',planHistory)}
+function saveFiling(){save('gousto_filing',filingOrder);save('gousto_filing_new',filingNewFlags)}
+
+function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function saveFavs(){save('gousto_favs',favourites)}
+function savePlan(){save('gousto_plan',mealPlan);save('gousto_plan_portions',planPortions);portions=planPortions;save('gousto_portions',portions)}
+function saveChecked(){save('gousto_checked',checkedItems)}
+function savePantry(){save('gousto_pantry',pantryItems)}
+function saveSavedPlans(){save('gousto_saved_plans',savedPlans)}
+
+function showPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(btn)btn.classList.add('active');
+  if(id==='plan')renderPlan();
+  if(id==='pantry')renderPantry();
+  if(id==='admin'){renderFiling();renderStats()}
+}
+
+function showBrowseTab(tab,btn){
+  document.querySelectorAll('.browse-tab').forEach(b=>{b.classList.remove('active','btn-green');b.classList.add('btn-outline')});
+  btn.classList.add('active','btn-green');btn.classList.remove('btn-outline');
+  document.getElementById('browseAll').style.display=tab==='all'?'':'none';
+  document.getElementById('browseFavs').style.display=tab==='favs'?'':'none';
+  document.getElementById('browsePlans').style.display=tab==='plans'?'':'none';
+  if(tab==='favs')renderFavourites();
+  if(tab==='plans')renderSavedPlans();
+}
+
+function showPlanTab(tab,btn){
+  document.querySelectorAll('.plan-tab').forEach(b=>{b.classList.remove('active','btn-green');b.classList.add('btn-outline')});
+  btn.classList.add('active','btn-green');btn.classList.remove('btn-outline');
+  document.getElementById('planBuilder').style.display=tab==='builder'?'':'none';
+  document.getElementById('planShopping').style.display=tab==='shopping'?'':'none';
+  if(tab==='shopping')renderShopping();
+}
+
+function showAdminTab(tab,btn){
+  document.querySelectorAll('.admin-tab').forEach(b=>{b.classList.remove('active','btn-green');b.classList.add('btn-outline')});
+  btn.classList.add('active','btn-green');btn.classList.remove('btn-outline');
+  document.getElementById('adminRecipes').style.display=tab==='recipes'?'':'none';
+  document.getElementById('adminStats').style.display=tab==='stats'?'':'none';
+  if(tab==='recipes')renderFiling();
+  if(tab==='stats')renderStats();
+}
+
+function openAddRecipeModal(){document.getElementById('addRecipeModal').classList.add('open')}
+function closeAddRecipeModal(){document.getElementById('addRecipeModal').classList.remove('open')}
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000)}
+
+function baseIngredient(s){
+  let r=s.toLowerCase()
+    .replace(/\d+(\.\d+)?\s*x\s*\d+(\.\d+)?\s*(g|kg|ml|l|tsp|tbsp|pkt)\b/g,'')
+    .replace(/\d+(\.\d+)?\s*(g|kg|ml|l|tsp|tbsp|pkt)\b/g,'')
+    .replace(/\d+(\.\d+)?/g,'')
+    .replace(/[()]/g,'')
+    .replace(/\bintense\b/g,'')
+    .replace(/\bx\b/g,'')
+    .replace(/\b(diced|strips?|bites?|sliced|finely chopped|shredded|grated|flaked|crushed|ground|roasted|toasted|blanched|cooked|raw|peeled|skinless|skin-on|boneless|free range|british|proper porker|smoked streaky)\b/g,'')
+    .replace(/^'/,'')
+    .replace(/\s+/g,' ').trim();
+  return normalizeIngredient(r);
+}
+
+const INGREDIENT_RENAMES={
+  "chicken breast portion":"chicken breast",
+  "chicken thighs":"chicken thigh",
+  "italian hard cheese":"parmesan",
+  "greek salad cheese":"feta",
+  "yellow pepper":"pepper",
+  "green pepper":"pepper",
+  "red pepper":"pepper",
+  "beef":"beef braising steak",
+  "chicken":"chicken breast",
+  "pork":"pork fillet",
+  "carrot & cabbage slaw mix":"slaw mix",
+  "smooth peanut butter":"peanut butter",
+  "balsamic sun-dried tomato paste":"sun-dried tomato paste",
+  "tomatoes":"tomato",
+  "dried chilli flakes":"chilli flakes",
+  "gluten free soy sauce":"soy sauce",
+};
+function normalizeIngredient(s){
+  if(INGREDIENT_RENAMES[s])return INGREDIENT_RENAMES[s];
+  // Strip 'cheese' suffix from named cheeses
+  s=s.replace(/^(cheddar|pecorino|parmesan|feta|mozzarella|halloumi|brie|camembert|stilton|gruyere|emmental|gouda|manchego)\s+cheese$/,'$1');
+  // Reorder 'fresh X' pasta so pasta name leads for sorting
+  s=s.replace(/^fresh (orecchiette|tagliatelle|linguine|spaghetti|pappardelle|lasagne|ravioli|tortellini|fettuccine)$/,'$1 - fresh');
+  // Normalize bare meat names to buyable cuts
+  if(/^(beef|chicken|pork|lamb)$/.test(s)){
+    const cuts={beef:'beef braising steak',chicken:'chicken breast',pork:'pork fillet',lamb:'lamb leg steaks'};
+    return cuts[s]||s;
+  }
+  // Merge plural chicken thighs
+  if(s==='chicken thighs')return 'chicken thigh';
+  // Normalize italian/greek cheese names
+  if(/\bitalian hard cheese\b/.test(s))return s.replace('italian hard cheese','parmesan');
+  if(/\bgreek salad cheese\b/.test(s))return s.replace('greek salad cheese','feta');
+  // Strip cheese suffix generically
+  if(/^(cheddar|pecorino)\s+cheese/.test(s))return s.replace(/\s+cheese/,'');
+  return s;
+}
+
+function cleanName(s){
+  return s.replace(/\b(diced|strips?|bites?|sliced|finely chopped|shredded|grated|flaked|crushed|roasted|toasted|blanched|cooked|raw|peeled|skinless|skin-on|boneless|free range|british|proper porker|smoked streaky|cubes?|canned|mini|vegan)\b/gi,'').replace(/\s+/g,' ').trim();
+}
+
+function getProtein(r){
+  const s=(r.n+' '+r.i.join(' ')).toLowerCase();
+  if(/chicken|poultry/.test(s))return 'Chicken';
+  if(/pork|sausage|bacon|chorizo|lardons|prosciutto|nduja|pork belly/.test(s))return 'Pork';
+  if(/beef|steak/.test(s))return 'Beef';
+  if(/lamb/.test(s))return 'Lamb';
+  if(/prawn|fish|mackerel|haddock|basa|pollock/.test(s))return 'Seafood';
+  if(/paneer/.test(s))return 'Vegetarian';
+  return 'Other';
+}
+
+function isPrep5(r){return (r.o||'').toLowerCase().includes('prepped in 5')}
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
+function escQ(s){return s.replace(/'/g,"\\'")}
+
+// BROWSE
+function getFiltered(){
+  const all=getAllRecipes();
+  const search=document.getElementById('searchInput').value.toLowerCase();
+  const cuisine=document.getElementById('filterCuisine').value;
+  const country=document.getElementById('filterCountry').value;
+  const calEl=document.getElementById('filterCal');
+  const timeEl=document.getElementById('filterTime');
+  const maxCal=calEl.type==='range'?(parseInt(calEl.value)>=parseInt(calEl.max)?9999:parseInt(calEl.value)):(parseInt(calEl.value)||9999);
+  const maxTime=timeEl.type==='range'?(parseInt(timeEl.value)>=parseInt(timeEl.max)?9999:parseInt(timeEl.value)):(parseInt(timeEl.value)||9999);
+  const wantFreeze=document.getElementById('filterFreeze')?.checked;
+  const wantQuick=document.getElementById('filterQuick')?.checked;
+  const wantPrep5=document.getElementById('filterPrep5')?.checked;
+  const wantFav=document.getElementById('filterFav')?.checked;
+  const sort=document.getElementById('sortBy').value;
+  let filtered=all.filter(r=>{
+    if(search&&![r.n,r.t,r.c,...r.i].join(' ').toLowerCase().includes(search))return false;
+    if(cuisine&&r.t!==cuisine&&!(r.t2||[]).includes(cuisine))return false;
+    if(country&&r.c!==country)return false;
+    if(r.k>maxCal||r.m>maxTime)return false;
+    if(wantFreeze&&!r.f)return false;
+    if(wantQuick&&r.m>25)return false;
+    if(wantPrep5&&!isPrep5(r))return false;
+    if(wantFav&&!favourites.includes(r.n))return false;
+    return true;
+  });
+  const sorts={'name':(a,b)=>a.n.localeCompare(b.n),'name-desc':(a,b)=>b.n.localeCompare(a.n),'cal-asc':(a,b)=>a.k-b.k,'cal-desc':(a,b)=>b.k-a.k,'time-asc':(a,b)=>a.m-b.m,'time-desc':(a,b)=>b.m-a.m};
+  filtered.sort(sorts[sort]||sorts.name);
+  return filtered;
+}
+
+function renderBrowse(){
+  const all=getAllRecipes();
+  const filtered=getFiltered();
+  document.getElementById('browseCount').textContent=`Showing ${filtered.length} of ${all.length} recipes`;
+  document.getElementById('browseGrid').innerHTML=filtered.map(r=>recipeCard(r)).join('');
+  // Filter summary
+  const parts=[];
+  const cuisine=document.getElementById('filterCuisine').value;
+  const country=document.getElementById('filterCountry').value;
+  if(cuisine)parts.push(cuisine);
+  if(country)parts.push(country);
+  const calEl=document.getElementById('filterCal');
+  if(calEl.type==='range'&&parseInt(calEl.value)<parseInt(calEl.max))parts.push('≤'+calEl.value+' kcal');
+  const timeEl=document.getElementById('filterTime');
+  if(timeEl.type==='range'&&parseInt(timeEl.value)<parseInt(timeEl.max))parts.push('≤'+timeEl.value+' min');
+  if(document.getElementById('filterFreeze')?.checked)parts.push('Freezable');
+  if(document.getElementById('filterQuick')?.checked)parts.push('Quick');
+  if(document.getElementById('filterPrep5')?.checked)parts.push('Prepped in 5');
+  if(document.getElementById('filterFav')?.checked)parts.push('Favourites');
+  const summary=document.getElementById('filterSummary');
+  if(summary)summary.textContent=parts.length?'Filters: '+parts.join(' · '):'';
+}
+
+function updateCascadingFilters(){
+  const all=getAllRecipes();
+  const cuisine=document.getElementById('filterCuisine').value;
+  const pool=cuisine?all.filter(r=>r.t===cuisine):all;
+  const countries=[...new Set(pool.map(r=>r.c))].sort();
+  const countryEl=document.getElementById('filterCountry');
+  const current=countryEl.value;
+  countryEl.innerHTML='<option value="">All</option>'+countries.map(c=>`<option value="${c}">${c}</option>`).join('');
+  if(countries.includes(current))countryEl.value=current;
+  else countryEl.value='';
+}
+
+function pickRandomModal(){
+  const filtered=getFiltered();
+  if(!filtered.length){toast('No recipes match current filters');return}
+  const r=filtered[Math.floor(Math.random()*filtered.length)];
+  openRecipe(r.n);
+}
+
+function recipeCard(r){
+  const isFav=favourites.includes(r.n);
+  const ref=getBinderRef(r.n);
+  return `<div class="card recipe-card" onclick="openRecipe('${escQ(r.n)}')">
+    <button class="fav-btn ${isFav?'active':''}" onclick="event.stopPropagation();toggleFav('${escQ(r.n)}',this)">${isFav?'★':'☆'}</button>
+    <div class="title">${ref?`<span class="binder-ref">${ref.label}</span> `:''}${esc(r.n)}</div>
+    <div class="meta">
+      <span class="pill pill-cuisine">${esc(r.t)}</span>
+      <span class="pill pill-time">${r.m} min</span>
+      <span class="pill pill-cal">${r.k} kcal</span>
+      <span class="pill pill-country">${esc(r.c)}</span>
+      ${r.o?`<span class="pill pill-note">${esc(r.o)}</span>`:''}
+    </div>
+  </div>`;
+}
+
+function toggleFav(name,btn){
+  const idx=favourites.indexOf(name);
+  if(idx>=0)favourites.splice(idx,1);else favourites.push(name);
+  saveFavs();
+  if(btn){btn.classList.toggle('active');btn.textContent=favourites.includes(name)?'★':'☆';btn.classList.add('bump');setTimeout(()=>btn.classList.remove('bump'),300)}
+}
+
+function openRecipe(name){
+  const r=getAllRecipes().find(x=>x.n===name);if(!r)return;
+  const inPlan=mealPlan.includes(name);
+  const ref=getBinderRef(name);
+  document.getElementById('modalContent').innerHTML=`
+    <h2>${ref?`<span class="binder-ref" style="font-size:.75rem;vertical-align:middle">${ref.label}</span> `:''}${esc(r.n)}</h2>
+    <div class="meta" style="margin-bottom:14px">
+      <span class="pill pill-cuisine">${esc(r.t)}</span>
+      <span class="pill pill-time">${r.m} min</span>
+      <span class="pill pill-cal">${r.k} kcal</span>
+      <span class="pill pill-country">${esc(r.c)}</span>
+      ${r.f?'<span class="pill pill-freeze">Freezable</span>':''}
+      ${r.b?'<span class="pill pill-bulk">Bulk-friendly</span>':''}
+      ${r.o?`<span class="pill pill-note">${esc(r.o)}</span>`:''}
+    </div>
+    <p style="font-size:.85rem;color:var(--muted);margin-bottom:4px">Protein: <strong>${getProtein(r)}</strong></p>
+    <h3 style="margin:14px 0 6px">Ingredients (x2 portions)</h3>
+    <ul class="ingredients">${r.i.map(i=>{
+      const inP=pantryItems.includes(baseIngredient(i));
+      return `<li>${esc(i)}${inP?' <span style="color:var(--green);font-size:.75rem">✓ in pantry</span>':''}</li>`;
+    }).join('')}</ul>
+    <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn ${inPlan?'btn-red':'btn-green'}" onclick="togglePlanRecipe('${escQ(name)}');openRecipe('${escQ(name)}')">${inPlan?'Remove from Plan':'Add to Meal Plan'}</button>
+      <button class="btn btn-outline" onclick="toggleFav('${escQ(name)}');openRecipe('${escQ(name)}')">${favourites.includes(name)?'★ Unfavourite':'☆ Favourite'}</button>
+    </div>`;
+  document.getElementById('recipeModal').classList.add('open');
+}
+function closeModal(){document.getElementById('recipeModal').classList.remove('open')}
+
+// RANDOM
+function pickRandom(){
+  const cuisine=document.getElementById('randomCuisine').value;
+  const maxCal=parseInt(document.getElementById('randomMaxCal').value)||9999;
+  const all=getAllRecipes();
+  let pool=all.filter(r=>(!cuisine||r.t===cuisine)&&r.k<=maxCal);
+  if(!pool.length){document.getElementById('randomResult').innerHTML='<p>No recipes match.</p>';return}
+  const r=pool[Math.floor(Math.random()*pool.length)];
+  document.getElementById('randomResult').innerHTML=`
+    <h2>${esc(r.n)}</h2>
+    <div class="meta" style="justify-content:center;margin:10px 0">
+      <span class="pill pill-cuisine">${esc(r.t)}</span><span class="pill pill-time">${r.m} min</span>
+      <span class="pill pill-cal">${r.k} kcal</span><span class="pill pill-country">${esc(r.c)}</span>
+    </div>
+    <p style="color:var(--muted)">Protein: ${getProtein(r)}</p>
+    <div style="display:flex;gap:6px;justify-content:center;margin-top:8px">
+      <button class="btn btn-green btn-sm" onclick="togglePlanRecipe('${escQ(r.n)}')">Add to Plan</button>
+      <button class="btn btn-outline btn-sm" onclick="openRecipe('${escQ(r.n)}')">View Details</button>
+    </div>`;
+}
+
+// MEAL PLAN - SMART GENERATION
+function togglePlanRecipe(name){
+  const idx=mealPlan.indexOf(name);
+  if(idx>=0){mealPlan.splice(idx,1);toast('Removed from plan')}
+  else{mealPlan.push(name);toast('Added to plan')}
+  savePlan();renderPlan();
+}
+
+function generatePlan(){
+  const all=getAllRecipes();
+  const days=parseInt(document.getElementById('planDays').value);
+  planPortions=parseInt(document.getElementById('planPortions').value);
+  const cuisine=document.getElementById('planCuisine').value;
+  const maxCalEl=document.getElementById('planMaxCal');
+  const maxTimeEl=document.getElementById('planMaxTime');
+  const maxCal=maxCalEl.type==='range'?(parseInt(maxCalEl.value)>=parseInt(maxCalEl.max)?9999:parseInt(maxCalEl.value)):(parseInt(maxCalEl.value)||9999);
+  const maxTime=maxTimeEl.type==='range'?(parseInt(maxTimeEl.value)>=parseInt(maxTimeEl.max)?9999:parseInt(maxTimeEl.value)):(parseInt(maxTimeEl.value)||9999);
+  const wantFreeze=document.getElementById('cFreeze').checked;
+  const wantPrep5=document.getElementById('cPrep5').checked;
+  const wantQuick=document.getElementById('cQuick').checked;
+  const minFreeze=wantFreeze?1:0;
+  const minPrep5=wantPrep5?1:0;
+  const minQuick=wantQuick?1:0;
+  const varyProtein=document.getElementById('cVaryProtein').checked;
+
+  let pool=all.filter(r=>(!cuisine||r.t===cuisine||((r.t2||[]).includes(cuisine)))&&r.k<=maxCal&&r.m<=maxTime);
+  if(wantFreeze)pool=pool.filter(r=>r.f);
+  if(wantPrep5)pool=pool.filter(r=>isPrep5(r));
+  if(wantQuick)pool=pool.filter(r=>r.m<=25);
+  if(pool.length<days){toast('Not enough recipes — try loosening filters');return}
+
+  let best=null,bestScore=-Infinity;
+  for(let attempt=0;attempt<200;attempt++){
+    const shuffled=[...pool].sort(()=>Math.random()-.5);
+    const selected=[];const proteins=new Set();
+    selected.push(shuffled[0]);proteins.add(getProtein(shuffled[0]));
+
+    for(let j=1;j<shuffled.length&&selected.length<days;j++){
+      const c=shuffled[j];
+      if(selected.find(s=>s.n===c.n))continue;
+      selected.push(c);proteins.add(getProtein(c));
+    }
+    if(selected.length<days)continue;
+
+    // Score: ingredient overlap (fewer unique = better)
+    const allIngs=new Set();
+    selected.forEach(r=>r.i.forEach(i=>allIngs.add(baseIngredient(i))));
+    let overlapScore=-allIngs.size;
+
+    // Bonus for shared ingredients between consecutive days
+    for(let d=1;d<selected.length;d++){
+      const prev=new Set(selected[d-1].i.map(baseIngredient));
+      selected[d].i.forEach(i=>{if(prev.has(baseIngredient(i)))overlapScore+=3});
+    }
+
+    // Protein variety bonus
+    if(varyProtein)overlapScore+=proteins.size*5;
+
+    if(overlapScore>bestScore){bestScore=overlapScore;best=[...selected]}
+  }
+
+  if(!best){toast('Could not satisfy all constraints — try fewer');return}
+
+  // Reorder best plan to maximize consecutive overlap
+  const ordered=[best.shift()];
+  while(best.length){
+    let bestIdx=0,bestOv=-1;
+    const lastIngs=new Set(ordered[ordered.length-1].i.map(baseIngredient));
+    for(let j=0;j<best.length;j++){
+      const ov=best[j].i.filter(i=>lastIngs.has(baseIngredient(i))).length;
+      if(ov>bestOv){bestOv=ov;bestIdx=j}
+    }
+    ordered.push(best.splice(bestIdx,1)[0]);
+  }
+
+  if(mealPlan.length){
+    planHistory.push({meals:[...mealPlan],portions:planPortions,date:new Date().toLocaleString()});
+    if(planHistory.length>20)planHistory.shift();
+    savePlanHistory();
+  }
+  mealPlan=ordered.map(r=>r.n);
+  savePlan();renderPlan();renderPlanHistory();
+  const allIngs=new Set();ordered.forEach(r=>r.i.forEach(i=>allIngs.add(baseIngredient(i))));
+  toast(`${days}-day plan! ${allIngs.size} unique ingredients`);
+}
+
+function clearPlan(){
+  if(mealPlan.length){
+    planHistory.push({meals:[...mealPlan],portions:planPortions,date:new Date().toLocaleString()});
+    if(planHistory.length>20)planHistory.shift();
+    savePlanHistory();
+  }
+  mealPlan=[];savePlan();renderPlan();renderPlanHistory();checkedItems=[];saveChecked();
+}
+
+function swapMeal(idx){
+  const all=getAllRecipes();
+  const current=new Set(mealPlan);
+  const currentRecipe=all.find(x=>x.n===mealPlan[idx]);
+  if(!currentRecipe)return;
+  const pool=all.filter(r=>!current.has(r.n));
+  if(!pool.length){toast('No other recipes available');return}
+  const scored=pool.map(r=>{
+    let score=0;
+    if(r.t===currentRecipe.t)score+=10;
+    if(Math.abs(r.k-currentRecipe.k)<100)score+=5;
+    if(Math.abs(r.m-currentRecipe.m)<10)score+=3;
+    const prev=idx>0?all.find(x=>x.n===mealPlan[idx-1]):null;
+    const next=idx<mealPlan.length-1?all.find(x=>x.n===mealPlan[idx+1]):null;
+    if(prev)score+=countOverlap(r,prev)*2;
+    if(next)score+=countOverlap(r,next)*2;
+    return {r,score};
+  });
+  scored.sort((a,b)=>b.score-a.score);
+  const top=scored.slice(0,Math.min(5,scored.length));
+  const pick=top[Math.floor(Math.random()*top.length)];
+  mealPlan[idx]=pick.r.n;
+  savePlan();renderPlan();
+  toast(`Swapped → ${pick.r.n}`);
+}
+
+function renderPlanHistory(){
+  const wrap=document.getElementById('planHistory');
+  const btns=document.getElementById('planHistoryBtns');
+  if(!planHistory.length){wrap.style.display='none';return}
+  wrap.style.display='';
+  btns.innerHTML=planHistory.map((p,i)=>
+    `<button class="plan-history-btn" onclick="loadFromHistory(${i})" title="${p.meals.join(' → ')}">${p.date} (${p.meals.length} meals)</button>`
+  ).join('')+`<button class="plan-history-btn" onclick="clearPlanHistory()" style="color:var(--red);border-color:var(--red)">Clear History</button>`;
+}
+
+function loadFromHistory(idx){
+  const p=planHistory[idx];if(!p)return;
+  mealPlan=[...p.meals];planPortions=p.portions||2;
+  savePlan();renderPlan();
+  document.querySelectorAll('#planPortionsChips .chip').forEach(c=>{
+    c.classList.toggle('active',c.dataset.val==String(planPortions));
+  });
+  document.getElementById('planPortions').value=planPortions;
+  document.getElementById('portionNum').textContent=planPortions;
+  toast('Plan restored from history');
+}
+
+function clearPlanHistory(){planHistory=[];savePlanHistory();renderPlanHistory()}
+
+function savePlanAsFav(){
+  if(!mealPlan.length){toast('No plan to save');return}
+  const name=prompt('Name this meal plan:','Plan '+(savedPlans.length+1));
+  if(!name)return;
+  savedPlans.push({name,meals:[...mealPlan],portions:planPortions,date:new Date().toLocaleDateString()});
+  saveSavedPlans();toast('Plan saved!');
+}
+
+function loadSavedPlan(idx){
+  const p=savedPlans[idx];if(!p)return;
+  mealPlan=[...p.meals];planPortions=p.portions||2;
+  savePlan();showPage('plan',document.querySelectorAll('.nav-tab')[1]);renderPlan();toast('Plan loaded');
+}
+
+function deleteSavedPlan(idx){savedPlans.splice(idx,1);saveSavedPlans();renderFavourites()}
+
+function renderPlan(){
+  const all=getAllRecipes();
+  const grid=document.getElementById('planGrid');
+  const empty=document.getElementById('planEmpty');
+  if(!mealPlan.length){grid.innerHTML='';empty.style.display='';return}
+  empty.style.display='none';
+  const dayNames=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  let totalCal=0,totalTime=0;
+  const allIngs=new Set();
+  mealPlan.forEach(name=>{const r=all.find(x=>x.n===name);if(r)r.i.forEach(i=>allIngs.add(baseIngredient(i)))});
+
+  grid.innerHTML=mealPlan.map((name,i)=>{
+    const r=all.find(x=>x.n===name);if(!r)return '';
+    totalCal+=r.k;totalTime+=r.m;
+    const overlaps=i>0?countOverlap(r,all.find(x=>x.n===mealPlan[i-1])):0;
+    return `<div class="plan-day">
+      <div class="day-label">Day ${i+1} — ${dayNames[i%7]||''} · ${planPortions} portions</div>
+      <div class="recipe-name" onclick="openRecipe('${escQ(name)}')">${esc(name)}</div>
+      <div class="meta">
+        <span class="pill pill-cuisine">${esc(r.t)}</span>
+        <span class="pill pill-time">${r.m} min</span>
+        <span class="pill pill-cal">${r.k} kcal</span>
+        ${r.f?'<span class="pill pill-freeze">❄</span>':''}
+        ${isPrep5(r)?'<span class="pill pill-note">Prepped in 5</span>':''}
+        ${overlaps?`<span class="overlap-badge">${overlaps} shared</span>`:''}
+      </div>
+      <div class="plan-actions">
+        <button class="swap-btn" onclick="swapMeal(${i})">Swap</button>
+        <button class="remove-btn" onclick="togglePlanRecipe('${escQ(name)}')" style="border:none;padding:0">Remove</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('planInfo').textContent=
+    `${mealPlan.length} meals · Avg ${Math.round(totalCal/mealPlan.length)} kcal · ${allIngs.size} unique ingredients`;
+}
+
+function countOverlap(a,b){
+  if(!a||!b)return 0;
+  const sA=new Set(a.i.map(baseIngredient));
+  return b.i.filter(x=>sA.has(baseIngredient(x))).length;
+}
+
+// SHOPPING
+function changePortion(d){
+  portions=Math.max(1,Math.min(10,portions+d));
+  document.getElementById('portionNum').textContent=portions;
+  save('gousto_portions',portions);renderShopping();
+}
+
+function parseQty(raw){
+  // Extract number and unit from ingredient string e.g. "Garlic clove 2" -> {num:2, unit:'', name:'garlic clove'}
+  // "Chicken breast strips 250g" -> {num:250, unit:'g', name:'chicken breast strips'}
+  // "Tomato paste 2x16g" -> {num:32, unit:'g', name:'tomato paste'}
+  let s=raw.trim();
+  // Handle "2x16g" pattern
+  const mx=s.match(/(\d+)\s*x\s*(\d+(?:\.\d+)?)\s*(g|ml|kg|l)\b/i);
+  if(mx){const num=parseInt(mx[1])*parseFloat(mx[2]);const unit=mx[3];const name=s.replace(mx[0],'').trim();return{num,unit,name};}
+  // Handle "2x100g" at start like "Farfalle 2x100g"
+  const mx2=s.match(/(\d+(?:\.\d+)?)\s*(g|ml|kg|l|tsp|tbsp)\b/i);
+  if(mx2){return{num:parseFloat(mx2[1]),unit:mx2[2],name:s.replace(mx2[0],'').replace(/\s+/g,' ').trim()};}
+  // Handle bare numbers like "Garlic clove 2", "Brown onion 1"
+  const mn=s.match(/^(.+?)\s+(\d+(?:\.\d+)?)\s*$/);
+  if(mn){return{num:parseFloat(mn[2]),unit:'',name:mn[1].trim()};}
+  // Handle "0.5x80g" patterns like "Crème fraîche 0.5x80g"
+  const mx3=s.match(/([\d.]+)\s*x\s*([\d.]+)\s*(g|ml)/i);
+  if(mx3){return{num:parseFloat(mx3[1])*parseFloat(mx3[2]),unit:mx3[3],name:s.replace(mx3[0],'').trim()};}
+  return{num:0,unit:'',name:s};
+}
+
+function formatQty(num,unit){
+  if(!num)return '';
+  if(num===Math.floor(num))return num+unit;
+  return parseFloat(num.toFixed(1))+unit;
+}
+
+function renderShopping(){
+  document.getElementById('portionNum').textContent=portions;
+  const content=document.getElementById('shoppingContent');
+  const empty=document.getElementById('shoppingEmpty');
+  const all=getAllRecipes();
+  if(!mealPlan.length){content.innerHTML='';empty.style.display='';return}
+  empty.style.display='none';
+  const hidePantry=document.getElementById('hidePantry').checked;
+  const mult=portions/2;
+
+  // Aggregate: group by base ingredient, sum quantities
+  const items={};
+  mealPlan.forEach(name=>{
+    const r=all.find(x=>x.n===name);if(!r)return;
+    r.i.forEach(ing=>{
+      const key=baseIngredient(ing);
+      const q=parseQty(ing);
+      if(!items[key]){
+        items[key]={name:q.name||key,totalNum:q.num*mult,unit:q.unit,count:1,raw:ing};
+      } else {
+        items[key].totalNum+=q.num*mult;
+        items[key].count++;
+      }
+    });
+  });
+
+  const cats={};
+  CAT_ORDER.forEach(c=>cats[c]=[]);
+  Object.entries(items).forEach(([key,v])=>{
+    if(hidePantry&&pantryItems.includes(key))return;
+    const cat=categorize(key);
+    if(!cats[cat])cats[cat]=[];
+    cats[cat].push(v);
+  });
+
+  content.innerHTML=CAT_ORDER.filter(cat=>cats[cat]&&cats[cat].length).map(cat=>{
+    const list=cats[cat];
+    list.sort((a,b)=>a.name.localeCompare(b.name));
+    return `<div class="shop-category"><h3>${cat}</h3>
+      ${list.map(it=>{
+        const checked=checkedItems.includes(baseIngredient(it.raw));
+        const inPantry=pantryItems.includes(baseIngredient(it.raw));
+        const qtyStr=it.totalNum?formatQty(it.totalNum,it.unit):'';
+        const cleaned=cleanName(it.name);
+        const displayName=cleaned.charAt(0).toUpperCase()+cleaned.slice(1);
+        return `<div class="shop-item ${checked?'checked':''}">
+          <input type="checkbox" ${checked?'checked':''} onchange="toggleCheck('${baseIngredient(it.raw).replace(/'/g,"\\'")}',this)">
+          <span>${esc(displayName)}${qtyStr?' — <strong>'+qtyStr+'</strong>':''}${it.count>1?' <span style="color:var(--muted);font-size:.78rem">('+it.count+' recipes)</span>':''}</span>
+          ${inPantry?'<span class="in-pantry">✓ have it</span>':''}
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+
+function scaleIngredient(raw,mult){
+  return raw.replace(/(\d+(?:\.\d+)?)\s*(g|ml|kg|l)\b/gi,(m,n,u)=>Math.round(parseFloat(n)*mult)+u)
+    .replace(/(\d+(?:\.\d+)?)\s*(tsp|tbsp)\b/gi,(m,n,u)=>(parseFloat(n)*mult)+u);
+}
+
+function toggleCheck(key,el){
+  if(el.checked){if(!checkedItems.includes(key))checkedItems.push(key)}
+  else checkedItems=checkedItems.filter(x=>x!==key);
+  saveChecked();el.parentElement.classList.toggle('checked',el.checked);
+}
+function uncheckAll(){checkedItems=[];saveChecked();renderShopping()}
+
+function copyShoppingList(){
+  if(!mealPlan.length)return;
+  const all=getAllRecipes();const items={};const mult=portions/2;
+  mealPlan.forEach(name=>{const r=all.find(x=>x.n===name);if(!r)return;r.i.forEach(ing=>{
+    const key=baseIngredient(ing);const q=parseQty(ing);
+    if(!items[key])items[key]={name:q.name||key,totalNum:q.num*mult,unit:q.unit,raw:ing};
+    else items[key].totalNum+=q.num*mult;
+  })});
+  const grouped={};
+  Object.entries(items).forEach(([key,v])=>{
+    const cat=categorize(key);if(!grouped[cat])grouped[cat]=[];grouped[cat].push(v);
+  });
+  let text=`Shopping List (${mealPlan.length} meals, ${portions} portions)\n`;
+  CAT_ORDER.forEach(cat=>{
+    if(!grouped[cat]||!grouped[cat].length)return;
+    text+=`\n${cat}\n`;
+    grouped[cat].sort((a,b)=>a.name.localeCompare(b.name)).forEach(it=>{
+      const inP=pantryItems.includes(baseIngredient(it.raw));
+      const qty=it.totalNum?` — ${formatQty(it.totalNum,it.unit)}`:'';
+      const cleaned=cleanName(it.name);
+      const name=cleaned.charAt(0).toUpperCase()+cleaned.slice(1);
+      text+=`${inP?'✓':'☐'} ${name}${qty}\n`;
+    });
+  });
+  navigator.clipboard.writeText(text).then(()=>toast('Copied!'));
+}
+
+function getShoppingText(){
+  if(!mealPlan.length)return '';
+  const all=getAllRecipes();const items={};const mult=portions/2;
+  mealPlan.forEach(name=>{const r=all.find(x=>x.n===name);if(!r)return;r.i.forEach(ing=>{
+    const key=baseIngredient(ing);const q=parseQty(ing);
+    if(!items[key])items[key]={name:q.name||key,totalNum:q.num*mult,unit:q.unit,raw:ing};
+    else items[key].totalNum+=q.num*mult;
+  })});
+  const grouped={};
+  Object.entries(items).forEach(([key,v])=>{
+    const cat=categorize(key);if(!grouped[cat])grouped[cat]=[];grouped[cat].push(v);
+  });
+  let text=`Shopping List — ${mealPlan.length} meals, ${portions} portions\n${new Date().toLocaleDateString()}\n`;
+  CAT_ORDER.forEach(cat=>{
+    if(!grouped[cat]||!grouped[cat].length)return;
+    text+=`\n${cat}\n`;
+    grouped[cat].sort((a,b)=>a.name.localeCompare(b.name)).forEach(it=>{
+      const cleaned=cleanName(it.name);
+      const name=cleaned.charAt(0).toUpperCase()+cleaned.slice(1);
+      const qty=it.totalNum?` — ${formatQty(it.totalNum,it.unit)}`:'';
+      text+=`☐ ${name}${qty}\n`;
+    });
+  });
+  text+=`\nMeals:\n${mealPlan.map((m,i)=>`${i+1}. ${m}`).join('\n')}`;
+  return text;
+}
+
+function exportShoppingPDF(){
+  if(!mealPlan.length){toast('No plan to export');return}
+  const text=getShoppingText();
+  const win=window.open('','_blank');
+  win.document.write(`<html><head><title>Shopping List</title>
+    <style>body{font-family:system-ui;padding:40px;max-width:600px;margin:auto;color:#29333C}
+    h1{color:#ff0032;font-size:1.4rem;margin-bottom:4px}
+    .date{color:#5E7182;font-size:.85rem;margin-bottom:20px}
+    h2{font-size:1rem;color:#412DEE;border-bottom:2px solid #F4F7FA;padding-bottom:4px;margin:16px 0 8px}
+    .item{padding:3px 0;font-size:.9rem}
+    .meals{margin-top:20px;color:#5E7182;font-size:.82rem}
+    @media print{body{padding:20px}}</style></head><body>`);
+  win.document.write(`<h1>Shopping List</h1><div class="date">${mealPlan.length} meals · ${portions} portions · ${new Date().toLocaleDateString()}</div>`);
+  const all=getAllRecipes();const items={};const mult=portions/2;
+  mealPlan.forEach(name=>{const r=all.find(x=>x.n===name);if(!r)return;r.i.forEach(ing=>{
+    const key=baseIngredient(ing);const q=parseQty(ing);
+    if(!items[key])items[key]={name:q.name||key,totalNum:q.num*mult,unit:q.unit,raw:ing};
+    else items[key].totalNum+=q.num*mult;
+  })});
+  const grouped={};
+  Object.entries(items).forEach(([key,v])=>{const cat=categorize(key);if(!grouped[cat])grouped[cat]=[];grouped[cat].push(v)});
+  CAT_ORDER.forEach(cat=>{
+    if(!grouped[cat]||!grouped[cat].length)return;
+    win.document.write(`<h2>${cat}</h2>`);
+    grouped[cat].sort((a,b)=>a.name.localeCompare(b.name)).forEach(it=>{
+      const cleaned=cleanName(it.name);
+      const name=cleaned.charAt(0).toUpperCase()+cleaned.slice(1);
+      const qty=it.totalNum?` — <strong>${formatQty(it.totalNum,it.unit)}</strong>`:'';
+      win.document.write(`<div class="item">☐ ${name}${qty}</div>`);
+    });
+  });
+  win.document.write(`<div class="meals"><strong>Meals:</strong><br>${mealPlan.map((m,i)=>`${i+1}. ${m}`).join('<br>')}</div>`);
+  win.document.write('</body></html>');
+  win.document.close();
+  setTimeout(()=>win.print(),300);
+}
+
+function shareToNotes(){
+  if(!mealPlan.length){toast('No plan to share');return}
+  const text=getShoppingText();
+  if(navigator.share){
+    navigator.share({title:'Shopping List',text}).catch(()=>{});
+    toast('Opening share sheet...');
+  } else {
+    navigator.clipboard.writeText(text).then(()=>toast('Copied! Paste into Notes'));
+  }
+}
+
+const CAT_ORDER=[
+  'Red Meat','White Meat','Fish & Seafood',
+  'Cheese','Eggs','Dairy',
+  'Garlic & Ginger',
+  'Root Vegetables','Leafy Greens','Vegetables','Fresh Fruit',
+  'Packaged Fruits & Vegetables',
+  'Pasta','Rice & Grains','Noodles','Bread & Wraps',
+  'Tinned & Jarred','Beans & Pulses',
+  'Nuts','Seeds',
+  'Herbs',
+  'Seasonings & Spices',
+  'Sauces','Pastes','Chutneys & Condiments',
+  'Oils & Vinegars','Cupboard Essentials'
+];
+function categorize(s){
+  // Compound early exits — order matters
+  if(/naan|naans/.test(s))return 'Bread & Wraps';
+  if(/pesto/.test(s))return 'Chutneys & Condiments';
+  if(/peanut butter/.test(s))return 'Cupboard Essentials';
+  if(/\bmarmite\b/.test(s))return 'Cupboard Essentials';
+  if(/\bmint sauce\b/.test(s))return 'Chutneys & Condiments';
+  if(/red chilli relish/.test(s))return 'Chutneys & Condiments';
+  if(/fine green beans/.test(s))return 'Vegetables';
+  if(/caribbean.*paste|jerk paste/.test(s))return 'Pastes';
+  if(/stock mix|stock$|vegetable stock/.test(s))return 'Seasonings & Spices';
+  if(/noodle|udon/.test(s))return 'Noodles';
+  if(/fish sauce/.test(s))return 'Sauces';
+  if(/ketjap manis/.test(s))return 'Sauces';
+  if(/\bmayonnaise\b/.test(s))return 'Sauces';
+  if(/tomato paste|sun-dried tomato paste/.test(s))return 'Pastes';
+  if(/coconut & turmeric/.test(s))return 'Seasonings & Spices';
+  if(/coconut(?!.*curry)/.test(s))return 'Cupboard Essentials';
+  if(/sausages?\b/.test(s)&&!/sausage meat/.test(s))return 'Red Meat';
+  // Garlic & Ginger
+  if(/\bgarlic\b|\bginger\b/.test(s))return 'Garlic & Ginger';
+  // Meat
+  if(/beef|lamb|pork|sausage meat|bacon|lardons|chorizo|prosciutto|nduja/.test(s))return 'Red Meat';
+  if(/chicken|poultry/.test(s))return 'White Meat';
+  if(/mince/.test(s))return 'Red Meat';
+  if(/prawn|fish|mackerel|haddock|pollock|basa/.test(s))return 'Fish & Seafood';
+  // Dairy
+  if(/parmesan|feta|cheddar|pecorino|paneer|mozzarella|soft cheese/.test(s))return 'Cheese';
+  if(/\begg\b/.test(s))return 'Eggs';
+  if(/cream|yoghurt|milk|cr.me fra.che|cultured/.test(s))return 'Dairy';
+  // Pulses
+  if(/bean(?! paste)|lentil|chickpea|cannellini/.test(s))return 'Beans & Pulses';
+  // Pastes
+  if(/lemongrass.*paste|lime leaf.*paste|curry paste|thai.*paste|massaman|panang/.test(s))return 'Pastes';
+  if(/paste|gochujang|romesco|harissa|miso|sambal|broth/.test(s))return 'Pastes';
+  // Nuts & Seeds
+  if(/sesame seed|black sesame|toasted sesame seed/.test(s))return 'Seeds';
+  if(/peanut|cashew|almond|walnut|pistachio/.test(s))return 'Nuts';
+  if(/cumin seed|coriander seed|fennel seed|mustard seed/.test(s))return 'Seeds';
+  // Packaged Fruits & Vegetables
+  if(/pineapple slice|dried cranberr|garden veg|veg mix/.test(s))return 'Packaged Fruits & Vegetables';
+  // Tinned
+  if(/chopped tomato|bean medley|passata/.test(s))return 'Tinned & Jarred';
+  // Herbs — fresh and dried
+  if(/lemongrass stalk|fresh lemongrass/.test(s))return 'Herbs';
+  if(/\b(basil|parsley|coriander|thyme|mint|dill|chives?|rocket|tarragon|oregano|sage)\b/.test(s)&&!/sauce/.test(s))return 'Herbs';
+  if(/bay leaves|bay leaf/.test(s))return 'Herbs';
+  // Sauces
+  if(/sauce|ketchup|hoisin|sriracha|worcestershire|henderson|relish|soy sauce/.test(s))return 'Sauces';
+  // Chutneys & Condiments
+  if(/chutney|mustard|jelly|marmalade|vindaloo/.test(s))return 'Chutneys & Condiments';
+  // Fruit
+  if(/\blime\b|\blemon\b|apple(?!.*slaw)/.test(s))return 'Fresh Fruit';
+  if(/sultana|raisin|mango/.test(s))return 'Cupboard Essentials';
+  // Vegetables — specific items
+  if(/black olive/.test(s))return 'Vegetables';
+  if(s==='pepper'||/sweet pointed pepper/.test(s))return 'Vegetables';
+  if(/sugar snap/.test(s))return 'Vegetables';
+  // Spices
+  if(/cumin(?! seed)|paprika|turmeric|cinnamon|cayenne|black pepper|cracked.*pepper|chilli flake|dried chilli|cardamom|sumac|saffron/.test(s))return 'Seasonings & Spices';
+  // Seasonings
+  if(/garam|curry powder|five.?spice|ras el|seasoning|umami|salt|stock|sprinkle|shichimi|southern fried/.test(s))return 'Seasonings & Spices';
+  // Oils & Vinegars
+  if(/oil|vinegar|wine$|rice wine|mirin/.test(s))return 'Oils & Vinegars';
+  // Cupboard Essentials
+  if(/crispy onion|cornflour|flour|breadcrumb|panko|honey|sugar|olive(?!.*oil)|caper|pastry|oat(?!s)|gravy|coconut/.test(s))return 'Cupboard Essentials';
+  // Vegetables
+  if(/potato|carrot|sweet potato|squash|butternut|beetroot|parsnip|chantenay/.test(s))return 'Root Vegetables';
+  if(/spinach|lettuce|kale|cabbage|spring green|greens|salad|pak choi|slaw/.test(s))return 'Leafy Greens';
+  if(/onion|pepper(?!corn)|tomato(?!.*paste|.*ketchup|.*sauce)|mushroom|leek|courgette|broccoli|pea(?!nut)|corn|cucumber|radish|chilli|spring onion|shallot|celery|aubergine|sweetcorn|sugar snap|olive/.test(s))return 'Vegetables';
+  // Carbs
+  if(/pasta|orzo|spaghetti|orecchiette|tagliatelle|tortiglioni|farfalle|macaroni|linguine|conchiglie|mafaldine|gnocchi/.test(s))return 'Pasta';
+  if(/rice|bulgur|spelt|arborio/.test(s))return 'Rice & Grains';
+  if(/tortilla|bread|ciabatta|roti|pitta|bun/.test(s))return 'Bread & Wraps';
+  return 'Cupboard Essentials';
+}
+
+function subCategorize(cat,s){
+  if(cat==='Red Meat'){
+    if(/sausage/.test(s))return 'Sausages';
+    if(/bacon|lardons|prosciutto|nduja|chorizo/.test(s))return 'Bacon & Cured';
+    if(/\bbeef\b/.test(s))return 'Beef';
+    if(/\blamb\b/.test(s))return 'Lamb';
+    if(/pork/.test(s))return 'Pork';
+    return null;
+  }
+  if(cat==='Herbs'){
+    if(/^dried /.test(s))return 'Dried';
+    return 'Fresh';
+  }
+  if(cat==='Seasonings & Spices'){
+    if(/stock/.test(s))return 'Stock';
+    if(/umami|southern fried|five.?spice|shichimi|coconut & turmeric/.test(s))return 'Pre-mixed';
+    return 'Spices';
+  }
+  if(cat==='Vegetables'){
+    if(/onion|shallot|leek/.test(s))return 'Onions & Alliums';
+    if(/pepper|chilli/.test(s))return 'Peppers & Chillies';
+    if(/mushroom/.test(s))return 'Mushrooms';
+    if(/tomato/.test(s)&&!/paste|ketchup|sauce/.test(s))return 'Tomatoes';
+    return 'Other';
+  }
+  if(cat==='Packaged Fruits & Vegetables'){
+    if(/cranberr|pineapple|sultana/.test(s))return 'Fruit';
+    return 'Vegetables';
+  }
+  if(cat==='Sauces'){
+    if(/mayonnaise|ketchup/.test(s))return 'Jarred';
+    return 'Bottled';
+  }
+  if(cat==='Chutneys & Condiments'){
+    if(/pesto/.test(s))return 'Pestos';
+    return 'Condiments';
+  }
+  if(cat==='Cupboard Essentials'){
+    if(/honey|sugar|sultana|oat|jam|syrup|chocolate/.test(s))return 'Sweet';
+    return 'Savoury';
+  }
+  return null;
+}
+
+// FAVOURITES
+function renderFavourites(){
+  const all=getAllRecipes();
+  const grid=document.getElementById('favGrid');
+  const empty=document.getElementById('favEmpty');
+  const favRecipes=all.filter(r=>favourites.includes(r.n));
+  if(!favRecipes.length){grid.innerHTML='';empty.style.display='';} else{empty.style.display='none';grid.innerHTML=favRecipes.map(r=>recipeCard(r)).join('')}
+  renderSavedPlans();
+}
+
+function renderSavedPlans(){
+  const grid=document.getElementById('savedPlansGrid');
+  const empty=document.getElementById('savedPlansEmpty');
+  if(!savedPlans.length){grid.innerHTML='';empty.style.display='';return}
+  empty.style.display='none';
+  grid.innerHTML=savedPlans.map((p,idx)=>`
+    <div class="saved-plan">
+      <h3>${esc(p.name)}</h3>
+      <div class="sp-meals">${p.meals.length} meals · ${p.portions||2} portions · Saved ${p.date}</div>
+      <div style="font-size:.82rem;color:var(--muted);margin-bottom:8px">${p.meals.map(m=>esc(m)).join(' → ')}</div>
+      <button class="btn btn-green btn-sm" onclick="loadSavedPlan(${idx})">Load Plan</button>
+      <button class="btn btn-red btn-sm" onclick="deleteSavedPlan(${idx})">Delete</button>
+    </div>`).join('');
+}
+
+// PANTRY
+function capFirst(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+
+function renderPantry(){
+  const all=getAllRecipes();
+  const search=(document.getElementById('pantrySearch')?.value||'').toLowerCase();
+  const allIngs=new Set();
+  all.forEach(r=>r.i.forEach(i=>allIngs.add(baseIngredient(i))));
+  let sorted=[...allIngs].sort();
+  if(search)sorted=sorted.filter(i=>i.includes(search));
+
+  const grouped={};
+  CAT_ORDER.forEach(c=>grouped[c]=[]);
+  sorted.forEach(ing=>{const cat=categorize(ing);if(!grouped[cat])grouped[cat]=[];grouped[cat].push(ing)});
+
+  document.getElementById('pantryGrid').innerHTML=CAT_ORDER.filter(cat=>grouped[cat]&&grouped[cat].length).map(cat=>{
+    const items=grouped[cat];
+    const subs={};const subOrder=[];
+    items.forEach(ing=>{
+      const sub=subCategorize(cat,ing)||'_';
+      if(!subs[sub]){subs[sub]=[];subOrder.push(sub)}
+      subs[sub].push(ing);
+    });
+    const hasSubs=subOrder.length>1||subOrder[0]!=='_';
+    return `<div class="pantry-category">
+      <h3>${cat}</h3>
+      ${subOrder.map(sub=>`
+        ${hasSubs&&sub!=='_'?`<div class="pantry-sub">${sub}</div>`:''}
+        ${subs[sub].map(ing=>{
+          const checked=pantryItems.includes(ing);
+          const display=capFirst(ing);
+          return `<div class="pantry-item">
+            <input type="checkbox" ${checked?'checked':''} onchange="togglePantry('${ing.replace(/'/g,"\\'")}',this)">
+            <span>${display}</span>
+          </div>`;
+        }).join('')}
+      `).join('')}
+    </div>`;
+  }).join('');
+}
+
+function togglePantry(ing,el){
+  if(el.checked){if(!pantryItems.includes(ing))pantryItems.push(ing)}
+  else pantryItems=pantryItems.filter(x=>x!==ing);
+  savePantry();
+}
+
+// FILING
+const FILING_CAT_ORDER=[
+  'Italian - Pasta','Italian - Orzo & Risotto','Italian - Other',
+  'French','Spanish','Greek & Mediterranean','British','Other European',
+  'Soups','Stews & Casseroles',
+  'Chinese','Japanese','Korean','Thai','Southeast Asian',
+  'Indian - Curry','Indian - Other',
+  'Mexican','Americas & Caribbean','African','Other'
+];
+
+function filingCategory(r){
+  const c=r.c,t=r.t;
+  if(t==='soup'||t==='noodle soup')return 'Soups';
+  if(t==='stew'||t==='casserole')return 'Stews & Casseroles';
+  if(c==='Italy'){
+    if(/pasta/.test(t))return 'Italian - Pasta';
+    if(/orzo|risotto/.test(t))return 'Italian - Orzo & Risotto';
+    return 'Italian - Other';
+  }
+  if(c==='France')return 'French';
+  if(c==='Spain')return 'Spanish';
+  if(c==='Greece')return 'Greek & Mediterranean';
+  if(c==='UK')return 'British';
+  if(/Turkey|Sweden|Russia|Hungary|North Africa|Middle East|Lebanon/.test(c))return 'Other European';
+  if(c==='China'||c==='Taiwan')return 'Chinese';
+  if(c==='Japan')return 'Japanese';
+  if(c==='South Korea')return 'Korean';
+  if(c==='Thailand')return 'Thai';
+  if(/Vietnam|Malaysia|Indonesia|Philippines|Southeast Asia/.test(c))return 'Southeast Asian';
+  if(/India|Bangladesh|Sri Lanka/.test(c)){
+    if(/curry|dal/.test(t))return 'Indian - Curry';
+    return 'Indian - Other';
+  }
+  if(c==='Mexico')return 'Mexican';
+  if(/Caribbean|Brazil|Peru|USA/.test(c))return 'Americas & Caribbean';
+  if(/West Africa|Mozambique/.test(c))return 'African';
+  return 'Other';
+}
+
+function getBinderRef(recipeName){
+  const idx=filingOrder.indexOf(recipeName);
+  if(idx<0)return null;
+  const mid=Math.ceil(filingOrder.length/2);
+  const binder=idx<mid?1:2;
+  const num=idx<mid?idx+1:idx-mid+1;
+  return{binder,num,label:`B${binder} R${num}`};
+}
+
+function initFiling(){
+  const all=getAllRecipes();
+  const allNames=new Set(all.map(r=>r.n));
+  // Remove recipes no longer in the collection
+  filingOrder=filingOrder.filter(n=>allNames.has(n));
+  // Find new recipes not yet filed
+  const filed=new Set(filingOrder);
+  const newRecipes=all.filter(r=>!filed.has(r.n));
+  if(newRecipes.length){
+    // Auto-categorize and insert at end of their category
+    const catGroups={};
+    FILING_CAT_ORDER.forEach(c=>catGroups[c]=[]);
+    newRecipes.forEach(r=>{
+      const cat=filingCategory(r);
+      if(!catGroups[cat])catGroups[cat]=[];
+      catGroups[cat].push(r.n);
+    });
+    // Insert each group after the last item of that category in filingOrder
+    FILING_CAT_ORDER.forEach(cat=>{
+      if(!catGroups[cat]||!catGroups[cat].length)return;
+      const allR=getAllRecipes();
+      // Find last index of this category in current order
+      let insertIdx=filingOrder.length;
+      for(let i=filingOrder.length-1;i>=0;i--){
+        const r=allR.find(x=>x.n===filingOrder[i]);
+        if(r&&filingCategory(r)===cat){insertIdx=i+1;break}
+      }
+      catGroups[cat].sort().forEach((name,j)=>{
+        filingOrder.splice(insertIdx+j,0,name);
+        if(!filingNewFlags.includes(name))filingNewFlags.push(name);
+      });
+    });
+    saveFiling();
+  }
+}
+
+function autoSortFiling(){
+  const all=getAllRecipes();
+  filingOrder=[];
+  FILING_CAT_ORDER.forEach(cat=>{
+    const inCat=all.filter(r=>filingCategory(r)===cat).sort((a,b)=>a.n.localeCompare(b.n));
+    inCat.forEach(r=>filingOrder.push(r.n));
+  });
+  saveFiling();
+  renderFiling();
+  toast('Recipes sorted by category');
+}
+
+function clearNewFlags(){
+  filingNewFlags=[];
+  saveFiling();
+  renderFiling();
+}
+
+function moveRecipeTo(name,targetNum){
+  const fromIdx=filingOrder.indexOf(name);
+  if(fromIdx<0)return;
+  const toIdx=Math.max(0,Math.min(filingOrder.length-1,targetNum-1));
+  filingOrder.splice(fromIdx,1);
+  filingOrder.splice(toIdx,0,name);
+  saveFiling();
+  renderFiling();
+}
+
+let draggedFiling=null;
+function filingDragStart(e,name){
+  draggedFiling=name;
+  e.target.classList.add('dragging');
+  e.dataTransfer.effectAllowed='move';
+}
+function filingDragEnd(e){
+  e.target.classList.remove('dragging');
+  document.querySelectorAll('.filing-row.drag-over').forEach(el=>el.classList.remove('drag-over'));
+  draggedFiling=null;
+}
+function filingDragOver(e,name){
+  e.preventDefault();
+  e.dataTransfer.dropEffect='move';
+  const row=e.currentTarget;
+  document.querySelectorAll('.filing-row.drag-over').forEach(el=>el.classList.remove('drag-over'));
+  row.classList.add('drag-over');
+}
+function filingDrop(e,targetName){
+  e.preventDefault();
+  document.querySelectorAll('.filing-row.drag-over').forEach(el=>el.classList.remove('drag-over'));
+  if(!draggedFiling||draggedFiling===targetName)return;
+  const fromIdx=filingOrder.indexOf(draggedFiling);
+  const toIdx=filingOrder.indexOf(targetName);
+  if(fromIdx<0||toIdx<0)return;
+  filingOrder.splice(fromIdx,1);
+  filingOrder.splice(toIdx,0,draggedFiling);
+  saveFiling();
+  renderFiling();
+}
+
+function renderFiling(){
+  initFiling();
+  const all=getAllRecipes();
+  const mid=Math.ceil(filingOrder.length/2);
+  const container=document.getElementById('filingList');
+  let html='';
+
+  [1,2].forEach(binder=>{
+    const start=binder===1?0:mid;
+    const end=binder===1?mid:filingOrder.length;
+    const items=filingOrder.slice(start,end);
+    html+=`<div class="filing-binder">`;
+    html+=`<div class="filing-binder-header"><span>Binder ${binder}</span><span class="count">${items.length} recipes</span></div>`;
+
+    let lastCat='';
+    items.forEach((name,i)=>{
+      const globalIdx=start+i;
+      const r=all.find(x=>x.n===name);
+      const cat=r?filingCategory(r):'Other';
+      const ref=`B${binder} R${i+1}`;
+      const isNew=filingNewFlags.includes(name);
+
+      if(cat!==lastCat){
+        html+=`<div class="filing-cat-header">${cat}</div>`;
+        lastCat=cat;
+      }
+
+      html+=`<div class="filing-row" draggable="true"
+        ondragstart="filingDragStart(event,'${escQ(name)}')"
+        ondragend="filingDragEnd(event)"
+        ondragover="filingDragOver(event,'${escQ(name)}')"
+        ondrop="filingDrop(event,'${escQ(name)}')">
+        <span class="drag-handle">⠿</span>
+        <span class="num">${ref}</span>
+        <span class="name" onclick="openRecipe('${escQ(name)}')">${esc(name)}</span>
+        ${isNew?'<span class="new-badge">NEW</span>':''}
+        <span class="cat-pill">${esc(cat)}</span>
+        <input class="move-input" type="number" min="1" placeholder="#"
+          onkeydown="if(event.key==='Enter'){moveRecipeTo('${escQ(name)}',parseInt(this.value)+(${binder}===2?${mid}:0));this.value=''}">
+      </div>`;
+    });
+    html+=`</div>`;
+  });
+
+  container.innerHTML=html;
+}
+
+// ADD RECIPE
+function previewCard(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    document.getElementById('cardPreview').innerHTML=`<img src="${e.target.result}" alt="Recipe card">`;
+    document.getElementById('uploadArea').querySelector('p').textContent='Click to change image';
+  };
+  reader.readAsDataURL(file);
+}
+
+function addRecipe(){
+  const name=document.getElementById('addName').value.trim();
+  if(!name){toast('Recipe name is required');return}
+  const ingText=document.getElementById('addIngredients').value.trim();
+  if(!ingText){toast('Add at least one ingredient');return}
+  const recipe={
+    n:name,
+    c:document.getElementById('addCountry').value.trim()||'Unknown',
+    t:document.getElementById('addCuisine').value.trim()||'other',
+    m:parseInt(document.getElementById('addTime').value)||30,
+    k:parseInt(document.getElementById('addCal').value)||0,
+    o:document.getElementById('addNotes').value.trim(),
+    f:document.getElementById('addFreeze').checked?1:0,
+    b:document.getElementById('addBulk').checked?1:0,
+    i:ingText.split('\n').map(l=>l.replace(/^[-•]\s*/,'').trim()).filter(Boolean)
+  };
+  customRecipes.push(recipe);saveCustom();
+  toast(`"${name}" added!`);
+  document.getElementById('addName').value='';document.getElementById('addIngredients').value='';
+  document.getElementById('addCountry').value='';document.getElementById('addCuisine').value='';
+  document.getElementById('addTime').value='';document.getElementById('addCal').value='';
+  document.getElementById('addNotes').value='';document.getElementById('addFreeze').checked=false;
+  document.getElementById('addBulk').checked=false;document.getElementById('cardPreview').innerHTML='';
+  populateFilters();
+  closeAddRecipeModal();
+  renderFiling();
+}
+
+// STATS
+function renderStats(){
+  const all=getAllRecipes();
+  const cals=all.map(r=>r.k);const avgCal=Math.round(cals.reduce((a,b)=>a+b,0)/cals.length);
+  const times=all.map(r=>r.m);const avgTime=Math.round(times.reduce((a,b)=>a+b,0)/times.length);
+  const cuisines=[...new Set(all.map(r=>r.t))];const countries=[...new Set(all.map(r=>r.c))];
+  document.getElementById('statsGrid').innerHTML=`
+    <div class="stat"><div class="num">${all.length}</div><div class="label">Recipes</div></div>
+    <div class="stat"><div class="num">${cuisines.length}</div><div class="label">Cuisines</div></div>
+    <div class="stat"><div class="num">${countries.length}</div><div class="label">Countries</div></div>
+    <div class="stat"><div class="num">${avgCal}</div><div class="label">Avg kcal</div></div>
+    <div class="stat"><div class="num">${avgTime}m</div><div class="label">Avg Time</div></div>
+    <div class="stat"><div class="num">${favourites.length}</div><div class="label">Favourites</div></div>`;
+
+  const cc={};all.forEach(r=>{cc[r.t]=(cc[r.t]||0)+1});
+  document.getElementById('statsCuisine').innerHTML=barChart(cc);
+  const co={};all.forEach(r=>{co[r.c]=(co[r.c]||0)+1});
+  document.getElementById('statsCountry').innerHTML=barChart(co);
+  const cb={'<500':0,'500-600':0,'600-700':0,'700-800':0,'800+':0};
+  all.forEach(r=>{if(r.k<500)cb['<500']++;else if(r.k<600)cb['500-600']++;else if(r.k<700)cb['600-700']++;else if(r.k<800)cb['700-800']++;else cb['800+']++});
+  document.getElementById('statsCal').innerHTML=barChart(cb);
+  const tb={'≤20m':0,'21-30':0,'31-45':0,'46-60':0,'60+':0};
+  all.forEach(r=>{if(r.m<=20)tb['≤20m']++;else if(r.m<=30)tb['21-30']++;else if(r.m<=45)tb['31-45']++;else if(r.m<=60)tb['46-60']++;else tb['60+']++});
+  document.getElementById('statsTime').innerHTML=barChart(tb);
+}
+
+function barChart(data){
+  const sorted=Object.entries(data).sort((a,b)=>b[1]-a[1]);
+  const max=Math.max(...sorted.map(x=>x[1]));
+  return sorted.map(([l,c])=>`
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:.82rem">
+      <span style="min-width:110px;text-align:right;color:var(--muted)">${l}</span>
+      <div style="flex:1;background:var(--cream);border-radius:3px;height:18px;overflow:hidden">
+        <div style="width:${(c/max*100)}%;background:var(--coral);height:100%;border-radius:3px;transition:.3s"></div>
+      </div>
+      <span style="min-width:22px;font-weight:700;font-size:.8rem">${c}</span>
+    </div>`).join('');
+}
+
+// INIT
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+function populateFilters(){
+  const all=getAllRecipes();
+  const cuisineSet=new Set();
+  all.forEach(r=>{cuisineSet.add(r.t);(r.t2||[]).forEach(t=>cuisineSet.add(t))});
+  const cuisines=[...cuisineSet].sort((a,b)=>a.localeCompare(b));
+  const countries=[...new Set(all.map(r=>r.c))].sort((a,b)=>a.localeCompare(b));
+  ['filterCuisine','planCuisine'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.innerHTML=`<option value="">All</option>`+cuisines.map(c=>`<option value="${c}">${cap(c)}</option>`).join('');
+  });
+  document.getElementById('filterCountry').innerHTML=`<option value="">All</option>`+countries.map(c=>`<option value="${c}">${c}</option>`).join('');
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+populateFilters();
+initFiling();
+renderBrowse();
+renderPlan();renderPlanHistory();
+
+// Chip select handlers
+document.querySelectorAll('.chip-select').forEach(group=>{
+  group.querySelectorAll('.chip').forEach(chip=>{
+    chip.addEventListener('click',()=>{
+      group.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      const hidden=group.nextElementSibling;
+      if(hidden&&hidden.type==='hidden')hidden.value=chip.dataset.val;
+      if(group.id==='planPortionsChips'){
+        planPortions=parseInt(chip.dataset.val);
+        portions=planPortions;
+        document.getElementById('portionNum').textContent=portions;
+        save('gousto_portions',portions);
+        savePlan();renderPlan();
+      }
+    });
+  });
+});
+
+// Set initial chip states
+document.getElementById('planPortions').value=planPortions;
+document.querySelectorAll('#planPortionsChips .chip').forEach(c=>{
+  c.classList.toggle('active',c.dataset.val==String(planPortions));
+});
+</script>
+</body>
+</html>
