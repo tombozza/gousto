@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#ff0032">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gousto">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <title>Gousto Meal Planner</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -1764,6 +1771,14 @@ document.getElementById('planPortions').value=planPortions;
 document.querySelectorAll('#planPortionsChips .chip').forEach(c=>{
   c.classList.toggle('active',c.dataset.val==String(planPortions));
 });
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').then(r => {
+    navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload());
+    r.update();
+  }).catch(() => {});
+}
 </script>
 </body>
 </html>
