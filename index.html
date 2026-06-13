@@ -3,14 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#ff0032">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Gousto">
-<link rel="manifest" href="manifest.json">
-<link rel="icon" href="icons/icon-192.png" type="image/png">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
 <title>Gousto Meal Planner</title>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -55,6 +49,11 @@ nav{background:var(--teal);position:sticky;top:0;z-index:100}
 .pill-note{background:#6b4c8a;color:#f3eef8}
 .pill-freeze{background:#1a6f5c;color:#d4f0ea}
 .pill-bulk{background:#8a6d3b;color:#faf3e5}
+.pill-spicy{background:#c0392b;color:#fff}
+.pill-tag{background:#0d7a5f;color:#fff}
+.modal-tag{display:inline-flex;align-items:center;gap:5px;padding:3px 6px 3px 10px;border-radius:999px;font-size:.78rem;font-weight:600;background:#0d7a5f;color:#fff}
+.modal-tag button{background:rgba(255,255,255,.25);border:none;color:#fff;width:16px;height:16px;border-radius:50%;cursor:pointer;font-size:.7rem;line-height:1;display:flex;align-items:center;justify-content:center;padding:0}
+.modal-tag button:hover{background:rgba(255,255,255,.45)}
 .fav-btn{position:absolute;top:14px;right:14px;background:none;border:none;font-size:1.2rem;cursor:pointer;opacity:.4;transition:.15s;color:var(--coral)}
 .fav-btn:hover,.fav-btn.active{opacity:1}
 
@@ -75,8 +74,8 @@ textarea{resize:vertical;min-height:80px}
 .btn{padding:9px 18px;border-radius:8px;border:none;font-weight:700;cursor:pointer;font-size:.84rem;transition:.15s;font-family:inherit}
 .btn-primary{background:var(--primary);color:#fff}
 .btn-primary:hover{background:var(--primary-dark)}
-.btn-green{background:var(--primary);color:#fff}
-.btn-green:hover{background:var(--primary-dark)}
+.btn-green{background:var(--primary);color:#fff;border:1px solid var(--primary)}
+.btn-green:hover{background:var(--primary-dark);border-color:var(--primary-dark)}
 .btn-red{background:var(--red);color:#fff}
 .btn-outline{background:none;border:1px solid var(--border);color:var(--text)}
 .btn-outline:hover{border-color:var(--teal);color:var(--teal)}
@@ -273,8 +272,11 @@ textarea{resize:vertical;min-height:80px}
         <label class="toggle-chip"><input type="checkbox" id="filterQuick" onchange="renderBrowse()"><span>Quick (≤25m)</span></label>
         <label class="toggle-chip"><input type="checkbox" id="filterPrep5" onchange="renderBrowse()"><span>Prepped in 5</span></label>
         <label class="toggle-chip"><input type="checkbox" id="filterFav" onchange="renderBrowse()"><span>Favourites</span></label>
+        <label class="toggle-chip"><input type="checkbox" id="filterSpicy" onchange="renderBrowse()"><span>🌶️ Spicy</span></label>
+        <label class="toggle-chip"><input type="checkbox" id="filterNotSpicy" onchange="renderBrowse()"><span>Not Spicy</span></label>
       </div>
     </div>
+    <div id="customTagFilterWrap" style="margin-bottom:8px"></div>
     <div id="filterSummary" style="font-size:.82rem;color:var(--muted)"></div>
   </div>
   <div id="browseCount" style="margin-bottom:10px;font-size:.82rem;color:var(--muted)"></div>
@@ -454,11 +456,17 @@ textarea{resize:vertical;min-height:80px}
     <h2>Add New Recipe</h2>
     <div class="grid2" style="gap:16px">
       <div>
-        <div class="upload-area" onclick="document.getElementById('cardUpload').click()" id="uploadArea" style="margin-bottom:14px">
+        <div class="upload-area" onclick="document.getElementById('cardUpload').click()" id="uploadArea" style="margin-bottom:10px">
           <input type="file" id="cardUpload" accept="image/*" style="display:none" onchange="previewCard(this)">
           <p style="color:var(--muted)">Click to upload a recipe card image</p>
           <div id="cardPreview"></div>
         </div>
+        <button class="btn btn-primary" id="extractBtn" onclick="extractFromPhoto()" style="display:none;width:100%">📷 Extract details from photo</button>
+        <div id="ocrStatus" style="font-size:.8rem;color:var(--muted);margin-top:8px"></div>
+        <details id="ocrTextWrap" style="display:none;margin-top:8px">
+          <summary style="font-size:.8rem;color:var(--muted);cursor:pointer">View raw scanned text</summary>
+          <textarea id="ocrText" rows="6" style="margin-top:6px;font-size:.78rem" readonly></textarea>
+        </details>
       </div>
       <div class="add-form">
         <div><label>Recipe Name</label><input type="text" id="addName" placeholder="e.g. Creamy Chicken Pesto Orzo"></div>
@@ -574,8 +582,45 @@ let savedPlans=JSON.parse(localStorage.getItem('gousto_saved_plans')||'[]');
 let planHistory=JSON.parse(localStorage.getItem('gousto_plan_history')||'[]');
 let filingOrder=JSON.parse(localStorage.getItem('gousto_filing')||'[]');
 let filingNewFlags=JSON.parse(localStorage.getItem('gousto_filing_new')||'[]');
+let customTags=JSON.parse(localStorage.getItem('gousto_tags')||'{}');
 function savePlanHistory(){save('gousto_plan_history',planHistory)}
 function saveFiling(){save('gousto_filing',filingOrder);save('gousto_filing_new',filingNewFlags)}
+function saveTags(){save('gousto_tags',customTags)}
+
+// Spicy detection — applies to all recipes including future additions
+const SPICY_RE=/\bchilli\b|\bchili\b|chillies|sriracha|gochujang|harissa|jerk|cayenne|nduja|sambal|chipotle|jalapen|scotch bonnet|peri.?peri|piri.?piri|vindaloo|madras|arrabbiata|szechuan|sichuan|gumbo|\bspic(y|e)\b|fiery|hot chilli|hot sauce|kimchi|wasabi|tabasco/i;
+function isSpicy(r){
+  if(customTags['__spicy_off']&&customTags['__spicy_off'].includes(r.n))return false;
+  return SPICY_RE.test([r.n,r.t,r.o||'',...r.i].join(' '));
+}
+
+// Custom tags
+function getTags(name){return customTags[name]||[]}
+function addTag(name,tag){
+  tag=(tag||'').trim();if(!tag)return;
+  if(!customTags[name])customTags[name]=[];
+  if(!customTags[name].some(t=>t.toLowerCase()===tag.toLowerCase())){customTags[name].push(tag);saveTags()}
+}
+function removeTag(name,tag){
+  if(customTags[name]){
+    customTags[name]=customTags[name].filter(t=>t!==tag);
+    if(!customTags[name].length)delete customTags[name];
+    saveTags();
+  }
+}
+function allCustomTags(){
+  const s=new Set();
+  Object.entries(customTags).forEach(([k,arr])=>{if(k.startsWith('__'))return;arr.forEach(t=>s.add(t))});
+  return [...s].sort((a,b)=>a.localeCompare(b));
+}
+function renderTagFilters(){
+  const wrap=document.getElementById('customTagFilterWrap');if(!wrap)return;
+  const active=[...wrap.querySelectorAll('input:checked')].map(c=>c.value);
+  const tags=allCustomTags();
+  if(!tags.length){wrap.innerHTML='';return}
+  wrap.innerHTML=`<label style="margin-bottom:6px">My Tags</label><div style="display:flex;flex-wrap:wrap;gap:6px">`+
+    tags.map(t=>`<label class="toggle-chip tag-filter-chip"><input type="checkbox" value="${esc(t)}" ${active.includes(t)?'checked':''} onchange="renderBrowse()"><span>${esc(t)}</span></label>`).join('')+`</div>`;
+}
 
 function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
 function saveFavs(){save('gousto_favs',favourites)}
@@ -713,6 +758,9 @@ function getFiltered(){
   const wantQuick=document.getElementById('filterQuick')?.checked;
   const wantPrep5=document.getElementById('filterPrep5')?.checked;
   const wantFav=document.getElementById('filterFav')?.checked;
+  const wantSpicy=document.getElementById('filterSpicy')?.checked;
+  const wantNotSpicy=document.getElementById('filterNotSpicy')?.checked;
+  const activeTags=[...document.querySelectorAll('#customTagFilterWrap input:checked')].map(c=>c.value);
   const sort=document.getElementById('sortBy').value;
   let filtered=all.filter(r=>{
     if(search&&![r.n,r.t,r.c,...r.i].join(' ').toLowerCase().includes(search))return false;
@@ -723,6 +771,9 @@ function getFiltered(){
     if(wantQuick&&r.m>25)return false;
     if(wantPrep5&&!isPrep5(r))return false;
     if(wantFav&&!favourites.includes(r.n))return false;
+    if(wantSpicy&&!isSpicy(r))return false;
+    if(wantNotSpicy&&isSpicy(r))return false;
+    if(activeTags.length){const rt=getTags(r.n);if(!activeTags.some(t=>rt.includes(t)))return false;}
     return true;
   });
   const sorts={'name':(a,b)=>a.n.localeCompare(b.n),'name-desc':(a,b)=>b.n.localeCompare(a.n),'cal-asc':(a,b)=>a.k-b.k,'cal-desc':(a,b)=>b.k-a.k,'time-asc':(a,b)=>a.m-b.m,'time-desc':(a,b)=>b.m-a.m};
@@ -731,6 +782,7 @@ function getFiltered(){
 }
 
 function renderBrowse(){
+  renderTagFilters();
   const all=getAllRecipes();
   const filtered=getFiltered();
   document.getElementById('browseCount').textContent=`Showing ${filtered.length} of ${all.length} recipes`;
@@ -749,6 +801,9 @@ function renderBrowse(){
   if(document.getElementById('filterQuick')?.checked)parts.push('Quick');
   if(document.getElementById('filterPrep5')?.checked)parts.push('Prepped in 5');
   if(document.getElementById('filterFav')?.checked)parts.push('Favourites');
+  if(document.getElementById('filterSpicy')?.checked)parts.push('Spicy');
+  if(document.getElementById('filterNotSpicy')?.checked)parts.push('Not Spicy');
+  [...document.querySelectorAll('#customTagFilterWrap input:checked')].forEach(c=>parts.push(c.value));
   const summary=document.getElementById('filterSummary');
   if(summary)summary.textContent=parts.length?'Filters: '+parts.join(' · '):'';
 }
@@ -783,7 +838,9 @@ function recipeCard(r){
       <span class="pill pill-time">${r.m} min</span>
       <span class="pill pill-cal">${r.k} kcal</span>
       <span class="pill pill-country">${esc(r.c)}</span>
+      ${isSpicy(r)?'<span class="pill pill-spicy">🌶️ Spicy</span>':''}
       ${r.o?`<span class="pill pill-note">${esc(r.o)}</span>`:''}
+      ${getTags(r.n).map(t=>`<span class="pill pill-tag">${esc(t)}</span>`).join('')}
     </div>
   </div>`;
 }
@@ -806,9 +863,19 @@ function openRecipe(name){
       <span class="pill pill-time">${r.m} min</span>
       <span class="pill pill-cal">${r.k} kcal</span>
       <span class="pill pill-country">${esc(r.c)}</span>
+      ${isSpicy(r)?'<span class="pill pill-spicy">🌶️ Spicy</span>':''}
       ${r.f?'<span class="pill pill-freeze">Freezable</span>':''}
       ${r.b?'<span class="pill pill-bulk">Bulk-friendly</span>':''}
       ${r.o?`<span class="pill pill-note">${esc(r.o)}</span>`:''}
+    </div>
+    <div style="margin-bottom:12px">
+      <label style="margin-bottom:6px">My Tags</label>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+        ${getTags(name).map(t=>`<span class="modal-tag">${esc(t)}<button onclick="removeTag('${escQ(name)}','${escQ(t)}');openRecipe('${escQ(name)}');renderBrowse()" title="Remove tag">×</button></span>`).join('')}
+        <input type="text" id="newTagInput" placeholder="Add tag (e.g. Harry)" style="width:auto;flex:1;min-width:120px;padding:5px 10px;font-size:.8rem"
+          onkeydown="if(event.key==='Enter'){addTag('${escQ(name)}',this.value);openRecipe('${escQ(name)}');renderBrowse()}">
+        <button class="btn btn-sm btn-outline" onclick="addTag('${escQ(name)}',document.getElementById('newTagInput').value);openRecipe('${escQ(name)}');renderBrowse()">Add</button>
+      </div>
     </div>
     <p style="font-size:.85rem;color:var(--muted);margin-bottom:4px">Protein: <strong>${getProtein(r)}</strong></p>
     <h3 style="margin:14px 0 6px">Ingredients (x2 portions)</h3>
@@ -1511,35 +1578,30 @@ function initFiling(){
   const allNames=new Set(all.map(r=>r.n));
   // Remove recipes no longer in the collection
   filingOrder=filingOrder.filter(n=>allNames.has(n));
-  // Find new recipes not yet filed
+  filingNewFlags=filingNewFlags.filter(n=>allNames.has(n));
+
+  const recipeByName={};all.forEach(r=>recipeByName[r.n]=r);
+  const catRank={};FILING_CAT_ORDER.forEach((c,i)=>catRank[c]=i);
+  const rankOf=n=>{const r=recipeByName[n];return r?(catRank[filingCategory(r)]??999):999};
+
+  // New recipes not yet filed — slot each into its best position
   const filed=new Set(filingOrder);
-  const newRecipes=all.filter(r=>!filed.has(r.n));
-  if(newRecipes.length){
-    // Auto-categorize and insert at end of their category
-    const catGroups={};
-    FILING_CAT_ORDER.forEach(c=>catGroups[c]=[]);
-    newRecipes.forEach(r=>{
-      const cat=filingCategory(r);
-      if(!catGroups[cat])catGroups[cat]=[];
-      catGroups[cat].push(r.n);
-    });
-    // Insert each group after the last item of that category in filingOrder
-    FILING_CAT_ORDER.forEach(cat=>{
-      if(!catGroups[cat]||!catGroups[cat].length)return;
-      const allR=getAllRecipes();
-      // Find last index of this category in current order
-      let insertIdx=filingOrder.length;
-      for(let i=filingOrder.length-1;i>=0;i--){
-        const r=allR.find(x=>x.n===filingOrder[i]);
-        if(r&&filingCategory(r)===cat){insertIdx=i+1;break}
-      }
-      catGroups[cat].sort().forEach((name,j)=>{
-        filingOrder.splice(insertIdx+j,0,name);
-        if(!filingNewFlags.includes(name))filingNewFlags.push(name);
-      });
-    });
-    saveFiling();
-  }
+  const newRecipes=all.filter(r=>!filed.has(r.n)).sort((a,b)=>a.n.localeCompare(b.n));
+  if(!newRecipes.length)return;
+
+  newRecipes.forEach(r=>{
+    const rank=catRank[filingCategory(r)]??999;
+    // Keep categories ordered by rank; alphabetical within the same category
+    let idx=filingOrder.length;
+    for(let i=0;i<filingOrder.length;i++){
+      const oRank=rankOf(filingOrder[i]);
+      if(oRank>rank){idx=i;break}
+      if(oRank===rank&&filingOrder[i].localeCompare(r.n)>0){idx=i;break}
+    }
+    filingOrder.splice(idx,0,r.n);
+    if(!filingNewFlags.includes(r.n))filingNewFlags.push(r.n);
+  });
+  saveFiling();
 }
 
 function autoSortFiling(){
@@ -1649,14 +1711,73 @@ function renderFiling(){
 }
 
 // ADD RECIPE
+let uploadedCardImage=null;
 function previewCard(input){
   const file=input.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=e=>{
+    uploadedCardImage=e.target.result;
     document.getElementById('cardPreview').innerHTML=`<img src="${e.target.result}" alt="Recipe card">`;
     document.getElementById('uploadArea').querySelector('p').textContent='Click to change image';
+    document.getElementById('extractBtn').style.display='';
+    document.getElementById('ocrStatus').textContent='';
   };
   reader.readAsDataURL(file);
+}
+
+async function extractFromPhoto(){
+  if(!uploadedCardImage){toast('Upload a photo first');return}
+  if(typeof Tesseract==='undefined'){toast('OCR library still loading — try again in a moment');return}
+  const status=document.getElementById('ocrStatus');
+  const btn=document.getElementById('extractBtn');
+  btn.disabled=true;
+  status.textContent='Scanning photo… this can take 10–20 seconds.';
+  try{
+    const{data}=await Tesseract.recognize(uploadedCardImage,'eng',{
+      logger:m=>{if(m.status==='recognizing text')status.textContent=`Scanning… ${Math.round(m.progress*100)}%`;}
+    });
+    const text=data.text||'';
+    const wrap=document.getElementById('ocrTextWrap');
+    wrap.style.display='';
+    document.getElementById('ocrText').value=text;
+    const filled=parseCardText(text);
+    status.textContent=filled.length?`Filled in: ${filled.join(', ')}. Check & edit before saving.`:'Could not auto-detect fields — see raw text below and fill in manually.';
+  }catch(err){
+    status.textContent='Scan failed: '+(err&&err.message||err)+'. You can still type details manually.';
+  }finally{
+    btn.disabled=false;
+  }
+}
+
+// Best-effort parse of OCR text from a Gousto recipe card
+function parseCardText(text){
+  const filled=[];
+  const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
+  const lower=text.toLowerCase();
+
+  // Cook time — "30 mins", "Cooking time 35 minutes"
+  const timeM=lower.match(/(\d{1,3})\s*(?:min|mins|minutes)/);
+  if(timeM&&!document.getElementById('addTime').value){document.getElementById('addTime').value=timeM[1];filled.push('cook time');}
+
+  // Calories — "650 kcal", "Energy 650kcal"
+  const calM=lower.match(/(\d{3,4})\s*k?cal/);
+  if(calM&&!document.getElementById('addCal').value){document.getElementById('addCal').value=calM[1];filled.push('calories');}
+
+  // Recipe name — first substantial line that isn't a number/label
+  if(!document.getElementById('addName').value){
+    const nameLine=lines.find(l=>l.length>=8&&/[a-z]/i.test(l)&&!/^\d/.test(l)&&!/(kcal|min|ingredient|method|step|gousto|allerg|nutrition|energy|per serving)/i.test(l));
+    if(nameLine){document.getElementById('addName').value=nameLine.replace(/[^\w &'\-,()]/g,'').trim();filled.push('name');}
+  }
+
+  // Ingredients — lines that look like "Garlic clove 2" or "Orzo 150g"
+  if(!document.getElementById('addIngredients').value){
+    const ingLines=lines.filter(l=>/\d+\s*(g|ml|kg|l|tsp|tbsp|x|pkt)\b/i.test(l)||/\b(clove|cloves|portion|portions)\b/i.test(l))
+      .filter(l=>!/(kcal|cooking time|\bmins?\b|minutes|energy|fat|protein|carbohydrate|salt|sugar|fibre|per serving|per 100)/i.test(l))
+      .map(l=>l.replace(/^[-•*\d.)\s]+/,'').trim())
+      .filter(l=>l.length>2);
+    if(ingLines.length){document.getElementById('addIngredients').value=ingLines.join('\n');filled.push('ingredients');}
+  }
+  return filled;
 }
 
 function addRecipe(){
@@ -1682,8 +1803,14 @@ function addRecipe(){
   document.getElementById('addTime').value='';document.getElementById('addCal').value='';
   document.getElementById('addNotes').value='';document.getElementById('addFreeze').checked=false;
   document.getElementById('addBulk').checked=false;document.getElementById('cardPreview').innerHTML='';
+  uploadedCardImage=null;
+  document.getElementById('extractBtn').style.display='none';
+  document.getElementById('ocrStatus').textContent='';
+  document.getElementById('ocrTextWrap').style.display='none';
+  document.getElementById('uploadArea').querySelector('p').textContent='Click to upload a recipe card image';
   populateFilters();
   closeAddRecipeModal();
+  showPage('admin',document.querySelector('.nav-tab[onclick*="admin"]'));
   renderFiling();
 }
 
@@ -1771,14 +1898,6 @@ document.getElementById('planPortions').value=planPortions;
 document.querySelectorAll('#planPortionsChips .chip').forEach(c=>{
   c.classList.toggle('active',c.dataset.val==String(planPortions));
 });
-</script>
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').then(r => {
-    navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload());
-    r.update();
-  }).catch(() => {});
-}
 </script>
 </body>
 </html>
