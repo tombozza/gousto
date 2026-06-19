@@ -21,11 +21,11 @@ body{font-family:'Gill Sans','Gill Sans MT',Calibri,'Trebuchet MS',sans-serif;ba
 a{color:var(--coral);text-decoration:none}
 
 nav{background:var(--teal);position:sticky;top:0;z-index:100}
-.nav-inner{max-width:1440px;margin:auto;padding:8px 20px;display:flex;align-items:center;gap:12px;overflow-x:auto}
-.nav-logo{font-size:1.3rem;font-weight:800;color:#fff;white-space:nowrap;display:flex;align-items:center;gap:6px}
-.nav-logo b{background:var(--coral);padding:3px 10px;border-radius:6px;font-size:.95rem;letter-spacing:.5px}
-.nav-tabs{display:flex;gap:2px;flex:1;flex-wrap:nowrap}
-.nav-tab{padding:7px 14px;border-radius:8px;cursor:pointer;font-size:.82rem;font-weight:600;color:rgba(255,255,255,.7);background:none;border:2px solid transparent;white-space:nowrap;transition:background .15s,color .15s,border-color .15s;font-family:inherit;min-width:max-content}
+.nav-inner{max-width:1440px;margin:auto;padding:8px 16px;display:flex;align-items:center;gap:10px;overflow-x:auto}
+.nav-logo{font-size:1rem;font-weight:800;color:#fff;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.nav-logo b{background:var(--coral);padding:2px 7px;border-radius:5px;font-size:.78rem;letter-spacing:.4px}
+.nav-tabs{display:flex;gap:4px;flex:1;flex-wrap:nowrap;justify-content:flex-end}
+.nav-tab{padding:9px 14px;border-radius:8px;cursor:pointer;font-size:.82rem;font-weight:600;color:rgba(255,255,255,.7);background:none;border:2px solid transparent;white-space:nowrap;transition:background .15s,color .15s,border-color .15s;font-family:inherit;min-width:max-content}
 .nav-tab:hover{color:#fff;background:rgba(255,255,255,.12)}
 .nav-tab.active{color:var(--teal);background:#fff;border-color:#fff}
 
@@ -103,9 +103,14 @@ textarea{resize:vertical;min-height:80px}
 .chip:hover{border-color:var(--teal);color:var(--teal)}
 .chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
 
-.slider-wrap{display:flex;align-items:center;gap:10px}
-.slider-wrap input[type=range]{flex:1;accent-color:var(--primary);height:6px}
-.slider-val{font-size:.82rem;font-weight:700;color:var(--primary);min-width:60px;text-align:right}
+.slider-wrap{display:flex;align-items:center;gap:10px;max-width:100%}
+.slider-wrap input[type=range]{flex:1;min-width:0;width:100%;accent-color:var(--primary);height:24px}
+.slider-val{font-size:.82rem;font-weight:700;color:var(--primary);min-width:46px;text-align:right;flex-shrink:0}
+
+/* Sub-tabs (Recipes/Favourites, Meal Plan/Shopping) & Admin back — comfy touch targets */
+.browse-tab,.plan-tab{padding:11px 18px;font-size:.9rem;border-radius:10px}
+.admin-back{padding:10px 16px;font-size:.85rem;border-radius:10px;margin-bottom:14px}
+.subtab-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
 
 .toggle-chip{display:inline-flex;align-items:center;cursor:pointer;margin:0}
 .toggle-chip input{display:none}
@@ -177,6 +182,11 @@ textarea{resize:vertical;min-height:80px}
 .filing-row .drag-handle:active{cursor:grabbing}
 .binder-ref{font-size:.68rem;font-weight:700;padding:2px 7px;border-radius:4px;background:var(--teal);color:#fff;white-space:nowrap;margin-right:2px}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.filing-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.filing-clear-link{color:var(--muted);font-size:.82rem;font-weight:600;text-decoration:underline;cursor:pointer;white-space:nowrap}
+.filing-clear-link:hover{color:var(--coral)}
+.filing-search-results{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:#fff}
+.filing-search-results .filing-row{cursor:pointer}
 .pantry-item{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:.86rem;break-inside:avoid}
 .pantry-item input{accent-color:var(--teal);width:15px;height:15px}
 
@@ -200,6 +210,10 @@ textarea{resize:vertical;min-height:80px}
   .add-form .row{grid-template-columns:1fr}
   .constraint-row{flex-direction:column;align-items:stretch}
   .constraint-row input,.constraint-row select{width:100%}
+  .nav-inner{padding:8px 12px;gap:8px}
+  .logo-word{display:none}
+  .nav-tab{padding:9px 12px}
+  .browse-tab,.plan-tab{flex:1;text-align:center}
 }
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:var(--bg)}
@@ -209,7 +223,7 @@ textarea{resize:vertical;min-height:80px}
 <body>
 <nav>
 <div class="nav-inner">
-  <div class="nav-logo"><b>gousto</b> planner</div>
+  <div class="nav-logo"><b>gousto</b> <span class="logo-word">planner</span></div>
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="showPage('browse',this)">Recipes</button>
     <button class="nav-tab" onclick="showPage('plan',this)">Meal Plan</button>
@@ -441,12 +455,13 @@ textarea{resize:vertical;min-height:80px}
           <h2 style="margin:0">Recipe Organiser</h2>
           <p style="font-size:.85rem;color:var(--muted);margin-top:4px">Organise your recipe cards across two binders. Drag to reorder, or use the move button.</p>
         </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn btn-primary" onclick="openAddRecipeModal()">+ Add Recipe</button>
-          <button class="btn btn-green" onclick="autoSortFiling()">Auto-Sort</button>
-          <button class="btn btn-outline" onclick="clearNewFlags()">Clear New Flags</button>
-        </div>
+        <button class="btn btn-primary" onclick="openAddRecipeModal()">+ Add Recipe</button>
       </div>
+      <input type="text" id="filingSearch" placeholder="🔍 Find a recipe's binder &amp; number…" oninput="renderFiling()" style="margin-top:12px">
+    </div>
+    <div class="filing-toolbar">
+      <button class="btn btn-green" onclick="autoSortFiling()">Auto-Sort</button>
+      <span class="filing-clear-link" onclick="clearNewFlags()">Clear new flags</span>
     </div>
     <div id="filingList"></div>
   </div>
@@ -1744,8 +1759,26 @@ function renderFiling(){
   const all=getAllRecipes();
   const mid=Math.ceil(filingOrder.length/2);
   const container=document.getElementById('filingList');
-  let html='';
 
+  // Search mode — flat list of matches with binder + recipe number
+  const q=(document.getElementById('filingSearch')?.value||'').trim().toLowerCase();
+  if(q){
+    const matches=filingOrder.filter(name=>name.toLowerCase().includes(q));
+    if(!matches.length){
+      container.innerHTML='<div class="card" style="text-align:center;color:var(--muted)">No recipes match “'+esc(q)+'”.</div>';
+      return;
+    }
+    container.innerHTML='<div class="filing-search-results">'+matches.map(name=>{
+      const ref=getBinderRef(name);
+      return `<div class="filing-row" onclick="openRecipe('${escQ(name)}')">
+        <span class="binder-ref">${ref?ref.label:'—'}</span>
+        <span class="name">${esc(name)}</span>
+      </div>`;
+    }).join('')+'</div>';
+    return;
+  }
+
+  let html='';
   [1,2].forEach(binder=>{
     const start=binder===1?0:mid;
     const end=binder===1?mid:filingOrder.length;
