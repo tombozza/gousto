@@ -459,9 +459,19 @@ textarea{resize:vertical;min-height:80px}
         <div class="upload-area" onclick="document.getElementById('cardUpload').click()" id="uploadArea" style="margin-bottom:10px">
           <input type="file" id="cardUpload" accept="image/*" style="display:none" onchange="previewCard(this)">
           <p style="color:var(--muted)">Click to upload a recipe card image</p>
-          <div id="cardPreview"></div>
         </div>
-        <button class="btn btn-primary" id="extractBtn" onclick="extractFromPhoto()" style="display:none;width:100%">📷 Extract details from photo</button>
+        <div id="cropWrap" style="display:none;margin-bottom:10px">
+          <p style="font-size:.78rem;color:var(--muted);margin-bottom:6px">📐 Tip: drag across the photo to select <strong>just the title</strong> or <strong>just the ingredient list</strong>, then scan. Cropping tight gives far better results than scanning the whole card.</p>
+          <div id="cropContainer" style="position:relative;touch-action:none;user-select:none;display:inline-block;max-width:100%;line-height:0">
+            <img id="cropImg" style="max-width:100%;display:block;border-radius:8px" alt="Recipe card">
+            <div id="cropBox" style="position:absolute;display:none;border:2px solid var(--primary);background:rgba(65,45,238,.18);pointer-events:none"></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+            <button class="btn btn-sm btn-outline" type="button" onclick="document.getElementById('cardUpload').click()">Change image</button>
+            <button class="btn btn-sm btn-outline" type="button" onclick="clearCrop()">Clear selection</button>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="extractBtn" onclick="extractFromPhoto()" style="display:none;width:100%">📷 Scan & extract details</button>
         <div id="ocrStatus" style="font-size:.8rem;color:var(--muted);margin-top:8px"></div>
         <details id="ocrTextWrap" style="display:none;margin-top:8px">
           <summary style="font-size:.8rem;color:var(--muted);cursor:pointer">View raw scanned text</summary>
@@ -1712,17 +1722,75 @@ function renderFiling(){
 
 // ADD RECIPE
 let uploadedCardImage=null;
+let cropState={dragging:false,sx:0,sy:0,rect:null};
+
 function previewCard(input){
   const file=input.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=e=>{
     uploadedCardImage=e.target.result;
-    document.getElementById('cardPreview').innerHTML=`<img src="${e.target.result}" alt="Recipe card">`;
-    document.getElementById('uploadArea').querySelector('p').textContent='Click to change image';
+    document.getElementById('cropImg').src=uploadedCardImage;
+    document.getElementById('uploadArea').style.display='none';
+    document.getElementById('cropWrap').style.display='';
     document.getElementById('extractBtn').style.display='';
     document.getElementById('ocrStatus').textContent='';
+    document.getElementById('ocrTextWrap').style.display='none';
+    clearCrop();
+    setupCrop();
   };
   reader.readAsDataURL(file);
+}
+
+function clearCrop(){
+  cropState.rect=null;cropState.dragging=false;
+  const b=document.getElementById('cropBox');if(b)b.style.display='none';
+}
+
+function setupCrop(){
+  const cont=document.getElementById('cropContainer');
+  const box=document.getElementById('cropBox');
+  if(!cont)return;
+  const pt=e=>{const r=cont.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}};
+  cont.onpointerdown=e=>{e.preventDefault();const p=pt(e);cropState.dragging=true;cropState.sx=p.x;cropState.sy=p.y;box.style.display='block';box.style.left=p.x+'px';box.style.top=p.y+'px';box.style.width='0px';box.style.height='0px';try{cont.setPointerCapture(e.pointerId)}catch(_){}};
+  cont.onpointermove=e=>{if(!cropState.dragging)return;e.preventDefault();const p=pt(e);const x=Math.min(p.x,cropState.sx),y=Math.min(p.y,cropState.sy),w=Math.abs(p.x-cropState.sx),h=Math.abs(p.y-cropState.sy);box.style.left=x+'px';box.style.top=y+'px';box.style.width=w+'px';box.style.height=h+'px';cropState.rect={x,y,w,h};};
+  cont.onpointerup=cont.onpointercancel=e=>{cropState.dragging=false;if(cropState.rect&&(cropState.rect.w<8||cropState.rect.h<8))clearCrop();};
+}
+
+// Build a high-res, grayscaled, binarised canvas for OCR (optionally cropped)
+function buildOCRCanvas(){
+  return new Promise(resolve=>{
+    const img=new Image();
+    img.onload=()=>{
+      let sx=0,sy=0,sw=img.naturalWidth,sh=img.naturalHeight;
+      const disp=document.getElementById('cropImg');
+      if(cropState.rect&&disp.clientWidth){
+        const scale=img.naturalWidth/disp.clientWidth;
+        sx=Math.max(0,cropState.rect.x*scale);
+        sy=Math.max(0,cropState.rect.y*scale);
+        sw=Math.min(img.naturalWidth-sx,cropState.rect.w*scale);
+        sh=Math.min(img.naturalHeight-sy,cropState.rect.h*scale);
+        if(sw<10||sh<10){sx=0;sy=0;sw=img.naturalWidth;sh=img.naturalHeight;}
+      }
+      const target=1900;
+      const scl=Math.min(3,Math.max(1,target/sw));
+      const cw=Math.round(sw*scl),ch=Math.round(sh*scl);
+      const c=document.createElement('canvas');c.width=cw;c.height=ch;
+      const x=c.getContext('2d');
+      x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';
+      x.drawImage(img,sx,sy,sw,sh,0,0,cw,ch);
+      const id=x.getImageData(0,0,cw,ch),d=id.data,hist=new Array(256).fill(0);
+      for(let i=0;i<d.length;i+=4){const g=(d[i]*0.299+d[i+1]*0.587+d[i+2]*0.114)|0;d[i]=d[i+1]=d[i+2]=g;hist[g]++;}
+      // Otsu threshold
+      const total=cw*ch;let sum=0;for(let t=0;t<256;t++)sum+=t*hist[t];
+      let sumB=0,wB=0,maxVar=0,thr=140;
+      for(let t=0;t<256;t++){wB+=hist[t];if(!wB)continue;const wF=total-wB;if(!wF)break;sumB+=t*hist[t];const mB=sumB/wB,mF=(sum-sumB)/wF,v=wB*wF*(mB-mF)*(mB-mF);if(v>maxVar){maxVar=v;thr=t;}}
+      thr=Math.min(thr+10,250); // slight bias to keep thin text
+      for(let i=0;i<d.length;i+=4){const v=d[i]>thr?255:0;d[i]=d[i+1]=d[i+2]=v;}
+      x.putImageData(id,0,0);
+      resolve(c);
+    };
+    img.src=uploadedCardImage;
+  });
 }
 
 async function extractFromPhoto(){
@@ -1731,52 +1799,60 @@ async function extractFromPhoto(){
   const status=document.getElementById('ocrStatus');
   const btn=document.getElementById('extractBtn');
   btn.disabled=true;
-  status.textContent='Scanning photo… this can take 10–20 seconds.';
+  status.textContent=cropState.rect?'Preparing selected area…':'Preparing image…';
   try{
-    const{data}=await Tesseract.recognize(uploadedCardImage,'eng',{
-      logger:m=>{if(m.status==='recognizing text')status.textContent=`Scanning… ${Math.round(m.progress*100)}%`;}
-    });
+    const canvas=await buildOCRCanvas();
+    status.textContent='Scanning… 0%';
+    const worker=await Tesseract.createWorker('eng',1,{logger:m=>{if(m.status==='recognizing text')status.textContent=`Scanning… ${Math.round(m.progress*100)}%`;}});
+    await worker.setParameters({preserve_interword_spaces:'1'});
+    const{data}=await worker.recognize(canvas);
+    await worker.terminate();
     const text=data.text||'';
-    const wrap=document.getElementById('ocrTextWrap');
-    wrap.style.display='';
+    document.getElementById('ocrTextWrap').style.display='';
     document.getElementById('ocrText').value=text;
     const filled=parseCardText(text);
-    status.textContent=filled.length?`Filled in: ${filled.join(', ')}. Check & edit before saving.`:'Could not auto-detect fields — see raw text below and fill in manually.';
+    status.textContent=filled.length
+      ? `Filled in: ${filled.join(', ')}. Check & edit before saving.`
+      : 'Couldn’t read this clearly. Try dragging a tight box around just the title or the ingredient list, then scan again.';
   }catch(err){
-    status.textContent='Scan failed: '+(err&&err.message||err)+'. You can still type details manually.';
+    status.textContent='Scan failed: '+((err&&err.message)||err)+'. You can still type details manually.';
   }finally{
     btn.disabled=false;
   }
 }
 
-// Best-effort parse of OCR text from a Gousto recipe card
+// Best-effort parse of OCR text from a Gousto recipe card.
+// Overwrites a field only when a plausible value is detected, so you can
+// scan the whole card, then re-crop to the title / ingredients to refine.
 function parseCardText(text){
   const filled=[];
   const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
   const lower=text.toLowerCase();
+  const isLabel=l=>/(kcal|\bmins?\b|minutes|ingredient|method|step|gousto|good\s*food|allerg|nutrition|energy|per serving|per person|before you start|scan the qr|dairy.?free|gluten|\bfat\b|protein|carb|\bsalt\b|sugar|fibre|did you choose|you need|serves|a-day|5 a day)/i.test(l);
 
-  // Cook time — "30 mins", "Cooking time 35 minutes"
-  const timeM=lower.match(/(\d{1,3})\s*(?:min|mins|minutes)/);
-  if(timeM&&!document.getElementById('addTime').value){document.getElementById('addTime').value=timeM[1];filled.push('cook time');}
+  // Cook time — "20-30 mins", "35 minutes"
+  const timeM=lower.match(/(\d{1,3})\s*[-–]\s*(\d{1,3})\s*(?:min|mins|minutes)/)||lower.match(/(\d{1,3})\s*(?:min|mins|minutes)/);
+  if(timeM){const v=timeM[2]||timeM[1];document.getElementById('addTime').value=v;filled.push('cook time');}
 
-  // Calories — "650 kcal", "Energy 650kcal"
+  // Calories
   const calM=lower.match(/(\d{3,4})\s*k?cal/);
-  if(calM&&!document.getElementById('addCal').value){document.getElementById('addCal').value=calM[1];filled.push('calories');}
+  if(calM){document.getElementById('addCal').value=calM[1];filled.push('calories');}
 
-  // Recipe name — first substantial line that isn't a number/label
-  if(!document.getElementById('addName').value){
-    const nameLine=lines.find(l=>l.length>=8&&/[a-z]/i.test(l)&&!/^\d/.test(l)&&!/(kcal|min|ingredient|method|step|gousto|allerg|nutrition|energy|per serving)/i.test(l));
-    if(nameLine){document.getElementById('addName').value=nameLine.replace(/[^\w &'\-,()]/g,'').trim();filled.push('name');}
-  }
+  // Recipe name — wordy top line that's mostly letters and isn't a label
+  const wordy=l=>{const words=(l.match(/[A-Za-z][A-Za-z'’-]{1,}/g)||[]);const letters=l.replace(/[^A-Za-z]/g,'').length,chars=l.replace(/\s/g,'').length;return words.length>=2&&chars>0&&letters/chars>=0.7};
+  const nameCand=lines.slice(0,7).find(l=>l.length>=10&&l.length<=70&&wordy(l)&&!isLabel(l)&&!/^\d/.test(l));
+  if(nameCand){const cleaned=nameCand.replace(/[^A-Za-z0-9 &'’,()\-]/g,'').replace(/\s+/g,' ').trim();if(cleaned.length>=8){document.getElementById('addName').value=cleaned;filled.push('name');}}
 
-  // Ingredients — lines that look like "Garlic clove 2" or "Orzo 150g"
-  if(!document.getElementById('addIngredients').value){
-    const ingLines=lines.filter(l=>/\d+\s*(g|ml|kg|l|tsp|tbsp|x|pkt)\b/i.test(l)||/\b(clove|cloves|portion|portions)\b/i.test(l))
-      .filter(l=>!/(kcal|cooking time|\bmins?\b|minutes|energy|fat|protein|carbohydrate|salt|sugar|fibre|per serving|per 100)/i.test(l))
-      .map(l=>l.replace(/^[-•*\d.)\s]+/,'').trim())
-      .filter(l=>l.length>2);
-    if(ingLines.length){document.getElementById('addIngredients').value=ingLines.join('\n');filled.push('ingredients');}
-  }
+  // Ingredients — lines with a unit (g/ml/tsp/x), clove counts, or a "Name 2" count
+  const ing=lines.filter(l=>!isLabel(l)&&(
+      /\d+(\.\d+)?\s*(g|ml|kg|l|tsp|tbsp|pkt)\b/i.test(l)
+      ||/\b\d+\s*x\s*\d+/i.test(l)
+      ||/\b(clove|cloves)\b/i.test(l)
+      ||/^[A-Za-z][A-Za-z &'’()\-]{2,}\s+\d{1,2}$/.test(l)))
+    .map(l=>l.replace(/[✓✔»·•|]/g,' ').replace(/^[-*\s.)]+/,'').replace(/\s{2,}/g,' ').trim())
+    .filter(l=>l.length>2&&/[a-z]/i.test(l));
+  if(ing.length){document.getElementById('addIngredients').value=ing.join('\n');filled.push('ingredients');}
+
   return filled;
 }
 
@@ -1802,12 +1878,13 @@ function addRecipe(){
   document.getElementById('addCountry').value='';document.getElementById('addCuisine').value='';
   document.getElementById('addTime').value='';document.getElementById('addCal').value='';
   document.getElementById('addNotes').value='';document.getElementById('addFreeze').checked=false;
-  document.getElementById('addBulk').checked=false;document.getElementById('cardPreview').innerHTML='';
-  uploadedCardImage=null;
+  document.getElementById('addBulk').checked=false;
+  uploadedCardImage=null;clearCrop();
+  document.getElementById('cropWrap').style.display='none';
+  document.getElementById('uploadArea').style.display='';
   document.getElementById('extractBtn').style.display='none';
   document.getElementById('ocrStatus').textContent='';
   document.getElementById('ocrTextWrap').style.display='none';
-  document.getElementById('uploadArea').querySelector('p').textContent='Click to upload a recipe card image';
   populateFilters();
   closeAddRecipeModal();
   showPage('admin',document.querySelector('.nav-tab[onclick*="admin"]'));
