@@ -456,12 +456,24 @@ textarea{resize:vertical;min-height:80px}
     <h2>Add New Recipe</h2>
     <div class="grid2" style="gap:16px">
       <div>
+        <div style="margin-bottom:12px;padding:10px;border:1px solid var(--border);border-radius:10px;background:var(--cream)">
+          <label style="margin-bottom:4px">📷 Smart scan (Claude vision)</label>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+            <input type="password" id="apiKeyInput" placeholder="Anthropic API key (sk-ant-…)" style="flex:1;min-width:160px">
+            <button class="btn btn-sm btn-outline" type="button" onclick="saveApiKey()">Save</button>
+          </div>
+          <select id="scanModel" style="margin-top:6px" onchange="localStorage.setItem('gousto_scan_model',this.value)">
+            <option value="claude-haiku-4-5-20251001">Haiku — cheapest & fast (fractions of a penny)</option>
+            <option value="claude-sonnet-4-6">Sonnet — most accurate (~1–2p / scan)</option>
+          </select>
+          <div id="apiKeyStatus" style="font-size:.74rem;color:var(--muted);margin-top:6px"></div>
+        </div>
         <div class="upload-area" onclick="document.getElementById('cardUpload').click()" id="uploadArea" style="margin-bottom:10px">
           <input type="file" id="cardUpload" accept="image/*" style="display:none" onchange="previewCard(this)">
           <p style="color:var(--muted)">Click to upload a recipe card image</p>
         </div>
         <div id="cropWrap" style="display:none;margin-bottom:10px">
-          <p style="font-size:.78rem;color:var(--muted);margin-bottom:6px">📐 Tip: drag across the photo to select <strong>just the title</strong> or <strong>just the ingredient list</strong>, then scan. Cropping tight gives far better results than scanning the whole card.</p>
+          <p style="font-size:.78rem;color:var(--muted);margin-bottom:6px">📐 With an API key set, just scan the whole card — Claude reads it all. <strong>No key?</strong> Drag a tight box around the title or ingredient list for the free on-device scan.</p>
           <div id="cropContainer" style="position:relative;touch-action:none;user-select:none;display:inline-block;max-width:100%;line-height:0">
             <img id="cropImg" style="max-width:100%;display:block;border-radius:8px" alt="Recipe card">
             <div id="cropBox" style="position:absolute;display:none;border:2px solid var(--primary);background:rgba(65,45,238,.18);pointer-events:none"></div>
@@ -676,7 +688,12 @@ function showAdminTab(tab,btn){
   if(tab==='stats')renderStats();
 }
 
-function openAddRecipeModal(){document.getElementById('addRecipeModal').classList.add('open')}
+function openAddRecipeModal(){
+  document.getElementById('addRecipeModal').classList.add('open');
+  const k=localStorage.getItem('gousto_anthropic_key');if(k)document.getElementById('apiKeyInput').value=k;
+  const m=localStorage.getItem('gousto_scan_model');if(m)document.getElementById('scanModel').value=m;
+  refreshApiKeyStatus();
+}
 function closeAddRecipeModal(){document.getElementById('addRecipeModal').classList.remove('open')}
 
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000)}
@@ -1793,8 +1810,127 @@ function buildOCRCanvas(){
   });
 }
 
-async function extractFromPhoto(){
+// Scanner dispatch — use Claude vision if an API key is set, else free on-device OCR
+function extractFromPhoto(){
   if(!uploadedCardImage){toast('Upload a photo first');return}
+  const key=(localStorage.getItem('gousto_anthropic_key')||'').trim();
+  return key?extractWithClaude(key):extractWithOCR();
+}
+
+// API key handling — stored only in this browser's localStorage
+function saveApiKey(){
+  const v=document.getElementById('apiKeyInput').value.trim();
+  if(v)localStorage.setItem('gousto_anthropic_key',v);else localStorage.removeItem('gousto_anthropic_key');
+  refreshApiKeyStatus();
+  toast(v?'API key saved in this browser':'API key cleared');
+}
+function refreshApiKeyStatus(){
+  const el=document.getElementById('apiKeyStatus');if(!el)return;
+  const has=!!(localStorage.getItem('gousto_anthropic_key')||'').trim();
+  el.innerHTML=has
+    ? '✓ Key saved (stays in this browser only). Scans use Claude vision.'
+    : 'No key set — scans use the free on-device OCR. <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener" style="color:var(--primary)">Get an API key</a> for accurate scanning.';
+}
+
+const CARD_PROMPT=`You are reading a photo of a Gousto recipe card. Extract the details and reply with ONLY a JSON object (no markdown, no commentary) with these exact keys:
+"name": recipe title (string)
+"country": country/region of the cuisine if identifiable, else "" (e.g. "Italy","India","Thailand")
+"cuisine": short lower-case type (e.g. "pasta","curry","stir-fry","rice dish","stew","traybake","noodles")
+"time": cooking time in minutes as a number; if a range like "20-30 mins", use the higher number
+"calories": kcal per person/serving as a number
+"notes": any banner tag such as "Prepped in 5","10-Minute","One Pan Wonders", else ""
+"freezable": true only if the card states it can be frozen, else false
+"bulk": true only if it states it can be made in bulk/batch, else false
+"ingredients": array of strings, each "Ingredient quantity" for the 2-PORTION serving. If multiple portion columns are shown (x2/x4/x6), use the 2-portion column. Example: ["Garlic clove 2","Orzo 150g","Spinach 80g"]. Do not include store-cupboard items the card says you provide yourself (oil, salt, sugar, water, butter).
+Use "" or 0 for anything unreadable. Reply with JSON only.`;
+
+// Build a colour JPEG (optionally cropped) sized for the vision API
+function buildClaudeImage(){
+  return new Promise(resolve=>{
+    const img=new Image();
+    img.onload=()=>{
+      let sx=0,sy=0,sw=img.naturalWidth,sh=img.naturalHeight;
+      const disp=document.getElementById('cropImg');
+      if(cropState.rect&&disp.clientWidth){
+        const scale=img.naturalWidth/disp.clientWidth;
+        sx=Math.max(0,cropState.rect.x*scale);sy=Math.max(0,cropState.rect.y*scale);
+        sw=Math.min(img.naturalWidth-sx,cropState.rect.w*scale);
+        sh=Math.min(img.naturalHeight-sy,cropState.rect.h*scale);
+        if(sw<10||sh<10){sx=0;sy=0;sw=img.naturalWidth;sh=img.naturalHeight;}
+      }
+      const maxEdge=1568,scl=Math.min(1,maxEdge/Math.max(sw,sh));
+      const cw=Math.round(sw*scl),ch=Math.round(sh*scl);
+      const c=document.createElement('canvas');c.width=cw;c.height=ch;
+      const x=c.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';
+      x.drawImage(img,sx,sy,sw,sh,0,0,cw,ch);
+      resolve(c.toDataURL('image/jpeg',0.85));
+    };
+    img.src=uploadedCardImage;
+  });
+}
+
+async function extractWithClaude(key){
+  const status=document.getElementById('ocrStatus');
+  const btn=document.getElementById('extractBtn');
+  btn.disabled=true;
+  const model=localStorage.getItem('gousto_scan_model')||'claude-haiku-4-5-20251001';
+  status.textContent='Sending photo to Claude…';
+  try{
+    const dataUrl=await buildClaudeImage();
+    const b64=dataUrl.split(',')[1];
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'content-type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model,max_tokens:1500,messages:[{role:'user',content:[
+        {type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},
+        {type:'text',text:CARD_PROMPT}
+      ]}]})
+    });
+    if(!res.ok){
+      let msg='HTTP '+res.status;
+      try{const e=await res.json();msg=(e.error&&e.error.message)||msg;}catch(_){}
+      if(res.status===401)msg='Invalid API key — check it in the field above.';
+      status.textContent='Claude error: '+msg;return;
+    }
+    const data=await res.json();
+    const out=(data.content||[]).filter(c=>c.type==='text').map(c=>c.text).join('\n');
+    document.getElementById('ocrTextWrap').style.display='';
+    document.getElementById('ocrText').value=out;
+    const obj=extractJSON(out);
+    if(!obj){status.textContent='Couldn’t parse Claude’s reply — see raw text below.';return;}
+    const filled=applyParsed(obj);
+    status.textContent=filled.length?`Filled in: ${filled.join(', ')}. Check & edit before saving.`:'Claude returned no usable fields — try a clearer photo.';
+  }catch(err){
+    status.textContent='Scan failed: '+((err&&err.message)||err)+' (check your connection / key).';
+  }finally{
+    btn.disabled=false;
+  }
+}
+
+function extractJSON(t){
+  if(!t)return null;
+  let s=t.trim().replace(/^```(?:json)?\s*/i,'').replace(/```$/,'').trim();
+  const a=s.indexOf('{'),b=s.lastIndexOf('}');
+  if(a<0||b<0)return null;
+  try{return JSON.parse(s.slice(a,b+1));}catch(_){return null;}
+}
+
+function applyParsed(o){
+  const filled=[];
+  const set=(id,val)=>{const v=(val===0?'':val);if(v!==undefined&&v!==null&&String(v).trim()!==''){document.getElementById(id).value=v;return true}return false};
+  if(set('addName',o.name))filled.push('name');
+  if(set('addCountry',o.country))filled.push('country');
+  if(set('addCuisine',o.cuisine))filled.push('cuisine');
+  if(o.time&&set('addTime',parseInt(o.time)||''))filled.push('cook time');
+  if(o.calories&&set('addCal',parseInt(o.calories)||''))filled.push('calories');
+  if(set('addNotes',o.notes))filled.push('notes');
+  document.getElementById('addFreeze').checked=!!o.freezable;
+  document.getElementById('addBulk').checked=!!o.bulk;
+  if(Array.isArray(o.ingredients)&&o.ingredients.length){document.getElementById('addIngredients').value=o.ingredients.map(s=>String(s).trim()).filter(Boolean).join('\n');filled.push('ingredients');}
+  return filled;
+}
+
+async function extractWithOCR(){
   if(typeof Tesseract==='undefined'){toast('OCR library still loading — try again in a moment');return}
   const status=document.getElementById('ocrStatus');
   const btn=document.getElementById('extractBtn');
@@ -1813,7 +1949,7 @@ async function extractFromPhoto(){
     const filled=parseCardText(text);
     status.textContent=filled.length
       ? `Filled in: ${filled.join(', ')}. Check & edit before saving.`
-      : 'Couldn’t read this clearly. Try dragging a tight box around just the title or the ingredient list, then scan again.';
+      : 'Couldn’t read this clearly. Try dragging a tight box around just the title or ingredient list, then scan again — or add an API key above for accurate scanning.';
   }catch(err){
     status.textContent='Scan failed: '+((err&&err.message)||err)+'. You can still type details manually.';
   }finally{
