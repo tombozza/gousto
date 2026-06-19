@@ -153,6 +153,12 @@ textarea{resize:vertical;min-height:80px}
 .pantry-sub{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:10px 0 4px;padding-top:6px;border-top:1px solid var(--border)}
 .pantry-category h3+.pantry-sub{margin-top:4px;padding-top:0;border-top:none}
 
+.admin-menu-card{cursor:pointer;text-align:center;padding:24px 18px}
+.admin-menu-card .ico{font-size:2rem;margin-bottom:8px}
+.admin-menu-card h3{color:var(--teal);margin:4px 0}
+.admin-menu-card p{font-size:.8rem;color:var(--muted)}
+.admin-back{margin-bottom:14px}
+
 .filing-binder{margin-bottom:24px}
 .filing-binder-header{background:var(--teal);color:#fff;padding:10px 16px;border-radius:var(--radius) var(--radius) 0 0;font-weight:800;font-size:.95rem;display:flex;justify-content:space-between;align-items:center}
 .filing-binder-header .count{font-weight:400;font-size:.82rem;opacity:.7}
@@ -205,9 +211,8 @@ textarea{resize:vertical;min-height:80px}
 <div class="nav-inner">
   <div class="nav-logo"><b>gousto</b> planner</div>
   <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showPage('browse',this)">Browse</button>
+    <button class="nav-tab active" onclick="showPage('browse',this)">Recipes</button>
     <button class="nav-tab" onclick="showPage('plan',this)">Meal Plan</button>
-    <button class="nav-tab" onclick="showPage('pantry',this)">Pantry</button>
     <button class="nav-tab" onclick="showPage('admin',this)">Admin</button>
   </div>
 </div>
@@ -402,27 +407,38 @@ textarea{resize:vertical;min-height:80px}
   </div>
 </div>
 
-<!-- PANTRY -->
-<div id="page-pantry" class="page">
-  <div class="card" style="margin-bottom:14px">
-    <h2>My Pantry</h2>
-    <p style="font-size:.85rem;color:var(--muted);margin-bottom:10px">Tick ingredients you have at home. These will be highlighted on your shopping list so you know what you already have.</p>
-    <input type="text" id="pantrySearch" placeholder="Search ingredients..." oninput="renderPantry()" style="margin-bottom:12px">
-  </div>
-  <div id="pantryGrid" class="pantry-grid"></div>
-</div>
-
 <!-- ADMIN -->
 <div id="page-admin" class="page">
-  <div style="display:flex;gap:6px;margin-bottom:14px">
-    <button class="btn btn-sm btn-green admin-tab active" onclick="showAdminTab('recipes',this)">Recipes</button>
-    <button class="btn btn-sm btn-outline admin-tab" onclick="showAdminTab('stats',this)">Stats</button>
+  <!-- Menu -->
+  <div id="adminMenu">
+    <h2 style="margin-bottom:14px">Admin</h2>
+    <div class="grid3">
+      <div class="card admin-menu-card" onclick="showAdminView('organiser')">
+        <div class="ico">🗂️</div><h3>Recipe Organiser</h3>
+        <p>Binder order, add &amp; categorise recipes</p>
+      </div>
+      <div class="card admin-menu-card" onclick="showAdminView('pantry')">
+        <div class="ico">🥫</div><h3>Pantry</h3>
+        <p>Mark what you have at home</p>
+      </div>
+      <div class="card admin-menu-card" onclick="showAdminView('stats')">
+        <div class="ico">📊</div><h3>Stats</h3>
+        <p>Your recipe collection at a glance</p>
+      </div>
+      <div class="card admin-menu-card" onclick="showAdminView('settings')">
+        <div class="ico">⚙️</div><h3>Settings</h3>
+        <p>Smart-scan API key &amp; model</p>
+      </div>
+    </div>
   </div>
-  <div id="adminRecipes">
+
+  <!-- Recipe Organiser -->
+  <div id="adminView-organiser" class="admin-view" style="display:none">
+    <button class="btn btn-sm btn-outline admin-back" onclick="showAdminMenu()">← Admin</button>
     <div class="card" style="margin-bottom:14px">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
         <div>
-          <h2 style="margin:0">Recipes</h2>
+          <h2 style="margin:0">Recipe Organiser</h2>
           <p style="font-size:.85rem;color:var(--muted);margin-top:4px">Organise your recipe cards across two binders. Drag to reorder, or use the move button.</p>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -434,13 +450,47 @@ textarea{resize:vertical;min-height:80px}
     </div>
     <div id="filingList"></div>
   </div>
-  <div id="adminStats" style="display:none">
+
+  <!-- Pantry -->
+  <div id="adminView-pantry" class="admin-view" style="display:none">
+    <button class="btn btn-sm btn-outline admin-back" onclick="showAdminMenu()">← Admin</button>
+    <div class="card" style="margin-bottom:14px">
+      <h2>My Pantry</h2>
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:10px">Tick ingredients you have at home. These will be highlighted on your shopping list so you know what you already have.</p>
+      <input type="text" id="pantrySearch" placeholder="Search ingredients..." oninput="renderPantry()" style="margin-bottom:12px">
+    </div>
+    <div id="pantryGrid" class="pantry-grid"></div>
+  </div>
+
+  <!-- Stats -->
+  <div id="adminView-stats" class="admin-view" style="display:none">
+    <button class="btn btn-sm btn-outline admin-back" onclick="showAdminMenu()">← Admin</button>
     <div class="stat-grid" id="statsGrid"></div>
     <div class="grid2" style="margin-top:14px">
       <div class="card"><h2>Recipes by Cuisine</h2><div id="statsCuisine"></div></div>
       <div class="card"><h2>Recipes by Country</h2><div id="statsCountry"></div></div>
       <div class="card"><h2>Calorie Distribution</h2><div id="statsCal"></div></div>
       <div class="card"><h2>Cook Time Distribution</h2><div id="statsTime"></div></div>
+    </div>
+  </div>
+
+  <!-- Settings -->
+  <div id="adminView-settings" class="admin-view" style="display:none">
+    <button class="btn btn-sm btn-outline admin-back" onclick="showAdminMenu()">← Admin</button>
+    <div class="card" style="max-width:580px">
+      <h2>Settings</h2>
+      <label style="margin-top:12px">📷 Smart scan — Anthropic API key</label>
+      <p style="font-size:.8rem;color:var(--muted);margin-bottom:6px">Reads recipe-card photos with Claude vision. Stored only in this browser (so set it on each device), and sent only to Anthropic. <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener" style="color:var(--primary)">Get a key</a>.</p>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+        <input type="password" id="apiKeyInput" placeholder="sk-ant-…" style="flex:1;min-width:180px">
+        <button class="btn btn-sm btn-outline" type="button" onclick="saveApiKey()">Save</button>
+      </div>
+      <label style="margin-top:14px">Scan model</label>
+      <select id="scanModel" onchange="localStorage.setItem('gousto_scan_model',this.value)">
+        <option value="claude-haiku-4-5-20251001">Haiku — cheapest &amp; fast (fractions of a penny)</option>
+        <option value="claude-sonnet-4-6">Sonnet — most accurate (~1–2p / scan)</option>
+      </select>
+      <div id="apiKeyStatus" style="font-size:.78rem;color:var(--muted);margin-top:10px"></div>
     </div>
   </div>
 </div>
@@ -456,18 +506,7 @@ textarea{resize:vertical;min-height:80px}
     <h2>Add New Recipe</h2>
     <div class="grid2" style="gap:16px">
       <div>
-        <div style="margin-bottom:12px;padding:10px;border:1px solid var(--border);border-radius:10px;background:var(--cream)">
-          <label style="margin-bottom:4px">📷 Smart scan (Claude vision)</label>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
-            <input type="password" id="apiKeyInput" placeholder="Anthropic API key (sk-ant-…)" style="flex:1;min-width:160px">
-            <button class="btn btn-sm btn-outline" type="button" onclick="saveApiKey()">Save</button>
-          </div>
-          <select id="scanModel" style="margin-top:6px" onchange="localStorage.setItem('gousto_scan_model',this.value)">
-            <option value="claude-haiku-4-5-20251001">Haiku — cheapest & fast (fractions of a penny)</option>
-            <option value="claude-sonnet-4-6">Sonnet — most accurate (~1–2p / scan)</option>
-          </select>
-          <div id="apiKeyStatus" style="font-size:.74rem;color:var(--muted);margin-top:6px"></div>
-        </div>
+        <div id="scanHint" style="margin-bottom:12px;padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:var(--cream);font-size:.78rem;color:var(--muted)"></div>
         <div class="upload-area" onclick="document.getElementById('cardUpload').click()" id="uploadArea" style="margin-bottom:10px">
           <input type="file" id="cardUpload" accept="image/*" style="display:none" onchange="previewCard(this)">
           <p style="color:var(--muted)">Click to upload a recipe card image</p>
@@ -657,8 +696,7 @@ function showPage(id,btn){
   document.getElementById('page-'+id).classList.add('active');
   if(btn)btn.classList.add('active');
   if(id==='plan')renderPlan();
-  if(id==='pantry')renderPantry();
-  if(id==='admin'){renderFiling();renderStats()}
+  if(id==='admin')showAdminMenu();
 }
 
 function showBrowseTab(tab,btn){
@@ -679,20 +717,31 @@ function showPlanTab(tab,btn){
   if(tab==='shopping')renderShopping();
 }
 
-function showAdminTab(tab,btn){
-  document.querySelectorAll('.admin-tab').forEach(b=>{b.classList.remove('active','btn-green');b.classList.add('btn-outline')});
-  btn.classList.add('active','btn-green');btn.classList.remove('btn-outline');
-  document.getElementById('adminRecipes').style.display=tab==='recipes'?'':'none';
-  document.getElementById('adminStats').style.display=tab==='stats'?'':'none';
-  if(tab==='recipes')renderFiling();
-  if(tab==='stats')renderStats();
+function showAdminMenu(){
+  document.getElementById('adminMenu').style.display='';
+  document.querySelectorAll('.admin-view').forEach(v=>v.style.display='none');
+}
+function showAdminView(view){
+  document.getElementById('adminMenu').style.display='none';
+  document.querySelectorAll('.admin-view').forEach(v=>v.style.display='none');
+  const el=document.getElementById('adminView-'+view);if(el)el.style.display='';
+  if(view==='organiser')renderFiling();
+  if(view==='pantry')renderPantry();
+  if(view==='stats')renderStats();
+  if(view==='settings')populateSettings();
+}
+function populateSettings(){
+  document.getElementById('apiKeyInput').value=localStorage.getItem('gousto_anthropic_key')||'';
+  const m=localStorage.getItem('gousto_scan_model');if(m)document.getElementById('scanModel').value=m;
+  refreshApiKeyStatus();
 }
 
 function openAddRecipeModal(){
   document.getElementById('addRecipeModal').classList.add('open');
-  const k=localStorage.getItem('gousto_anthropic_key');if(k)document.getElementById('apiKeyInput').value=k;
-  const m=localStorage.getItem('gousto_scan_model');if(m)document.getElementById('scanModel').value=m;
-  refreshApiKeyStatus();
+  const hasKey=!!(localStorage.getItem('gousto_anthropic_key')||'').trim();
+  document.getElementById('scanHint').innerHTML=hasKey
+    ? '📷 <strong>Smart scan</strong> is on (Claude vision). Upload a photo and hit Scan.'
+    : '📷 <strong>Smart scan</strong> uses Claude vision when an API key is set in <em>Admin → Settings</em>. Without one, the free on-device scan is used.';
 }
 function closeAddRecipeModal(){document.getElementById('addRecipeModal').classList.remove('open')}
 
@@ -2024,7 +2073,7 @@ function addRecipe(){
   populateFilters();
   closeAddRecipeModal();
   showPage('admin',document.querySelector('.nav-tab[onclick*="admin"]'));
-  renderFiling();
+  showAdminView('organiser');
 }
 
 // STATS
