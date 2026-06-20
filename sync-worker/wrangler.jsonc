@@ -1,0 +1,9 @@
+{
+  "name": "gousto-sync",
+  "main": "src/index.js",
+  "compatibility_date": "2026-06-01",
+  "kv_namespaces": [
+    { "binding": "KV", "id": "c0d787338d4b41beb3f374acc0091ec1" }
+  ],
+  "observability": { "enabled": true }
+}
