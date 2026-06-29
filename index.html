@@ -54,6 +54,10 @@ nav{background:var(--teal);position:sticky;top:0;z-index:100}
 .modal-tag{display:inline-flex;align-items:center;gap:5px;padding:3px 6px 3px 10px;border-radius:999px;font-size:.78rem;font-weight:600;background:#0d7a5f;color:#fff}
 .modal-tag button{background:rgba(255,255,255,.25);border:none;color:#fff;width:16px;height:16px;border-radius:50%;cursor:pointer;font-size:.7rem;line-height:1;display:flex;align-items:center;justify-content:center;padding:0}
 .modal-tag button:hover{background:rgba(255,255,255,.45)}
+.tag-suggest{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:999px;border:1px dashed var(--border);font-size:.8rem;cursor:pointer;background:#fff;color:var(--text)}
+.tag-suggest:hover{border-color:var(--primary);color:var(--primary)}
+.tag-suggest button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.85rem;line-height:1;padding:0}
+.tag-suggest button:hover{color:var(--coral)}
 .fav-btn{position:absolute;top:14px;right:14px;background:none;border:none;font-size:1.2rem;cursor:pointer;opacity:.4;transition:.15s;color:var(--coral)}
 .fav-btn:hover,.fav-btn.active{opacity:1}
 
@@ -71,6 +75,12 @@ nav{background:var(--teal);position:sticky;top:0;z-index:100}
 .modal ol.method>li::before{content:counter(step);position:absolute;left:0;top:10px;width:26px;height:26px;border-radius:50%;background:var(--primary);color:#fff;font-weight:700;font-size:.78rem;display:flex;align-items:center;justify-content:center}
 .modal ol.method>li span{display:block;margin-bottom:3px}
 .modal ol.method>li span:last-child{margin-bottom:0}
+details.method-wrap{margin:16px 0 4px;border-top:1px solid var(--border);padding-top:12px}
+details.method-wrap>summary{cursor:pointer;font-weight:800;color:var(--teal);font-size:1.05rem;list-style:none;display:flex;align-items:center;gap:8px}
+details.method-wrap>summary::-webkit-details-marker{display:none}
+details.method-wrap>summary::after{content:'▸ Show';margin-left:auto;font-size:.78rem;font-weight:700;color:var(--primary)}
+details.method-wrap[open]>summary::after{content:'▾ Hide'}
+details.method-wrap>summary .muted-note{font-size:.72rem;font-weight:600;color:var(--muted)}
 
 input[type=text],input[type=number],select,textarea{width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--text);font-size:.88rem;font-family:inherit}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 2px rgba(0,85,74,.12)}
@@ -524,6 +534,14 @@ textarea{resize:vertical;min-height:80px}
 <div class="modal-overlay" id="recipeModal" onclick="if(event.target===this)closeModal()">
   <div class="modal"><button class="close" onclick="closeModal()">&times;</button><div id="modalContent"></div></div>
 </div>
+<div class="modal-overlay" id="tagsModal" style="z-index:250" onclick="if(event.target===this)closeTagsModal()">
+  <div class="modal" style="max-width:460px">
+    <button class="close" onclick="closeTagsModal()">&times;</button>
+    <h2 style="font-size:1.15rem;margin-bottom:2px">Edit tags</h2>
+    <p id="tagsModalRecipe" style="font-size:.82rem;color:var(--muted);margin-bottom:14px"></p>
+    <div id="tagsModalBody"></div>
+  </div>
+</div>
 <div class="modal-overlay" id="addRecipeModal" onclick="if(event.target===this)closeAddRecipeModal()">
   <div class="modal" style="max-width:800px">
     <button class="close" onclick="closeAddRecipeModal()">&times;</button>
@@ -674,9 +692,11 @@ let planHistory=JSON.parse(localStorage.getItem('gousto_plan_history')||'[]');
 let filingOrder=JSON.parse(localStorage.getItem('gousto_filing')||'[]');
 let filingNewFlags=JSON.parse(localStorage.getItem('gousto_filing_new')||'[]');
 let customTags=JSON.parse(localStorage.getItem('gousto_tags')||'{}');
+let tagVocab=JSON.parse(localStorage.getItem('gousto_tag_vocab')||'[]');
 function savePlanHistory(){save('gousto_plan_history',planHistory)}
 function saveFiling(){save('gousto_filing',filingOrder);save('gousto_filing_new',filingNewFlags)}
 function saveTags(){save('gousto_tags',customTags)}
+function saveTagVocab(){save('gousto_tag_vocab',tagVocab)}
 
 // Spicy detection — applies to all recipes including future additions
 const SPICY_RE=/\bchilli\b|\bchili\b|chillies|sriracha|gochujang|harissa|jerk|cayenne|nduja|sambal|chipotle|jalapen|scotch bonnet|peri.?peri|piri.?piri|vindaloo|madras|arrabbiata|szechuan|sichuan|gumbo|\bspic(y|e)\b|fiery|hot chilli|hot sauce|kimchi|wasabi|tabasco/i;
@@ -941,13 +961,13 @@ function recipeCard(r){
     <button class="fav-btn ${isFav?'active':''}" onclick="event.stopPropagation();toggleFav('${escQ(r.n)}',this)">${isFav?'★':'☆'}</button>
     <div class="title">${ref?`<span class="binder-ref">${ref.label}</span> `:''}${esc(r.n)}</div>
     <div class="meta">
-      <span class="pill pill-cuisine">${esc(r.t)}</span>
+      <span class="pill pill-cuisine">${esc(capWords(r.t))}</span>
       <span class="pill pill-time">${r.m} min</span>
       <span class="pill pill-cal">${r.k} kcal</span>
       <span class="pill pill-country">${esc(r.c)}</span>
       ${isSpicy(r)?'<span class="pill pill-spicy">🌶️ Spicy</span>':''}
       ${r.o?`<span class="pill pill-note">${esc(r.o)}</span>`:''}
-      ${getTags(r.n).map(t=>`<span class="pill pill-tag">${esc(t)}</span>`).join('')}
+      ${getTags(r.n).map(t=>`<span class="pill pill-tag">${esc(capWords(t))}</span>`).join('')}
     </div>
   </div>`;
 }
@@ -966,7 +986,7 @@ function openRecipe(name){
   document.getElementById('modalContent').innerHTML=`
     <h2>${ref?`<span class="binder-ref" style="font-size:.75rem;vertical-align:middle">${ref.label}</span> `:''}${esc(r.n)}</h2>
     <div class="meta" style="margin-bottom:14px">
-      <span class="pill pill-cuisine">${esc(r.t)}</span>
+      <span class="pill pill-cuisine">${esc(capWords(r.t))}</span>
       <span class="pill pill-time">${r.m} min</span>
       <span class="pill pill-cal">${r.k} kcal</span>
       <span class="pill pill-country">${esc(r.c)}</span>
@@ -975,14 +995,10 @@ function openRecipe(name){
       ${r.b?'<span class="pill pill-bulk">Bulk-friendly</span>':''}
       ${r.o?`<span class="pill pill-note">${esc(r.o)}</span>`:''}
     </div>
-    <div style="margin-bottom:12px">
-      <label style="margin-bottom:6px">My Tags</label>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
-        ${getTags(name).map(t=>`<span class="modal-tag">${esc(t)}<button onclick="removeTag('${escQ(name)}','${escQ(t)}');openRecipe('${escQ(name)}');renderBrowse()" title="Remove tag">×</button></span>`).join('')}
-        <input type="text" id="newTagInput" placeholder="Add tag (e.g. Harry)" style="width:auto;flex:1;min-width:120px;padding:5px 10px;font-size:.8rem"
-          onkeydown="if(event.key==='Enter'){addTag('${escQ(name)}',this.value);openRecipe('${escQ(name)}');renderBrowse()}">
-        <button class="btn btn-sm btn-outline" onclick="addTag('${escQ(name)}',document.getElementById('newTagInput').value);openRecipe('${escQ(name)}');renderBrowse()">Add</button>
-      </div>
+    <div style="margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <label style="margin:0">My Tags:</label>
+      ${getTags(name).length?getTags(name).map(t=>`<span class="pill pill-tag">${esc(capWords(t))}</span>`).join(''):'<span style="font-size:.82rem;color:var(--muted)">None yet</span>'}
+      <button class="btn btn-sm btn-outline" onclick="openTagsModal('${escQ(name)}')">✏️ Edit tags</button>
     </div>
     <p style="font-size:.85rem;color:var(--muted);margin-bottom:4px">Protein: <strong>${getProtein(r)}</strong></p>
     <h3 style="margin:14px 0 6px">Ingredients (x2 portions)</h3>
@@ -991,9 +1007,10 @@ function openRecipe(name){
       return `<li>${esc(i)}${inP?' <span style="color:var(--green);font-size:.75rem">✓ in pantry</span>':''}</li>`;
     }).join('')}</ul>
     ${(()=>{const m=recipeSteps(r.n);if(!m)return '';return `
-      <h3 style="margin:18px 0 6px">Method <span style="font-size:.72rem;font-weight:600;color:var(--muted)">(for 2 — Gousto)</span></h3>
-      <ol class="method">${m.s.map(step=>`<li>${(Array.isArray(step)?step:[step]).map(line=>`<span>${esc(line)}</span>`).join('')}</li>`).join('')}</ol>
-      ${m.g?`<a href="https://www.gousto.co.uk/cookbook/recipes/${esc(m.g)}" target="_blank" rel="noopener" style="font-size:.78rem;color:var(--primary)">View on Gousto ↗</a>`:''}`;})()}
+      <details class="method-wrap"><summary>Method <span class="muted-note">(for 2 — Gousto)</span></summary>
+        <ol class="method">${m.s.map(step=>`<li>${(Array.isArray(step)?step:[step]).map(line=>`<span>${esc(line)}</span>`).join('')}</li>`).join('')}</ol>
+        ${m.g?`<a href="https://www.gousto.co.uk/cookbook/recipes/${esc(m.g)}" target="_blank" rel="noopener" style="font-size:.78rem;color:var(--primary)">View on Gousto ↗</a>`:''}
+      </details>`;})()}
     <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn ${inPlan?'btn-red':'btn-green'}" onclick="togglePlanRecipe('${escQ(name)}');openRecipe('${escQ(name)}')">${inPlan?'Remove from Plan':'Add to Meal Plan'}</button>
       <button class="btn btn-outline" onclick="toggleFav('${escQ(name)}');openRecipe('${escQ(name)}')">${favourites.includes(name)?'★ Unfavourite':'☆ Favourite'}</button>
@@ -1001,6 +1018,47 @@ function openRecipe(name){
   document.getElementById('recipeModal').classList.add('open');
 }
 function closeModal(){document.getElementById('recipeModal').classList.remove('open')}
+
+// ---- Edit Tags modal (tags only; recipe details stay read-only) ----
+let tagsModalRecipe=null;
+function openTagsModal(name){tagsModalRecipe=name;document.getElementById('tagsModalRecipe').textContent=name;renderTagsModal();document.getElementById('tagsModal').classList.add('open');}
+function closeTagsModal(){document.getElementById('tagsModal').classList.remove('open');if(tagsModalRecipe)openRecipe(tagsModalRecipe);renderBrowse();}
+function renderTagsModal(){
+  const name=tagsModalRecipe;const applied=getTags(name);
+  const vocab=tagVocab.filter(t=>!applied.some(a=>a.toLowerCase()===t.toLowerCase())).sort((a,b)=>a.localeCompare(b));
+  document.getElementById('tagsModalBody').innerHTML=`
+    <label style="margin-bottom:6px">On this recipe</label>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">
+      ${applied.length?applied.map(t=>`<span class="modal-tag">${esc(capWords(t))}
+        <button title="Rename everywhere" onclick="renameTagPrompt('${escQ(t)}')">✎</button>
+        <button title="Remove from this recipe" onclick="tagUnapply('${escQ(t)}')">×</button></span>`).join(''):'<span style="font-size:.82rem;color:var(--muted)">No tags yet</span>'}
+    </div>
+    <label style="margin-bottom:4px">Add a tag</label>
+    <div style="display:flex;gap:6px;margin-bottom:16px">
+      <input type="text" id="tagAddInput" placeholder="e.g. Harry, Quick, Date night" style="flex:1" onkeydown="if(event.key==='Enter')tagAddFromInput()">
+      <button class="btn btn-sm btn-green" onclick="tagAddFromInput()">Add</button>
+    </div>
+    ${vocab.length?`<label style="margin-bottom:6px">Your tags <span style="font-weight:400;color:var(--muted)">(tap to add)</span></label>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        ${vocab.map(t=>`<span class="tag-suggest" onclick="tagApply('${escQ(t)}')">${esc(capWords(t))}<button title="Delete tag everywhere" onclick="event.stopPropagation();tagForget('${escQ(t)}')">×</button></span>`).join('')}
+      </div>`:''}`;
+}
+function tagAddFromInput(){const i=document.getElementById('tagAddInput');tagApply(i.value);i.value='';i.focus();}
+function tagApply(tag){tag=(tag||'').trim();if(!tag)return;const n=tagsModalRecipe;
+  if(!customTags[n])customTags[n]=[];
+  if(!customTags[n].some(t=>t.toLowerCase()===tag.toLowerCase()))customTags[n].push(tag);
+  if(!tagVocab.some(t=>t.toLowerCase()===tag.toLowerCase()))tagVocab.push(tag);
+  saveTags();saveTagVocab();renderTagsModal();}
+function tagUnapply(tag){const n=tagsModalRecipe;if(customTags[n]){customTags[n]=customTags[n].filter(t=>t!==tag);if(!customTags[n].length)delete customTags[n];saveTags();}renderTagsModal();}
+function tagForget(tag){
+  if(!confirm('Delete the tag “'+tag+'” from all recipes?'))return;
+  tagVocab=tagVocab.filter(t=>t!==tag);
+  Object.keys(customTags).forEach(n=>{customTags[n]=customTags[n].filter(t=>t!==tag);if(!customTags[n].length)delete customTags[n];});
+  saveTags();saveTagVocab();renderTagsModal();}
+function renameTagPrompt(oldTag){const nv=prompt('Rename tag (applies everywhere):',oldTag);if(nv==null)return;const newTag=nv.trim();if(!newTag||newTag===oldTag)return;
+  tagVocab=[...new Set(tagVocab.map(t=>t===oldTag?newTag:t))];
+  Object.keys(customTags).forEach(n=>{customTags[n]=[...new Set(customTags[n].map(t=>t===oldTag?newTag:t))];});
+  saveTags();saveTagVocab();renderTagsModal();}
 
 // RANDOM
 function pickRandom(){
@@ -1013,7 +1071,7 @@ function pickRandom(){
   document.getElementById('randomResult').innerHTML=`
     <h2>${esc(r.n)}</h2>
     <div class="meta" style="justify-content:center;margin:10px 0">
-      <span class="pill pill-cuisine">${esc(r.t)}</span><span class="pill pill-time">${r.m} min</span>
+      <span class="pill pill-cuisine">${esc(capWords(r.t))}</span><span class="pill pill-time">${r.m} min</span>
       <span class="pill pill-cal">${r.k} kcal</span><span class="pill pill-country">${esc(r.c)}</span>
     </div>
     <p style="color:var(--muted)">Protein: ${getProtein(r)}</p>
@@ -1203,7 +1261,7 @@ function renderPlan(){
       <div class="day-label">Day ${i+1} — ${dayNames[i%7]||''} · ${planPortions} portions</div>
       <div class="recipe-name" onclick="openRecipe('${escQ(name)}')">${esc(name)}</div>
       <div class="meta">
-        <span class="pill pill-cuisine">${esc(r.t)}</span>
+        <span class="pill pill-cuisine">${esc(capWords(r.t))}</span>
         <span class="pill pill-time">${r.m} min</span>
         <span class="pill pill-cal">${r.k} kcal</span>
         ${r.f?'<span class="pill pill-freeze">❄</span>':''}
@@ -1591,6 +1649,7 @@ function renderSavedPlans(){
 
 // PANTRY
 function capFirst(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+function capWords(s){return String(s||'').replace(/\b\w/g,c=>c.toUpperCase())}
 
 function renderPantry(){
   const all=getAllRecipes();
@@ -2186,7 +2245,7 @@ function populateFilters(){
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 /* ============ CLOUD SYNC ============ */
 const SYNC_URL='https://gousto-sync.tombolton21.workers.dev/state';
-const SYNC_KEYS=['gousto_custom','gousto_filing','gousto_filing_new','gousto_favs','gousto_plan','gousto_plan_portions','gousto_portions','gousto_checked','gousto_pantry','gousto_saved_plans','gousto_plan_history','gousto_tags'];
+const SYNC_KEYS=['gousto_custom','gousto_filing','gousto_filing_new','gousto_favs','gousto_plan','gousto_plan_portions','gousto_portions','gousto_checked','gousto_pantry','gousto_saved_plans','gousto_plan_history','gousto_tags','gousto_tag_vocab'];
 let applyingRemote=false, syncing=false, syncTimer=null;
 
 function syncCode(){return localStorage.getItem('gousto_sync_code')||''}
@@ -2207,6 +2266,7 @@ function reloadStateVars(){
   filingOrder=JSON.parse(localStorage.getItem('gousto_filing')||'[]');
   filingNewFlags=JSON.parse(localStorage.getItem('gousto_filing_new')||'[]');
   customTags=JSON.parse(localStorage.getItem('gousto_tags')||'{}');
+  tagVocab=JSON.parse(localStorage.getItem('gousto_tag_vocab')||'[]');
   customRecipes=JSON.parse(localStorage.getItem('gousto_custom')||'[]');
 }
 function refreshUI(){
@@ -2271,6 +2331,7 @@ function mergeStates(remote,local){
   const rt=get(remote,'gousto_tags',{}),lt=get(local,'gousto_tags',{}),tags={...rt};
   Object.entries(lt).forEach(([k,arr])=>{tags[k]=[...new Set([...(tags[k]||[]),...arr])]});
   out['gousto_tags']=JSON.stringify(tags);
+  out['gousto_tag_vocab']=JSON.stringify([...new Set([...get(remote,'gousto_tag_vocab',[]),...get(local,'gousto_tag_vocab',[])])]);
   const rp=get(remote,'gousto_saved_plans',[]),lp=get(local,'gousto_saved_plans',[]);
   const pseen=new Set(rp.map(p=>p.name)),plans=[...rp];
   lp.forEach(p=>{if(!pseen.has(p.name)){plans.push(p);pseen.add(p.name)}});
@@ -2353,6 +2414,8 @@ function renderSyncSettings(){
   }
 }
 
+// Seed tag vocabulary from any tags already applied to recipes
+(()=>{let changed=false;allCustomTags().forEach(t=>{if(!tagVocab.some(v=>v.toLowerCase()===t.toLowerCase())){tagVocab.push(t);changed=true;}});if(changed)saveTagVocab();})();
 populateFilters();
 initFiling();
 renderBrowse();
