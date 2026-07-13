@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gousto Meal Planner</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gousto">
+<meta name="theme-color" content="#29333C">
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -539,8 +545,8 @@ textarea{resize:vertical;min-height:80px}
     <div class="card" style="max-width:580px">
       <h2>Settings</h2>
       <label style="margin-top:12px">📷 Smart scan — Anthropic API key</label>
-      <p style="font-size:.8rem;color:var(--muted);margin-bottom:6px">Reads recipe-card photos with Claude vision. Stored only in this browser (so set it on each device), and sent only to Anthropic. <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener" style="color:var(--primary)">Get a key</a>.</p>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+      <p id="scanKeyDesc" style="font-size:.8rem;color:var(--muted);margin-bottom:6px">Reads recipe-card photos with Claude vision. Stored only in this browser (so set it on each device), and sent only to Anthropic. <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener" style="color:var(--primary)">Get a key</a>.</p>
+      <div id="scanKeyRow" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
         <input type="password" id="apiKeyInput" placeholder="sk-ant-…" style="flex:1;min-width:180px">
         <button class="btn btn-sm btn-outline" type="button" onclick="saveApiKey()">Save</button>
       </div>
@@ -1128,12 +1134,34 @@ function editSoloSteps(name){
   saveSoloSteps();openRecipe(name);
 }
 
+// ---- Shared Claude access: a server key (works on every device, nothing to
+// paste) if one is set, otherwise the on-device key from Settings. ----
+let GOUSTO_SERVER_KEY=null;
+async function goustoServerKey(){
+  if(GOUSTO_SERVER_KEY!==null)return GOUSTO_SERVER_KEY;
+  try{const r=await fetch('api/status');GOUSTO_SERVER_KEY=!!(await r.json()).serverKey;}
+  catch(_){GOUSTO_SERVER_KEY=false;}
+  return GOUSTO_SERVER_KEY;
+}
+// Read whichever local key name is present (older builds used gousto_api_key).
+function goustoLocalKey(){return (localStorage.getItem('gousto_anthropic_key')||localStorage.getItem('gousto_api_key')||'').trim();}
+async function goustoCanScan(){return (await goustoServerKey())||!!goustoLocalKey();}
+// Same request body as before; routes through the server proxy when a shared
+// key exists, else straight to Anthropic with the on-device key. Returns the
+// fetch Response so existing response handling is unchanged.
+async function callClaude(body){
+  if(await goustoServerKey()){
+    return fetch('/api/anthropic',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+  }
+  const key=goustoLocalKey();
+  return fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify(body)});
+}
+
 // ---- Scan recipe photo to extract method ----
 async function scanRecipePhoto(name,input){
   const file=input.files[0];if(!file)return;
   const status=document.getElementById('recipePhotoStatus');
-  const key=localStorage.getItem('gousto_api_key');
-  if(!key){status.textContent='Set your Anthropic API key in Admin → Settings first.';return}
+  if(!(await goustoCanScan())){status.textContent='Set your Anthropic API key in Admin → Settings first.';return}
   status.textContent='Scanning photo…';
   const toBase64=f=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(f)});
   const b64=await toBase64(file);
@@ -1141,11 +1169,7 @@ async function scanRecipePhoto(name,input){
   const model=localStorage.getItem('gousto_scan_model')||'claude-haiku-4-5-20251001';
   const prompt=`Extract the cooking method steps from this recipe card photo for "${name}". Return ONLY a JSON array of strings, one string per step. No commentary, just the JSON array. Example: ["Step 1 text","Step 2 text"]`;
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'x-api-key':key,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model,max_tokens:2048,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:mediaType,data:b64}},{type:'text',text:prompt}]}]})
-    });
+    const res=await callClaude({model,max_tokens:2048,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:mediaType,data:b64}},{type:'text',text:prompt}]}]});
     const j=await res.json();
     const text=(j.content&&j.content[0]&&j.content[0].text)||'';
     const m=text.match(/\[[\s\S]*\]/);
@@ -2117,10 +2141,9 @@ function buildOCRCanvas(){
 }
 
 // Scanner dispatch — use Claude vision if an API key is set, else free on-device OCR
-function extractFromPhoto(){
+async function extractFromPhoto(){
   if(!uploadedCardImage){toast('Upload a photo first');return}
-  const key=(localStorage.getItem('gousto_anthropic_key')||'').trim();
-  return key?extractWithClaude(key):extractWithOCR();
+  return (await goustoCanScan())?extractWithClaude():extractWithOCR();
 }
 
 // API key handling — stored only in this browser's localStorage
@@ -2132,10 +2155,21 @@ function saveApiKey(){
 }
 function refreshApiKeyStatus(){
   const el=document.getElementById('apiKeyStatus');if(!el)return;
-  const has=!!(localStorage.getItem('gousto_anthropic_key')||'').trim();
-  el.innerHTML=has
-    ? '✓ Key saved (stays in this browser only). Scans use Claude vision.'
-    : 'No key set — scans use the free on-device OCR. <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener" style="color:var(--primary)">Get an API key</a> for accurate scanning.';
+  goustoServerKey().then(server=>{
+    const row=document.getElementById('scanKeyRow'),desc=document.getElementById('scanKeyDesc');
+    if(server){
+      if(row)row.style.display='none';
+      if(desc)desc.style.display='none';
+      el.innerHTML='✅ Shared key active — scanning works on every device, no key needed.';
+      return;
+    }
+    if(row)row.style.display='';
+    if(desc)desc.style.display='';
+    const has=!!goustoLocalKey();
+    el.innerHTML=has
+      ? '✓ Key saved (stays in this browser only). Scans use Claude vision.'
+      : 'No key set — scans use the free on-device OCR. <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener" style="color:var(--primary)">Get an API key</a> for accurate scanning.';
+  });
 }
 
 const CARD_PROMPT=`You are reading a photo of a Gousto recipe card. Extract the details and reply with ONLY a JSON object (no markdown, no commentary) with these exact keys:
@@ -2175,7 +2209,7 @@ function buildClaudeImage(){
   });
 }
 
-async function extractWithClaude(key){
+async function extractWithClaude(){
   const status=document.getElementById('ocrStatus');
   const btn=document.getElementById('extractBtn');
   btn.disabled=true;
@@ -2184,14 +2218,10 @@ async function extractWithClaude(key){
   try{
     const dataUrl=await buildClaudeImage();
     const b64=dataUrl.split(',')[1];
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'content-type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model,max_tokens:1500,messages:[{role:'user',content:[
+    const res=await callClaude({model,max_tokens:1500,messages:[{role:'user',content:[
         {type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},
         {type:'text',text:CARD_PROMPT}
-      ]}]})
-    });
+      ]}]});
     if(!res.ok){
       let msg='HTTP '+res.status;
       try{const e=await res.json();msg=(e.error&&e.error.message)||msg;}catch(_){}
@@ -2336,8 +2366,7 @@ function addRecipe(){
 // ---- Bulk scan ----
 async function startBulkScan(input){
   const files=[...input.files];if(!files.length)return;
-  const key=localStorage.getItem('gousto_api_key');
-  if(!key){toast('Set Anthropic API key in Settings first');input.value='';return}
+  if(!(await goustoCanScan())){toast('Set Anthropic API key in Settings first');input.value='';return}
   const model=localStorage.getItem('gousto_scan_model')||'claude-haiku-4-5-20251001';
   const progress=document.getElementById('bulkProgress');
   const bar=document.getElementById('bulkProgressBar');
@@ -2353,14 +2382,10 @@ async function startBulkScan(input){
     try{
       const b64=await toBase64(f);
       const mediaType=f.type||'image/jpeg';
-      const res=await fetch('https://api.anthropic.com/v1/messages',{
-        method:'POST',
-        headers:{'x-api-key':key,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
-        body:JSON.stringify({model,max_tokens:1024,messages:[{role:'user',content:[
+      const res=await callClaude({model,max_tokens:1024,messages:[{role:'user',content:[
           {type:'image',source:{type:'base64',media_type:mediaType,data:b64}},
           {type:'text',text:`Extract the recipe from this Gousto card. Return ONLY a JSON object with these keys: "name" (string), "cuisine" (string, lowercase), "country" (string), "time" (number, minutes), "calories" (number, per person), "notes" (string, empty if none), "freeze" (0 or 1), "bulk" (0 or 1), "ingredients" (array of strings). No commentary.`}
-        ]}]})
-      });
+        ]}]});
       const j=await res.json();
       const text=(j.content&&j.content[0]&&j.content[0].text)||'';
       const m=text.match(/\{[\s\S]*\}/);
