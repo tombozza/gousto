@@ -876,8 +876,22 @@ function userAmountMap(name,pc){
 // and plurals as "onion[s]" (plural applies at 3-4 portions).
 function portionizeStep(text,pc){
   let t=String(text);
+  // For 1 person Gousto prints nothing, but the in-method quantities (water, milk,
+  // flour…) halve exactly; counts and times are left as printed.
+  const halve=a=>{
+    const m=a.trim().match(/^(\d+(?:\.\d+)?(?:\s+\d\/\d)?|\d\/\d)\s*(ml|l|g|kg|tsp|tbsp)$/i);
+    if(!m)return a.trim();
+    const fm=m[1].match(/^(?:(\d+)\s+)?(\d)\/(\d)$/);
+    const n=(fm?(parseInt(fm[1]||0)+parseInt(fm[2])/parseInt(fm[3])):parseFloat(m[1]))/2;
+    const unit=m[2].toLowerCase();
+    if(unit==='tsp'||unit==='tbsp'){
+      const whole=Math.floor(n),frac={0.25:'1/4',0.5:'1/2',0.75:'3/4'}[Math.round((n-whole)*100)/100];
+      return (whole?whole+(frac?' ':''):'')+(frac||'')+' '+unit;
+    }
+    return Math.round(n)+unit;
+  };
   t=t.replace(/(\d[\d/. ]*(?:x\s*\d[\d.]*\s*)?[a-zA-Z]*)\s*\[([^\][]+)\]\s*\[([^\][]+)\]/g,
-    (m,a,b,c)=>pc===3?b:pc>=4?c:a.trim());
+    (m,a,b,c)=>pc===1?halve(a):pc===3?b:pc>=4?c:a.trim());
   t=t.replace(/\[([^\][]+)\]\s*\[([^\][]+)\]/g,(m,b,c)=>pc===3?b:pc>=4?c:'');
   t=t.replace(/([A-Za-z]+)\[(s|es|ves)\]/g,(m,w,sfx)=>{
     if(pc<3)return w;
@@ -1288,7 +1302,7 @@ function openRecipe(name,pc){
       const fromGousto=!!RECIPE_STEPS[r.n];
       const phrases=ingredientPhrases(r);
       const renderLine=line=>boldIngredients(esc(portionizeStep(line,curModalPC)),phrases);
-      const pcNote=curModalPC===1?'for 1 — quantities shown are for 2, halve them':'for '+curModalPC;
+      const pcNote=curModalPC===1?'for 1 — liquids &amp; measures halved from the 2-person method':'for '+curModalPC;
       let html='';
       if(m)html+=`<div class="section"><h3 style="margin-bottom:10px">Method <span class="muted-note">(${pcNote} — ${fromGousto?'Gousto':'your card'})</span></h3>
         <ol class="method">${m.s.map(step=>`<li>${(Array.isArray(step)?step:[step]).map(line=>`<span>${renderLine(line)}</span>`).join('')}</li>`).join('')}</ol>
