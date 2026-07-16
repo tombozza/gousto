@@ -871,6 +871,44 @@ function userAmountMap(name,pc){
   if(ov)ov.forEach(s=>{m[baseIngredient(s)]=String(s)});
   return m;
 }
+// Rewrite Gousto method text for the selected portion count.
+// Cards write quantities as "225ml [300ml] [450ml]" = for 2 [3] [4] people,
+// and plurals as "onion[s]" (plural applies at 3-4 portions).
+function portionizeStep(text,pc){
+  let t=String(text);
+  t=t.replace(/(\d[\d/. ]*(?:x\s*\d[\d.]*\s*)?[a-zA-Z]*)\s*\[([^\][]+)\]\s*\[([^\][]+)\]/g,
+    (m,a,b,c)=>pc===3?b:pc>=4?c:a.trim());
+  t=t.replace(/\[([^\][]+)\]\s*\[([^\][]+)\]/g,(m,b,c)=>pc===3?b:pc>=4?c:'');
+  t=t.replace(/([A-Za-z]+)\[(s|es|ves)\]/g,(m,w,sfx)=>{
+    if(pc<3)return w;
+    return sfx==='ves'?w.replace(/fe?$/,'')+'ves':w+sfx;
+  });
+  return t.replace(/\s{2,}/g,' ').trim();
+}
+// Phrases worth bolding in method text: every ingredient name plus its trailing
+// word suffixes ("finely chopped tomatoes" also matches "chopped tomatoes"),
+// skipping generic single words that would over-match.
+const GENERIC_ING_WORDS=/^(sauce|paste|mix|stock|cheese|oil|butter|water|salt|sugar|cream|powder|flakes?|cloves?|lea(f|ves)|seeds?|mince|fillets?|breasts?|thighs?|wine|legs?|steaks?|nests?|portions?|bites?|strips?|pods?|nuts?)$/i;
+function ingredientPhrases(r){
+  const set=new Set();
+  const names=r.i.map(ingLabel).concat((qtyRowsFor(r.n)||[]).map(a=>a.n));
+  names.forEach(n=>{
+    const words=String(n).split(/\s+/).filter(Boolean);
+    for(let i=0;i<words.length;i++){
+      const ph=words.slice(i).join(' ');
+      if(ph.length<4)continue;
+      if(words.length-i===1&&GENERIC_ING_WORDS.test(ph))continue;
+      set.add(esc(ph.toLowerCase()));
+    }
+  });
+  return [...set].sort((a,b)=>b.length-a.length);
+}
+// Wrap ingredient mentions in <strong>. Runs on HTML-escaped text; phrases are escaped too.
+function boldIngredients(escText,phrases){
+  if(!phrases.length)return escText;
+  const rx=new RegExp('\\b(?:'+phrases.map(p=>p.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')(?:e?s)?\\b','gi');
+  return escText.replace(rx,'<strong>$&</strong>');
+}
 // Strip the trailing quantity from an ingredient string, leaving the display name
 function ingLabel(s){
   return String(s).replace(/\s+(\d+(\.\d+)?\s*x\s*)?\d+(\.\d+)?\s*(g|kg|ml|l|tsp|tbsp|pkt)?\s*$/i,'').trim()||String(s);
@@ -1248,14 +1286,17 @@ function openRecipe(name,pc){
       const m=recipeSteps(r.n);
       const solo=soloSteps[name];
       const fromGousto=!!RECIPE_STEPS[r.n];
+      const phrases=ingredientPhrases(r);
+      const renderLine=line=>boldIngredients(esc(portionizeStep(line,curModalPC)),phrases);
+      const pcNote=curModalPC===1?'for 1 — quantities shown are for 2, halve them':'for '+curModalPC;
       let html='';
-      if(m)html+=`<div class="section"><h3 style="margin-bottom:10px">Method <span class="muted-note">(for 2 — ${fromGousto?'Gousto':'your card'})</span></h3>
-        <ol class="method">${m.s.map(step=>`<li>${(Array.isArray(step)?step:[step]).map(line=>`<span>${esc(line)}</span>`).join('')}</li>`).join('')}</ol>
+      if(m)html+=`<div class="section"><h3 style="margin-bottom:10px">Method <span class="muted-note">(${pcNote} — ${fromGousto?'Gousto':'your card'})</span></h3>
+        <ol class="method">${m.s.map(step=>`<li>${(Array.isArray(step)?step:[step]).map(line=>`<span>${renderLine(line)}</span>`).join('')}</li>`).join('')}</ol>
         ${m.g?`<a href="https://www.gousto.co.uk/cookbook/recipes/${esc(m.g)}" target="_blank" rel="noopener" style="font-size:.82rem;color:var(--primary)">View on Gousto ↗</a>`:''}
       </div>`;
       if(solo&&solo.length){
         html+=`<div class="section"><h3 style="margin-bottom:10px">1-person method <span class="muted-note">(your notes)</span></h3>
-          <ol class="method">${solo.map(step=>`<li><span>${esc(step)}</span></li>`).join('')}</ol>
+          <ol class="method">${solo.map(step=>`<li><span>${boldIngredients(esc(step),phrases)}</span></li>`).join('')}</ol>
           <button class="btn btn-sm btn-outline" style="margin-top:10px;padding:8px 14px" onclick="editSoloSteps('${escQ(name)}')">✏️ Edit</button>
         </div>`;
       } else {
