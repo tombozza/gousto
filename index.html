@@ -839,7 +839,38 @@ function methodSteps2(name){
 // store amounts that differ from plain scaling), otherwise it falls back to linear scaling.
 // ---- Exact per-portion amounts (Gousto API data + user overrides) ----
 function qtyRowsFor(name){return (typeof RECIPE_QTY!=='undefined'&&RECIPE_QTY[name])||null}
-function qtyString(row,pc){const v=row.q[pc-1];if(v==null)return null;return row.n+' '+v+(row.u||'')}
+// ---- Home units: Gousto ship sachets weighed in grams, but at home these are
+// squeezed/crumbled: pastes & squeezables in teaspoons (5g ≈ 1 tsp), stock as
+// cubes (one OXO-size cube ≈ 5.5g, the size of one Gousto sachet).
+const HOME_CONV=[
+  [/stock mix/i,5.5,'cube'],
+  [/paste|mustard|honey|mayo|ketchup|miso|gochujang|tahini|marmite/i,5,'tsp'],
+];
+function convertG(name,grams){
+  const c=HOME_CONV.find(([rx])=>rx.test(name));if(!c)return null;
+  return {n:Math.max(0.5,Math.round(grams/c[1]*2)/2),u:c[2]};
+}
+function fmtQty2(v,u){
+  if(!u)return String(v);
+  if(u==='g'||u==='ml')return v+u;
+  if(u==='cube')return v+' cube'+(v===1?'':'s');
+  return v+' '+u;
+}
+(function applyHomeUnits(){
+  if(typeof RECIPE_QTY==='undefined')return;
+  Object.values(RECIPE_QTY).forEach(rows=>rows.forEach(r=>{
+    if(r.u!=='g')return;
+    const sample=r.q.find(v=>v!=null);if(sample==null)return;
+    const c=convertG(r.n,sample);if(!c)return;
+    r.u=c.u;r.q=r.q.map(v=>v==null?null:convertG(r.n,v).n);
+  }));
+})();
+function qtyString(row,pc){const v=row.q[pc-1];if(v==null)return null;return row.n+' '+fmtQty2(v,row.u)}
+// "Parsley 5g" -> "Parsley — 5g" for easier scanning
+function ingDisplay(s){
+  const l=ingLabel(s);const amt=String(s).slice(l.length).trim();
+  return amt?l+' — '+amt:l;
+}
 // Find the API quantity row for a card ingredient (exact base match, then fuzzy singular/plural + containment)
 function qtyRowFor(name,base){
   let rows=qtyRowsFor(name);if(!rows)return null;
@@ -919,7 +950,7 @@ function boldIngredients(escText,phrases){
 }
 // Strip the trailing quantity from an ingredient string, leaving the display name
 function ingLabel(s){
-  return String(s).replace(/\s+(\d+(\.\d+)?\s*x\s*)?\d+(\.\d+)?\s*(g|kg|ml|l|tsp|tbsp|pkt)?\s*$/i,'').trim()||String(s);
+  return String(s).replace(/\s+(\d+(\.\d+)?\s*x\s*)?\d+(\.\d+)?\s*(g|kg|ml|l|tsp|tbsp|pkt|cubes?|packs?)?\s*$/i,'').trim()||String(s);
 }
 function ingredientsFor(r,pc){
   pc=parseInt(pc)||2;
@@ -1270,16 +1301,14 @@ function openRecipe(name,pc){
       <a onclick="openManagerFor('${escQ(name)}')" style="cursor:pointer;color:var(--primary)">Edit amounts →</a>
     </p>
     <ul class="ingredients">${(()=>{
-      const userMap=userAmountMap(name,curModalPC);
       return r.i.map(i=>{
       const base=baseIngredient(i);
       const inP=pantryItems.includes(base);
       const isOpt=(recipeOptional[name]||[]).includes(i);
       const isRem=(recipeRemoved[name]||[]).includes(i);
       if(isRem)return '';
-      let disp=i;
-      if(curModalPC!==2){const m=resolvedAmount(name,i,curModalPC);disp=(m!=null)?m:ingLabel(i)+' —';}
-      else if(userMap[base]!=null)disp=userMap[base];
+      const resolved=resolvedAmount(name,i,curModalPC);
+      let disp=resolved!=null?ingDisplay(resolved):(curModalPC===2?ingDisplay(i):ingLabel(i)+' —');
       return `<li style="${isOpt?'opacity:.55;font-style:italic':''}">
         <span>${esc(disp)}${isOpt?' <span style="font-size:.75rem;color:var(--muted)">(optional)</span>':''}${inP?' <span style="color:var(--green);font-size:.78rem">✓ in pantry</span>':''}</span>
         <span class="ing-actions">
@@ -1295,7 +1324,7 @@ function openRecipe(name,pc){
       return `<li style="border:none;padding-top:14px"><span style="font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px">From your cupboard</span></li>`+
         cup.map(a=>{
           const u=userMapC[baseIngredient(a.n)];
-          const disp=u!=null?u:(a.q[curModalPC-1]!=null?qtyString(a,curModalPC):a.n+' —');
+          const disp=u!=null?ingDisplay(u):(a.q[curModalPC-1]!=null?ingDisplay(qtyString(a,curModalPC)):a.n+' —');
           return `<li><span>${esc(disp)}</span></li>`;
         }).join('');
     })()}
@@ -1315,7 +1344,7 @@ function openRecipe(name,pc){
         const u=subUserMap[baseIngredient(row.n)];
         if(u==null)return null;
         const n=amtNumber(u);if(n==null)return null;
-        return n+((row.u==='tsp'||row.u==='tbsp')?' '+row.u:(row.u||''));
+        return fmtQty2(n,row.u);
       };
       const renderLine=line=>boldIngredients(esc(portionizeStep(line,curModalPC,subFn)),phrases);
       const pcNote=curModalPC===1?'for 1 — amounts marked (for 2) have no 1-person value yet: set yours via Edit amounts':'for '+curModalPC;
@@ -2738,6 +2767,11 @@ function scanIngredientRows(list){
       .replace(/\b(MON|TUE|TUES|WED|THU|THUR|THURS|FRI|SAT|SUN)\b/g,'')
       .replace(/\s{2,}/g,' ').replace(/^[,\s-]+|[,\s-]+$/g,'').trim();
     if(!name)return;
+    // Convert sachet grams to home units (tsp / stock cubes) on new scans too
+    [1,2,3,4].forEach(pc=>{
+      const gm=String(a[pc]||'').match(/^([\d.]+)\s*g$/i);if(!gm)return;
+      const c=convertG(name,parseFloat(gm[1]));if(c)a[pc]=fmtQty2(c.n,c.u);
+    });
     const filled=r=>[1,2,3,4].filter(pc=>r.a[pc]).length;
     const row={name,a};
     const exist=rows.find(r=>baseIngredient(r.name)===baseIngredient(name));
@@ -2796,7 +2830,8 @@ function renderManager(){
 function managerRow(r){
   const name=r.n,id=cssId(name);
   const ref=getBinderRef(name);
-  const m=hasMethod(name),a1=hasAmounts(name,1);
+  const m=hasMethod(name);
+  const missing=managerQtyRows(r).reduce((n,row)=>n+row.vals.filter(v=>v==null).length,0);
   const chip=(ok,label)=>`<span style="font-size:.7rem;padding:2px 8px;border-radius:999px;font-weight:700;background:${ok?'var(--primary-light)':'#fdecea'};color:${ok?'var(--primary)':'var(--red)'}">${ok?'✓':'✗'} ${label}</span>`;
   const expanded=managerExpanded===name;
   return `<div id="mgr-row-${id}" class="card" style="margin-bottom:8px;padding:12px">
@@ -2804,7 +2839,7 @@ function managerRow(r){
       ${ref?`<span class="binder-ref">${ref.label}</span>`:''}
       <strong style="flex:1;min-width:140px">${esc(name)}</strong>
       ${chip(m,'Method')}
-      ${chip(a1,'1-person')}
+      ${chip(missing===0,missing===0?'Amounts':`Amounts (x ${missing} missing)`)}
       <span style="color:var(--muted);font-size:.9rem">${expanded?'▾':'▸'}</span>
     </div>
     ${expanded?managerEditor(r):''}
@@ -2853,9 +2888,9 @@ function managerEditor(r){
   </div>`;
 }
 // Trailing number/unit from a stored amount string, e.g. "Diced beef 300g" -> 300 / "g"
-function amtNumber(s){const m=String(s).match(/(\d+(?:\.\d+)?)\s*(g|kg|ml|l|tsp|tbsp|pkt)?\s*$/i);return m?parseFloat(m[1]):null}
-function amtUnit(s){const m=String(s).match(/\d(?:[\d.]*)\s*(g|kg|ml|l|tsp|tbsp|pkt)\s*$/i);return m?m[1].toLowerCase():''}
-const UNIT_NAMES={g:'grams',kg:'kg',ml:'ml',l:'litres',tsp:'tsp',tbsp:'tbsp',pkt:'pack','':'x'};
+function amtNumber(s){const m=String(s).match(/(\d+(?:\.\d+)?)\s*(g|kg|ml|l|tsp|tbsp|pkt|cubes?|packs?)?\s*$/i);return m?parseFloat(m[1]):null}
+function amtUnit(s){const m=String(s).match(/\d(?:[\d.]*)\s*(g|kg|ml|l|tsp|tbsp|pkt|cubes?|packs?)\s*$/i);return m?m[1].toLowerCase().replace(/s$/,''):''}
+const UNIT_NAMES={g:'grams',kg:'kg',ml:'ml',l:'litres',tsp:'tsp',tbsp:'tbsp',pkt:'pack',cube:'cubes','':'x'};
 // One row per card ingredient: display label, unit, and the 1/2/3/4 numbers
 // (user override > Gousto API > the card's own 2-person amount).
 function managerQtyRows(r){
@@ -2900,7 +2935,7 @@ function saveManagerAmounts(name){
       const apiV=row.api&&row.api.q[pc-1];
       if(apiV!=null&&n===apiV)return;
       if(apiV==null&&pc===2&&n===amtNumber(row.ing))return;
-      list.push((row.label+' '+n+(row.unit||'')).trim());
+      list.push((row.label+' '+fmtQty2(n,row.unit)).trim());
     });
     if(list.length)recipeAmounts[name][pc]=list;else delete recipeAmounts[name][pc];
   });
