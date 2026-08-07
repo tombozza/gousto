@@ -115,6 +115,22 @@ nav{background:var(--teal);position:sticky;top:0;z-index:100}
 .recipe-link{cursor:pointer;color:inherit;text-decoration:none;border-bottom:1px solid transparent;transition:border-color .12s}
 .recipe-link:hover{border-bottom-color:currentColor}
 
+/* ---- Recipe Manager editor ---- */
+.mgr-sec{margin-top:18px;padding-top:16px;border-top:2px solid var(--border)}
+.mgr-sec:first-of-type{margin-top:0;padding-top:0;border-top:none}
+.mgr-sec-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.mgr-sec-head h3{margin:0;font-size:1rem}
+.mgr-sec-head label{margin-left:auto}
+.mgr-grid{display:grid;gap:4px 6px;min-width:520px;align-items:center}
+.mgr-h{font-size:.72rem;color:var(--muted);font-weight:700}
+/* Four digits is the most that ever goes in one of these — no reason for a full-width box.
+   The spinners are dropped so the digits get all of it; step/arrow keys still work. */
+.mgr-amt{font-size:.78rem;padding:7px 1px;text-align:center;margin:0;width:100%;-moz-appearance:textfield}
+.mgr-amt::-webkit-outer-spin-button,.mgr-amt::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+/* A predicted batch figure reads as provisional until you commit to it */
+.mgr-pred{color:var(--muted);background:var(--bg2);font-style:italic}
+.mgr-pred:focus{color:inherit;background:#fff;font-style:normal}
+
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;justify-content:center;align-items:start;padding:40px 20px;overflow-y:auto}
 .modal-overlay.open{display:flex}
 .modal{background:#fff;border-radius:16px;max-width:700px;width:100%;padding:28px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.12);overflow-x:hidden}
@@ -2969,9 +2985,11 @@ function openRecipe(name,pc){
       const isOpt=(recipeOptional[name]||[]).includes(i);
       const isRem=(recipeRemoved[name]||[]).includes(i);
       if(isRem)return '';
-      let resolved=resolvedAmount(name,i,pcEff);
+      // In bulk, go through the same function the shopping list uses so your own batch
+      // figures from the Recipe Manager show here too — the card used to scale from the
+      // 2-portion amount itself and silently ignore them.
+      let resolved=bulk?bulkIngString(name,i,curBulkN):resolvedAmount(name,i,pcEff);
       if(resolved==null&&pcEff===2)resolved=i;
-      if(bulk&&resolved!=null)resolved=bulkOut(resolved);
       let disp=resolved!=null?ingDisplay(renameIngredient(resolved)):ingLabel(renameIngredient(i))+' —';
       disp=applyCardName(i,disp);
       return `<li style="${isOpt?'opacity:.55;font-style:italic':''}">
@@ -2990,8 +3008,7 @@ function openRecipe(name,pc){
       const userMapC=userAmountMap(name,pcEff);
       return cup.map(a=>{
         const u=userMapC[baseIngredient(a.n)];
-        let base=u!=null?u:(a.q[pcEff-1]!=null?qtyString(a,pcEff):null);
-        if(bulk&&base!=null)base=bulkOut(base);
+        const base=cupAmountStr(name,a,bulk?curBulkN:pcEff);
         const disp=base!=null?ingDisplay(renameIngredient(base)):renameIngredient(a.n)+' —';
         // Only show the split when we didn't override the row ourselves — a user-entered
         // amount is whatever they meant it to be, not a sum we're entitled to break up.
@@ -3849,15 +3866,12 @@ function bulkIngString(name,ing,p){
   const ovr=recipeAmounts[name]&&recipeAmounts[name][p];
   if(ovr){const m=ovr.find(s=>baseIngredient(s)===baseIngredient(ing));if(m!=null)return String(m);}
   if(p>=1&&p<=4){const m=resolvedAmount(name,ing,p);if(m!=null)return m;}
-  // Past 4 portions there's no column on the card. Multiply up from the largest portion
-  // count we hold real amounts for that divides p — the same path the recipe page uses, so
-  // the shopping list and the card can't disagree. (scaleIngredient only ever matched
-  // g/ml/tsp/tbsp, so bare counts — chillies, onions, garlic cloves — never scaled at all.)
-  const b=bulkBase(name,p);
-  if(b){
-    const base=b.base===2?ing:resolvedAmount(name,ing,b.base);
-    if(base!=null){const s=scaleAmountStr(base,b.factor);if(s!=null)return s;}
-  }
+  // Past 4 portions there's no column on the card, so scale a per-portion rate — the same
+  // anchor the Recipe Manager predicts from, so the list and the manager can't disagree.
+  // (scaleIngredient only ever matched g/ml/tsp/tbsp, so bare counts — chillies, onions,
+  // garlic cloves — never scaled at all.)
+  const a=bulkAnchor(name,ing);
+  if(a){const s=scaleAmountStr(a.str,p/a.p);if(s!=null)return s;}
   return scaleIngredient(ing,p/2);
 }
 function dominantProtein(r){
@@ -6940,42 +6954,58 @@ function managerEditor(r){
   const fromGousto=!!RECIPE_STEPS[name];
   const mineMethod=!!(customMethods[name]&&customMethods[name].length);
   const steps=methodSteps2(name);
+  const rows=managerQtyRows(r);
+  // Batch columns only make sense for a recipe you'd actually batch-cook
+  const bulkCols=r.b?MGR_BULK_COLS:[];
+  const cols=[1,2,3,4].concat(bulkCols);
   return `<div style="border-top:1px solid var(--border);margin-top:10px;padding-top:12px">
-    <!-- Scan front/back -->
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
-      <label class="btn btn-sm btn-outline" style="cursor:pointer;margin:0">Scan front (ingredients)
-        <input type="file" accept="image/*" style="display:none" onchange="mgrScanFront('${escQ(name)}',this)"></label>
-      <label class="btn btn-sm btn-outline" style="cursor:pointer;margin:0">Scan back (method)
-        <input type="file" accept="image/*" style="display:none" onchange="mgrScanBack('${escQ(name)}',this)"></label>
-    </div>
-    <div id="mgrScanStatus-${id}" style="font-size:.8rem;color:var(--muted);margin-bottom:12px"></div>
+    <div id="mgrScanStatus-${id}" style="font-size:.8rem;color:var(--muted);margin-bottom:10px"></div>
 
-    <!-- Method -->
-    <label style="margin-bottom:4px">Method <span style="font-weight:400;color:var(--muted)">(one step per line)</span></label>
-    ${fromGousto?`<p style="font-size:.78rem;color:var(--muted);margin-bottom:6px">${mineMethod?'You’ve replaced the Gousto method.':'Straight from Gousto — edit it and your version takes over.'}</p>`:''}
-    <textarea id="mgrMethod-${id}" rows="6" style="margin-bottom:6px" placeholder="Paste or type the method — one step per line">${esc(steps.join('\n'))}</textarea>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
-      <button class="btn btn-sm btn-green" onclick="saveManagerMethod('${escQ(name)}')">Save method</button>
-      ${fromGousto&&mineMethod?`<button class="btn btn-sm btn-outline" onclick="resetManagerMethod('${escQ(name)}')">Reset to Gousto</button>`:''}
-    </div>
+    <!-- ===== Ingredients ===== -->
+    <section class="mgr-sec">
+      <div class="mgr-sec-head">
+        <h3>Ingredients</h3>
+        <label class="btn btn-sm btn-outline" style="cursor:pointer;margin:0">Scan front
+          <input type="file" accept="image/*" style="display:none" onchange="mgrScanFront('${escQ(name)}',this)"></label>
+      </div>
+      <p style="font-size:.75rem;color:var(--muted);margin-bottom:8px">Numbers only. Empty = unknown, shown as a dash.${
+        bulkCols.length?` Batch columns are predictions — overwrite any that don't scale cleanly and yours is kept.`:''}</p>
+      <div style="overflow-x:auto"><div class="mgr-grid" style="grid-template-columns:minmax(140px,2fr) 52px repeat(${cols.length},68px)">
+        <span class="mgr-h">Ingredient</span>
+        <span class="mgr-h">Unit</span>
+        ${cols.map(pc=>`<span class="mgr-h" style="text-align:center${pc>4?';color:var(--teal)':''}">${pc}</span>`).join('')}
+        ${rows.map((row,ix)=>
+          `<span style="font-size:.8rem;word-break:break-word">${esc(row.label)}${row.cup?' <span style="font-size:.68rem;color:var(--muted)">(cupboard)</span>':''}${row.gousto?`<br><span style="font-size:.68rem;color:var(--muted)">Gousto: ${esc(row.gousto)}</span>`:''}</span>
+          <span style="font-size:.72rem;color:var(--muted)">${esc(row.unitName)}</span>
+          ${cols.map(pc=>{
+            const own=pc<=4?row.vals[pc-1]:mgrBulkOwn(name,row,pc);
+            const pred=pc<=4?null:predictedBulkVal(name,row,pc);
+            const v=own!=null?own:(pred!=null?pred:'');
+            return `<input class="mgr-amt${pc>4&&own==null&&pred!=null?' mgr-pred':''}" type="number" inputmode="decimal" step="any" min="0"
+              id="mgrAmt-${id}-${pc}-${ix}" value="${v}"${pc>4?` title="${own!=null?'Your figure':'Predicted — '+ (bulkBase(name,pc)?bulkBase(name,pc).factor+' × the '+bulkBase(name,pc).base+'-portion amount':'no clean multiple')}"`:''}>`;
+          }).join('')}`
+        ).join('')}
+      </div></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+        <button class="btn btn-sm btn-green" onclick="saveManagerAmounts('${escQ(name)}')">Save amounts</button>
+        ${recipeAmounts[name]?`<button class="btn btn-sm btn-outline" onclick="clearManagerAmounts('${escQ(name)}')">Reset my edits</button>`:''}
+      </div>
+    </section>
 
-    <!-- Per-portion amounts -->
-    <label style="margin-bottom:6px">Amounts per portion</label>
-    <p style="font-size:.75rem;color:var(--muted);margin-bottom:6px">Numbers only ("x" = count). Empty = unknown, shown as a dash.</p>
-    <div style="overflow-x:auto"><div style="display:grid;grid-template-columns:minmax(150px,2fr) 70px repeat(4,minmax(64px,1fr));gap:4px;margin-bottom:8px;min-width:560px;align-items:center">
-      <span style="font-size:.72rem;color:var(--muted);font-weight:700">Ingredient</span>
-      <span style="font-size:.72rem;color:var(--muted);font-weight:700">Unit</span>
-      ${[1,2,3,4].map(pc=>`<span style="font-size:.72rem;color:var(--muted);font-weight:700">${pc}</span>`).join('')}
-      ${managerQtyRows(r).map((row,ix)=>
-        `<span style="font-size:.8rem;word-break:break-word">${esc(row.label)}${row.cup?' <span style="font-size:.68rem;color:var(--muted)">(cupboard)</span>':''}${row.gousto?`<br><span style="font-size:.68rem;color:var(--muted)">Gousto: ${esc(row.gousto)}</span>`:''}</span>
-        <span style="font-size:.75rem;color:var(--muted)">${esc(row.unitName)}</span>
-        ${[1,2,3,4].map(pc=>`<input type="number" inputmode="decimal" step="any" min="0" id="mgrAmt-${id}-${pc}-${ix}" value="${row.vals[pc-1]!=null?row.vals[pc-1]:''}" style="font-size:.82rem;padding:8px 6px">`).join('')}`
-      ).join('')}
-    </div></div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn btn-sm btn-green" onclick="saveManagerAmounts('${escQ(name)}')">Save amounts</button>
-      ${recipeAmounts[name]?`<button class="btn btn-sm btn-outline" onclick="clearManagerAmounts('${escQ(name)}')">Reset my edits</button>`:''}
-    </div>
+    <!-- ===== Method ===== -->
+    <section class="mgr-sec">
+      <div class="mgr-sec-head">
+        <h3>Method</h3>
+        <label class="btn btn-sm btn-outline" style="cursor:pointer;margin:0">Scan back
+          <input type="file" accept="image/*" style="display:none" onchange="mgrScanBack('${escQ(name)}',this)"></label>
+      </div>
+      <p style="font-size:.75rem;color:var(--muted);margin-bottom:8px">One step per line.${fromGousto?(mineMethod?' You’ve replaced the original.':' Edit it and your version takes over.'):''}</p>
+      <textarea id="mgrMethod-${id}" rows="8" style="margin-bottom:8px" placeholder="Paste or type the method — one step per line">${esc(steps.join('\n'))}</textarea>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-sm btn-green" onclick="saveManagerMethod('${escQ(name)}')">Save method</button>
+        ${fromGousto&&mineMethod?`<button class="btn btn-sm btn-outline" onclick="resetManagerMethod('${escQ(name)}')">Reset to the original</button>`:''}
+      </div>
+    </section>
     ${isCustomRecipe(name)?`<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
       <button class="btn btn-sm btn-red" onclick="deleteCustomRecipe('${escQ(name)}',()=>{backToManagerList();initFiling();})">Delete recipe</button>
       <span style="font-size:.78rem;color:var(--muted)">Removes it from every device.</span>
@@ -6995,6 +7025,38 @@ function amtUnit(s){const m=String(s).match(/\d(?:[\d./ ]*)\s*(g|kg|ml|l|tsp|tbs
 const UNIT_NAMES={g:'grams',kg:'kg',ml:'ml',l:'litres',tsp:'tsp',tbsp:'tbsp',pkt:'pack',cube:'cubes','':'x'};
 // One row per card ingredient: display label, unit, and the 1/2/3/4 numbers
 // (user override > Gousto API > the card's own 2-person amount).
+// Batch sizes worth holding a figure for. Even numbers only — those are the ones that
+// divide by a portion count we actually have amounts for.
+const MGR_BULK_COLS=[6,8,10];
+// Your own stored figure for a batch column, if you've set one
+function mgrBulkOwn(name,row,pc){
+  const u=userAmountMap(name,pc)[row.base];
+  return u!=null?amtNumber(u):null;
+}
+// What the app uses if you set nothing. Anchored on a PER-PORTION rate, preferring the
+// 2-portion figure, rather than "the largest column that divides the batch size".
+// Gousto rounds its 3/4-portion columns — one chilli feeds two people and also feeds four —
+// so multiplying the 4 column by 2 predicted 2 chillies for a batch of 8 while a batch of
+// 10 predicted 5. Anchoring makes the series monotonic: 6→3, 8→4, 10→5.
+// It's still a prediction: pans, evaporation and cooking times don't scale linearly, which
+// is exactly why these cells are editable.
+const BULK_ANCHOR_ORDER=[2,4,3,1];
+function predictedBulkVal(name,row,pc){
+  const anchor=BULK_ANCHOR_ORDER.find(p=>row.vals[p-1]!=null);
+  if(anchor==null)return null;
+  return round2(row.vals[anchor-1]*(pc/anchor));
+}
+// The same rule against ingredient strings, for the shopping list
+function bulkAnchor(name,ing){
+  for(const q of BULK_ANCHOR_ORDER){
+    // Resolve through the quantity rows first and only fall back to the card's own text,
+    // matching how the manager builds its columns. Reading the raw string at 2 portions
+    // when a quantity row disagreed with it was enough to make the two predict differently.
+    const s=resolvedAmount(name,ing,q)||(q===2?ing:null);
+    if(s!=null&&amtNumber(s)!=null)return {p:q,str:s};
+  }
+  return null;
+}
 function managerQtyRows(r){
   const name=r.n;
   const userBy={};[1,2,3,4].forEach(pc=>{userBy[pc]=userAmountMap(name,pc)});
@@ -7035,16 +7097,24 @@ function saveManagerAmounts(name){
   const id=cssId(name);
   const rows=managerQtyRows(r);
   if(!recipeAmounts[name])recipeAmounts[name]={};
-  [1,2,3,4].forEach(pc=>{
-    // Store only cells that differ from what Gousto/the card already gives us
+  [1,2,3,4].concat(r.b?MGR_BULK_COLS:[]).forEach(pc=>{
+    // Store only cells that differ from what we'd work out anyway — for 1-4 that's the
+    // Gousto figure, for a batch column it's the predicted multiple. Keeping the table
+    // sparse means fixing a base amount still flows through everywhere you haven't
+    // deliberately overridden.
     const list=[];
     rows.forEach((row,ix)=>{
       const el=document.getElementById(`mgrAmt-${id}-${pc}-${ix}`);if(!el)return;
       const v=el.value.trim();if(v==='')return;
       const n=parseFloat(v);if(isNaN(n))return;
-      const apiV=row.api&&row.api.q[pc-1];
-      if(apiV!=null&&n===apiV)return;
-      if(apiV==null&&pc===2&&n===amtNumber(row.ing))return;
+      if(pc>4){
+        const pred=predictedBulkVal(name,row,pc);
+        if(pred!=null&&Math.abs(pred-n)<1e-9)return;
+      }else{
+        const apiV=row.api&&row.api.q[pc-1];
+        if(apiV!=null&&n===apiV)return;
+        if(apiV==null&&pc===2&&n===amtNumber(row.ing))return;
+      }
       list.push((row.label+' '+fmtQty2(n,row.unit)).trim());
     });
     if(list.length)recipeAmounts[name][pc]=list;else delete recipeAmounts[name][pc];
