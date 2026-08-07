@@ -71,6 +71,44 @@ nav{background:var(--teal);position:sticky;top:0;z-index:100}
 .tag-suggest button:hover{color:var(--coral)}
 .fav-btn{position:absolute;top:14px;right:14px;background:none;border:none;font-size:1.2rem;cursor:pointer;opacity:.4;transition:.15s;color:var(--coral)}
 .fav-btn:hover,.fav-btn.active{opacity:1}
+/* Star ratings. Touch targets stay finger-sized on mobile even at small font sizes. */
+.stars{display:inline-flex;align-items:center;gap:1px;white-space:nowrap}
+.stars .star{background:none;border:none;padding:2px 1px;min-width:22px;line-height:1;font-size:1em;
+  cursor:pointer;color:var(--coral);opacity:.35;transition:opacity .12s,transform .12s}
+.stars .star.on{opacity:1}
+.stars .star:hover{opacity:1}
+.stars .star:active{transform:scale(1.25)}
+.stars .star-note{font-size:.72rem;color:var(--muted);margin-left:6px;opacity:.85}
+/* In the card flow, not absolutely positioned — five stars are wide enough to collide with
+   a long recipe title at any breakpoint. */
+.card-stars{display:block;margin:2px 0 6px}
+
+/* ---- Live cooking mode ---- */
+.live-badge{display:inline-flex;align-items:center;gap:6px;background:var(--green);color:#fff;font-size:.72rem;
+  font-weight:800;letter-spacing:.4px;text-transform:uppercase;padding:3px 10px;border-radius:999px}
+.live-badge::before{content:"";width:7px;height:7px;border-radius:50%;background:#fff;animation:livePulse 1.8s infinite}
+@keyframes livePulse{0%,100%{opacity:1}50%{opacity:.25}}
+.live-meal{display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff;border:1px solid var(--border);
+  border-radius:12px;margin-bottom:10px;cursor:pointer;transition:.15s}
+.live-meal:hover{border-color:var(--primary);transform:translateY(-1px)}
+.live-meal.done{opacity:.6;background:var(--bg2)}
+.live-meal.done .lm-name{text-decoration:line-through}
+.lm-name{font-weight:700;font-size:1rem;line-height:1.3}
+.lm-sub{font-size:.78rem;color:var(--muted);margin-top:3px}
+.lm-status{margin-left:auto;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.4px;
+  padding:5px 12px;border-radius:999px;white-space:nowrap}
+.lm-status.todo{background:var(--bg2);color:var(--muted)}
+.lm-status.done{background:var(--green);color:#fff}
+.lm-status.extra{background:var(--teal);color:#fff}
+.led-row{display:flex;align-items:baseline;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.led-row.spent{opacity:.55}
+.led-row.spent .led-name{text-decoration:line-through}
+.led-name{font-weight:600;flex:1;min-width:0}
+.led-left{font-weight:800;white-space:nowrap}
+.led-short{color:var(--red)}
+.led-ok{color:var(--green)}
+.led-meals{font-size:.78rem;color:var(--muted);padding:0 0 10px 2px;border-bottom:1px solid var(--border)}
+.led-meals .used{text-decoration:line-through;opacity:.7}
 
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;justify-content:center;align-items:start;padding:40px 20px;overflow-y:auto}
 .modal-overlay.open{display:flex}
@@ -563,6 +601,7 @@ textarea{resize:vertical;min-height:80px}
         <label>Sort</label>
         <select id="sortBy" onchange="renderBrowse()">
           <option value="name">Name A-Z</option><option value="name-desc">Z-A</option>
+          <option value="rating-desc">Rating ↓</option><option value="rating-asc">Rating ↑</option>
           <option value="cal-asc">Calories ↑</option><option value="cal-desc">Calories ↓</option>
           <option value="time-asc">Time ↑</option><option value="time-desc">Time ↓</option>
         </select>
@@ -632,8 +671,14 @@ textarea{resize:vertical;min-height:80px}
         </div>
       </div>
       <div>
-        <label class="group-label">Favourites</label>
-        <label class="toggle-chip"><input type="checkbox" id="filterFav" onchange="renderBrowse()"><span>Favourites only</span></label>
+        <label class="group-label">Rating</label>
+        <div class="seg" id="filterRatingSeg">
+          <button class="seg-btn active" onclick="setMinRating(0,this)">Any</button>
+          <button class="seg-btn" onclick="setMinRating(3,this)">★★★+</button>
+          <button class="seg-btn" onclick="setMinRating(4,this)">★★★★+</button>
+          <button class="seg-btn" onclick="setMinRating(5,this)">★★★★★</button>
+          <button class="seg-btn" onclick="setMinRating(-1,this)">Unrated</button>
+        </div>
       </div>
     </div>
     <div id="customTagFilterWrap" style="margin-bottom:8px"></div>
@@ -679,9 +724,7 @@ textarea{resize:vertical;min-height:80px}
 
     <div id="planItemsList"></div>
     <div id="planItemsEmpty" class="empty-state"><p>Nothing here yet. Hit <strong>Add meals</strong> to build a plan.</p></div>
-    <div id="planSaveBar" style="display:none;margin-top:14px">
-      <button class="btn btn-primary" onclick="saveDraftPlan()">Save plan</button>
-    </div>
+    <div id="planSaveBar" style="display:none;margin-top:14px"></div>
   </div>
 
   <div id="plannerSaved" style="display:none">
@@ -827,6 +870,12 @@ textarea{resize:vertical;min-height:80px}
     <div id="customEmpty" class="empty-state"><p>No custom recipes yet. Paste one in, or let ChatGPT turn a screenshot/caption into one.</p></div>
   </div>
 
+  <!-- Amounts editor for a single recipe (its own screen, not an accordion) -->
+  <div id="adminView-amounts" class="admin-view" style="display:none">
+    <button class="btn btn-sm btn-outline admin-back" onclick="backToManagerList()">← All recipes</button>
+    <div class="card" id="amountsEditorBody"></div>
+  </div>
+
   <!-- Recipe Manager -->
   <div id="adminView-manager" class="admin-view" style="display:none">
     <button class="btn btn-sm btn-outline admin-back" onclick="showAdminMenu()">← Admin</button>
@@ -835,7 +884,7 @@ textarea{resize:vertical;min-height:80px}
       <p style="font-size:.85rem;color:var(--muted);margin-bottom:10px">Which recipes have a method and per-portion amounts.</p>
       <div id="managerSummary" style="font-size:.82rem;color:var(--muted);margin-bottom:10px"></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
-        <input type="text" id="managerSearch" placeholder="Search recipes…" oninput="renderManager()" style="flex:1;min-width:160px">
+        <input type="text" id="managerSearch" placeholder="Search recipes…" oninput="renderManagerSoon()" style="flex:1;min-width:160px">
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
         <label class="toggle-chip"><input type="checkbox" id="mgrNoMethod" onchange="renderManager()"><span>Missing method</span></label>
@@ -953,6 +1002,34 @@ textarea{resize:vertical;min-height:80px}
 <div id="page-recipe" class="page">
   <button class="btn btn-outline" onclick="closeModal()" style="margin-bottom:14px;padding:10px 18px;font-size:.95rem">← Back</button>
   <div class="card recipe-page" id="modalContent"></div>
+</div>
+
+<!-- Live cooking: the plan you've committed to, with what's cooked and what's left of the shop -->
+<div id="page-live" class="page">
+  <button class="btn btn-outline" onclick="exitLive()" style="margin-bottom:14px;padding:10px 18px;font-size:.95rem">← Back to plans</button>
+  <div id="liveHeader"></div>
+  <div class="seg" id="liveTabs" style="margin:14px 0">
+    <button class="seg-btn active" onclick="setLiveTab('meals',this)">Meals</button>
+    <button class="seg-btn" onclick="setLiveTab('ingredients',this)">Ingredients</button>
+  </div>
+  <div id="liveBody"></div>
+</div>
+
+<div class="modal-overlay" id="cookSheetModal" style="z-index:262" onclick="if(event.target===this)closeCookSheet()">
+  <div class="modal" style="max-width:640px">
+    <button class="close" onclick="closeCookSheet()">&times;</button>
+    <div id="cookSheetBody"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="liveAddModal" style="z-index:264" onclick="if(event.target===this)closeLiveAdd()">
+  <div class="modal" style="max-width:560px">
+    <button class="close" onclick="closeLiveAdd()">&times;</button>
+    <h2 style="font-size:1.15rem;margin-bottom:4px">Add a meal to this cook</h2>
+    <p style="font-size:.83rem;color:var(--muted);margin-bottom:10px">A last-minute meal you weren’t shopping for. It joins the ledger so the remaining amounts stay honest.</p>
+    <input type="text" id="liveAddSearch" placeholder="Search recipes…" oninput="renderLiveAdd()" style="margin-bottom:10px">
+    <div id="liveAddList"></div>
+  </div>
 </div>
 
 <div id="page-recipe-edit" class="page">
@@ -1089,7 +1166,7 @@ textarea{resize:vertical;min-height:80px}
           <label class="toggle-chip"><input type="checkbox" id="cFreeze"><span>Freezable</span></label>
           <label class="toggle-chip"><input type="checkbox" id="cPrep5"><span>Prepped in 5</span></label>
           <label class="toggle-chip"><input type="checkbox" id="cQuick"><span>Quick (≤25m)</span></label>
-          <label class="toggle-chip"><input type="checkbox" id="cFavOnly"><span>Favourites only</span></label>
+          <label class="toggle-chip"><input type="checkbox" id="cFavOnly"><span>★★★★+ only</span></label>
         </div>
       </div>
     </details>
@@ -1226,7 +1303,7 @@ textarea{resize:vertical;min-height:80px}
       <h2 style="font-size:1.15rem;margin-bottom:10px">Choose recipes</h2>
       <input type="text" id="pickerSearch" placeholder="Search recipes…" oninput="renderRecipePicker()" style="margin-bottom:10px">
       <div class="filter-chips" style="margin-bottom:10px">
-        <label class="toggle-chip"><input type="checkbox" id="pickerFav" onchange="renderRecipePicker()"><span>Favourites</span></label>
+        <label class="toggle-chip"><input type="checkbox" id="pickerFav" onchange="renderRecipePicker()"><span>★★★★+</span></label>
         <label class="toggle-chip"><input type="checkbox" id="pickerBulk" onchange="renderRecipePicker()"><span>Bulk-friendly</span></label>
         <label class="toggle-chip"><input type="checkbox" id="pickerBasicOnly" onchange="renderRecipePicker()"><span>Basic meals</span></label>
         <label class="toggle-chip"><input type="checkbox" id="pickerCustomOnly" onchange="renderRecipePicker()"><span>Custom recipes</span></label>
@@ -1535,6 +1612,14 @@ function recipeOrigin(r){return r.basic?'basic':(r.custom?'custom':'gousto')}
 const ORIGINS=[{key:'gousto',label:'Gousto'},{key:'basic',label:'Basic meals'},{key:'custom',label:'Custom recipes'}];
 
 let favourites=JSON.parse(localStorage.getItem('gousto_favs')||'[]');
+// Star ratings replace the old on/off favourite. Anything you'd already favourited comes
+// across as 5 stars, and `favourites` is still written (4+ stars) so an older device that
+// hasn't picked up this build — or a sync merge from one — keeps showing the right recipes.
+let recipeRatings=JSON.parse(localStorage.getItem('gousto_ratings')||'null');
+if(recipeRatings===null){
+  recipeRatings={};favourites.forEach(n=>{recipeRatings[n]=5});
+  try{localStorage.setItem('gousto_ratings',JSON.stringify(recipeRatings))}catch(e){}
+}
 let mealPlan=JSON.parse(localStorage.getItem('gousto_plan')||'[]');
 let planPortions=parseInt(localStorage.getItem('gousto_plan_portions')||'2');
 let portions=Math.min(4,parseInt(localStorage.getItem('gousto_portions')||'2'));
@@ -1736,6 +1821,7 @@ let customTags=JSON.parse(localStorage.getItem('gousto_tags')||'{}');
 let tagVocab=JSON.parse(localStorage.getItem('gousto_tag_vocab')||'[]');
 // Free-text notes you add to a recipe: {name: "text"}
 let recipeNotes=JSON.parse(localStorage.getItem('gousto_notes')||'{}');
+let recipeYields=JSON.parse(localStorage.getItem('gousto_yields')||'{}');
 // Your overrides of a recipe's own facts (time, calories, freezable, spicy…): {name:{m,k,c,t,o,f,b,spicy}}
 // Only the fields you actually changed are stored, so Gousto data still shows through everywhere else.
 let recipeOver=JSON.parse(localStorage.getItem('gousto_recipe_over')||'{}');
@@ -1759,17 +1845,22 @@ const RECIPE_AMOUNTS_SEED={};
   if(changed)localStorage.setItem('gousto_amounts',JSON.stringify(recipeAmounts));
 })();
 function savePlanHistory(){save('gousto_plan_history',planHistory)}
-function saveFiling(){save('gousto_filing',filingOrder);save('gousto_filing_new',filingNewFlags)}
+function saveFiling(){save('gousto_filing',filingOrder);save('gousto_filing_new',filingNewFlags);invalidateBinderCache()}
 function saveTags(){save('gousto_tags',customTags)}
 function saveNotes(){save('gousto_notes',recipeNotes)}
+function saveYields(){save('gousto_yields',recipeYields)}
+// "Cooked 10, got 9" — what a batch actually produced, per recipe. Recorded, never applied:
+// amounts only ever come from Gousto or from you, so this surfaces as a note next to the
+// bulk figures rather than quietly scaling them.
+function yieldNotes(name){return recipeYields[name]||[]}
 function saveRecipeOver(){save('gousto_recipe_over',recipeOver)}
 function getNote(name){return recipeNotes[name]||''}
 function saveTagVocab(){save('gousto_tag_vocab',tagVocab)}
 function saveOptional(){save('gousto_optional',recipeOptional)}
 function saveRemoved(){save('gousto_removed',recipeRemoved)}
 function saveSoloSteps(){save('gousto_solo_steps',soloSteps)}
-function saveMethods(){save('gousto_methods',customMethods)}
-function saveAmounts(){save('gousto_amounts',recipeAmounts)}
+function saveMethods(){save('gousto_methods',customMethods);clearMgrStats()}
+function saveAmounts(){save('gousto_amounts',recipeAmounts);clearMgrStats()}
 
 // ---- Method + portion-amount helpers ----
 // A recipe "has a method" if Gousto supplied one OR the user has added/scanned one.
@@ -1954,6 +2045,26 @@ function bulkBase(name,n){
   return null;
 }
 function round2(v){return Math.round(v*100)/100}
+// A cupboard row flagged `m` is a SUM across several steps — the braising liquid PLUS the
+// rice water. Printed as one figure it reads like a single pour, which is how a curry ends
+// up with 2.5l in it. Recover the individual step amounts from the method text so the
+// ingredient list can show the split instead of a bare total.
+const CUP_SPLIT_RE=/(\d[\d/. ]*[a-zA-Z]*)\s*\[([^\][]+)\]\s*\[([^\][]+)\]\s*((?:[a-zA-Z'’-]+\s*){0,3})/g;
+function cupSplit(name,row,pc){
+  if(!row.m||pc<2)return null;
+  const steps=(typeof RECIPE_STEPS!=='undefined'&&RECIPE_STEPS[name])?RECIPE_STEPS[name].s.flat():[];
+  const key=String(row.n).toLowerCase();
+  const parts=[];
+  steps.forEach(s=>{
+    let m;CUP_SPLIT_RE.lastIndex=0;
+    while((m=CUP_SPLIT_RE.exec(String(s)))){
+      const after=m[4].toLowerCase().replace(/^(of|the|your)\s+/,'').trim();
+      if(!after.startsWith(key))continue;
+      parts.push((pc===3?m[2]:pc>=4?m[3]:m[1]).trim());
+    }
+  });
+  return parts.length>1?parts:null;
+}
 // Big batches read better in kg/l than four-digit grams
 function fmtBulkQty(v,u){
   v=round2(v);
@@ -1966,8 +2077,11 @@ function fmtBulkQty(v,u){
 function scaleQty(amt,factor){
   const mx=String(amt).match(/^(\d+(?:\.\d+)?)\s*x\s*(.+)$/i);
   if(mx)return round2(parseFloat(mx[1])*factor)+' x '+mx[2];
-  const v=amtNumber(amt);if(v==null)return null;
-  return fmtBulkQty(v*factor,amtUnit(amt));
+  let v=amtNumber(amt);if(v==null)return null;
+  // Work in the base unit so "1l x 5" comes back as 5l, not "5 l" via the no-unit branch
+  let u=amtUnit(amt);
+  if(u==='l'){v*=1000;u='ml'}else if(u==='kg'){v*=1000;u='g'}
+  return fmtBulkQty(v*factor,u);
 }
 // The same, for a full display string ("Chicken thighs 260g" -> "Chicken thighs 1.3kg")
 function scaleAmountStr(s,factor){
@@ -2023,6 +2137,44 @@ function renderTagFilters(){
 
 function save(k,v){localStorage.setItem(k,JSON.stringify(v));stampKey(k);scheduleSync()}
 function saveFavs(){save('gousto_favs',favourites)}
+function getRating(name){return recipeRatings[name]||0}
+function saveRatings(){
+  // Keep the legacy favourites list in step so older clients and sync merges stay sane
+  favourites=Object.keys(recipeRatings).filter(n=>recipeRatings[n]>=4);
+  save('gousto_ratings',recipeRatings);save('gousto_favs',favourites);
+}
+// Clicking the star you're already on clears the rating, so there's a way back to unrated
+function setRating(name,n){
+  n=parseInt(n)||0;
+  if(getRating(name)===n)n=0;
+  if(n>0)recipeRatings[name]=n;else delete recipeRatings[name];
+  saveRatings();
+}
+// The star row. `size` in rem; `compact` drops the "unrated" hint used on cards.
+function ratingStars(name,size,compact){
+  const cur=getRating(name);
+  return `<span class="stars" style="font-size:${size||1}rem" data-rating-for="${esc(name)}">`+
+    [1,2,3,4,5].map(i=>`<button class="star${i<=cur?' on':''}" title="${i} star${i===1?'':'s'}"
+      onclick="event.stopPropagation();setRating('${escQ(name)}',${i});refreshStars('${escQ(name)}')">${i<=cur?'★':'☆'}</button>`).join('')+
+    (compact?'':`<span class="star-note">${cur?cur+'/5':'Not rated'}</span>`)+`</span>`;
+}
+// Repaint every star row for this recipe in place — the browse grid, the recipe page and
+// any open picker can all be showing one at the same time.
+function refreshStars(name){
+  document.querySelectorAll(`.stars[data-rating-for="${cssEscape(name)}"]`).forEach(el=>{
+    const cur=getRating(name);
+    el.querySelectorAll('.star').forEach((b,i)=>{b.classList.toggle('on',i<cur);b.textContent=i<cur?'★':'☆'});
+    const note=el.querySelector('.star-note');if(note)note.textContent=cur?cur+'/5':'Not rated';
+  });
+  // If you're filtering by rating, changing one has to re-run the filter or the grid lies
+  if(minRatingFilter>0&&document.getElementById('page-browse')?.classList.contains('active'))renderBrowse();
+}
+function cssEscape(s){return String(s).replace(/["\\]/g,'\\$&')}
+// A recipe's name is always a way into its card, wherever it's printed. `inner` lets a call
+// site keep its own markup (pills, refs); it defaults to the escaped name.
+function recipeLink(name,inner,extraStyle){
+  return `<span onclick="event.stopPropagation();openRecipe('${escQ(name)}')" style="cursor:pointer;${extraStyle||''}">${inner||esc(name)}</span>`;
+}
 function savePlan(){save('gousto_plan',mealPlan);save('gousto_plan_portions',planPortions);portions=planPortions;save('gousto_portions',portions)}
 function saveChecked(){save('gousto_checked',checkedItems)}
 function savePantry(){save('gousto_pantry',pantryItems)}
@@ -2120,15 +2272,38 @@ function changeItemPortions(i,d){
 }
 function removePlanItem(i){planItems.splice(i,1);savePlanDraft();renderPlan();}
 function clearDraft(){if(!planItems.length)return;askConfirm('This empties your current plan basket. You can’t undo it.',()=>{planItems=[];savePlanDraft();renderPlan();toast('Basket cleared');},{title:'Clear basket?',okLabel:'Clear'});}
-function saveDraftPlan(){
+// The basket may be an edit of an existing plan (see loadPlanToEdit). `asNew` forces a fork.
+let editingPlanRef=localStorage.getItem('gousto_editing_ref')||null;
+function saveEditingRef(){
+  if(editingPlanRef)localStorage.setItem('gousto_editing_ref',editingPlanRef);
+  else localStorage.removeItem('gousto_editing_ref');
+  renderPlan();
+}
+function editingPlanIdx(){return editingPlanRef?savedPlans.findIndex(p=>p.ref===editingPlanRef):-1}
+function saveDraftPlan(asNew){
   if(!planItems.length){toast('Add some meals first');return}
+  const idx=asNew?-1:editingPlanIdx();
+  if(idx>=0){
+    const p=savedPlans[idx];
+    p.items=JSON.parse(JSON.stringify(planItems));
+    // A live cook is running against this plan — drop status for meals that no longer exist
+    if(isLive(p)){
+      const live=liveOf(p);const valid=new Set(p.items.map((_,i)=>'i'+i));
+      Object.keys(live.meals).forEach(k=>{if(k[0]==='i'&&!valid.has(k))delete live.meals[k]});
+    }
+    saveSavedPlans();
+    planItems=[];savePlanDraft();editingPlanRef=null;saveEditingRef();
+    toast(`Plan ${p.ref||''} updated`);
+    showPage('saved');return;
+  }
   const ref=nextPlanRef();
   savedPlans.push({ref,items:JSON.parse(JSON.stringify(planItems)),date:new Date().toLocaleDateString()});
   saveSavedPlans();
-  planItems=[];savePlanDraft();renderPlan();
+  planItems=[];savePlanDraft();editingPlanRef=null;saveEditingRef();
   toast(`Saved as Plan ${ref}`);
   showPage('saved');
 }
+function stopEditingPlan(){editingPlanRef=null;saveEditingRef();toast('Now saving as a new plan');}
 
 function planItemRow(it,i,all){
   const r=all.find(x=>x.n===it.name);const bulk=it.mode==='bulk';
@@ -2160,6 +2335,15 @@ function renderPlan(){
   count.textContent=planItems.length?`${planItems.length} meal${planItems.length!==1?'s':''} in plan`:'';
   if(!planItems.length){list.innerHTML='';empty.style.display='';saveBar.style.display='none';return}
   empty.style.display='none';saveBar.style.display='';
+  const eIdx=editingPlanIdx();
+  saveBar.innerHTML=eIdx>=0
+    ? `<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+         <button class="btn btn-primary" onclick="saveDraftPlan()">Update Plan ${esc(savedPlans[eIdx].ref||'')}</button>
+         <button class="btn btn-outline" onclick="saveDraftPlan(true)">Save as new plan</button>
+         <a onclick="stopEditingPlan()" style="cursor:pointer;color:var(--primary);font-size:.82rem">Stop editing</a>
+       </div>
+       <p style="font-size:.78rem;color:var(--muted);margin-top:6px">Editing <strong>${esc(savedPlans[eIdx].name||('Plan '+(savedPlans[eIdx].ref||'')))}</strong> — Update overwrites it in place.</p>`
+    : `<button class="btn btn-primary" onclick="saveDraftPlan()">Save plan</button>`;
   const normal=[],bulk=[];
   planItems.forEach((it,i)=>{(it.mode==='bulk'?bulk:normal).push({it,i});});
   let html='';
@@ -2202,12 +2386,12 @@ function closeRecipePicker(){document.getElementById('recipePickerModal').classL
 function pickerBack(){document.getElementById('recipePickerModal').classList.remove('open');pickerMode='normal';openAddChoice();}
 function renderRecipePicker(){
   const q=(document.getElementById('pickerSearch').value||'').toLowerCase();
-  const favOnly=document.getElementById('pickerFav')?.checked;
+  const favOnly=document.getElementById('pickerFav')?.checked;   // "highly rated", 4 stars or better
   const bulkOnly=document.getElementById('pickerBulk')?.checked;
   const basicOnly=document.getElementById('pickerBasicOnly')?.checked;
   const customOnly=document.getElementById('pickerCustomOnly')?.checked;
   let all=getAllRecipes();
-  if(favOnly)all=all.filter(r=>favourites.includes(r.n));
+  if(favOnly)all=all.filter(r=>getRating(r.n)>=4);
   if(bulkOnly)all=all.filter(r=>r.b);
   if(basicOnly)all=all.filter(r=>r.basic);
   if(customOnly)all=all.filter(r=>r.custom);
@@ -2312,12 +2496,11 @@ function showAdminView(view){
 }
 // The pantry and the name/category list are one page now; kept as a no-op for old call sites
 function setIngManagerTab(){renderMappings()}
+// "Edit amounts" from a recipe goes straight to that recipe's editor, not the whole list
 function openManagerFor(name){
   closeModal();
   showPage('admin',document.querySelector('.nav-tab[onclick*="admin"]'));
-  showAdminView('manager');
-  managerExpanded=name;renderManager();
-  setTimeout(()=>{const el=document.getElementById('mgr-row-'+cssId(name));if(el)el.scrollIntoView({behavior:'smooth',block:'center'});},60);
+  openAmountsFor(name);
 }
 function populateSettings(){
   document.getElementById('apiKeyInput').value=localStorage.getItem('gousto_anthropic_key')||'';
@@ -2511,7 +2694,6 @@ function getFiltered(){
   const wantBulk=document.getElementById('filterBulk')?.checked;
   const wantQuick=document.getElementById('filterQuick')?.checked;
   const wantPrep5=document.getElementById('filterPrep5')?.checked;
-  const wantFav=document.getElementById('filterFav')?.checked;
   const wantVeggie=document.getElementById('filterVeggie')?.checked;
   const wantOnePot=document.getElementById('filterOnePot')?.checked;
   const wantMakeAhead=document.getElementById('filterMakeAhead')?.checked;
@@ -2528,7 +2710,8 @@ function getFiltered(){
     if(wantBulk&&!r.b)return false;
     if(wantQuick&&r.m>25)return false;
     if(wantPrep5&&!isPrep5(r))return false;
-    if(wantFav&&!favourites.includes(r.n))return false;
+    if(minRatingFilter===-1&&getRating(r.n)>0)return false;      // "Unrated" — the to-try pile
+    if(minRatingFilter>0&&getRating(r.n)<minRatingFilter)return false;
     if(wantVeggie&&!isVeggie(r))return false;
     if(wantOnePot&&!isOnePot(r))return false;
     if(wantMakeAhead&&!isMakeAhead(r))return false;
@@ -2539,7 +2722,10 @@ function getFiltered(){
     if(activeTags.length){const rt=getTags(r.n);if(!activeTags.some(t=>rt.includes(t)))return false;}
     return true;
   });
-  const sorts={'name':(a,b)=>a.n.localeCompare(b.n),'name-desc':(a,b)=>b.n.localeCompare(a.n),'cal-asc':(a,b)=>a.k-b.k,'cal-desc':(a,b)=>b.k-a.k,'time-asc':(a,b)=>a.m-b.m,'time-desc':(a,b)=>b.m-a.m};
+  const sorts={'name':(a,b)=>a.n.localeCompare(b.n),'name-desc':(a,b)=>b.n.localeCompare(a.n),'cal-asc':(a,b)=>a.k-b.k,'cal-desc':(a,b)=>b.k-a.k,'time-asc':(a,b)=>a.m-b.m,'time-desc':(a,b)=>b.m-a.m,
+    // Unrated sorts to the bottom either way — it means "no opinion", not "bad"
+    'rating-desc':(a,b)=>(getRating(b.n)-getRating(a.n))||a.n.localeCompare(b.n),
+    'rating-asc':(a,b)=>((getRating(a.n)||99)-(getRating(b.n)||99))||a.n.localeCompare(b.n)};
   filtered.sort(sorts[sort]||sorts.name);
   return filtered;
 }
@@ -2549,7 +2735,8 @@ function getFiltered(){
 function browseFilterCount(){
   let n=0;
   ['filterCuisine','filterCountry'].forEach(id=>{const e=document.getElementById(id);if(e&&e.value)n++});
-  ['filterQuick','filterPrepped','filterFreeze','filterBulk','filterVeg','filterOnePot','filterMakeAhead','filterBasics','filterFav'].forEach(id=>{const e=document.getElementById(id);if(e&&e.checked)n++});
+  ['filterQuick','filterPrepped','filterFreeze','filterBulk','filterVeg','filterOnePot','filterMakeAhead','filterBasics'].forEach(id=>{const e=document.getElementById(id);if(e&&e.checked)n++});
+  if(minRatingFilter!==0)n++;
   const cal=document.getElementById('filterCal'),time=document.getElementById('filterTime');
   if(cal&&+cal.value<+cal.max)n++;
   if(time&&+time.value<+time.max)n++;
@@ -2603,7 +2790,8 @@ function renderBrowse(){
   if(document.getElementById('filterBulk')?.checked)parts.push('Bulk-friendly');
   if(document.getElementById('filterQuick')?.checked)parts.push('Quick');
   if(document.getElementById('filterPrep5')?.checked)parts.push('Prepped in 5');
-  if(document.getElementById('filterFav')?.checked)parts.push('Favourites');
+  if(minRatingFilter===-1)parts.push('Unrated');
+  else if(minRatingFilter>0)parts.push(minRatingFilter===5?'5 stars':minRatingFilter+' stars +');
   if(document.getElementById('filterVeggie')?.checked)parts.push('Vegetarian');
   if(document.getElementById('filterOnePot')?.checked)parts.push('One-pot');
   if(document.getElementById('filterMakeAhead')?.checked)parts.push('Make-ahead');
@@ -2637,11 +2825,10 @@ function pickRandomModal(){
 }
 
 function recipeCard(r){
-  const isFav=favourites.includes(r.n);
   const ref=getBinderRef(r.n);
   return `<div class="card recipe-card" onclick="openRecipe('${escQ(r.n)}')">
-    <button class="fav-btn ${isFav?'active':''}" onclick="event.stopPropagation();toggleFav('${escQ(r.n)}',this)">${isFav?'★':'☆'}</button>
-    <div class="title">${ref?`<span class="binder-ref">${ref.label}</span> `:''}${esc(r.n)}</div>
+    <div class="title" onclick="event.stopPropagation();openRecipe('${escQ(r.n)}')" style="cursor:pointer">${ref?`<span class="binder-ref">${ref.label}</span> `:''}${esc(r.n)}</div>
+    <span class="card-stars">${ratingStars(r.n,.95,true)}</span>
     <div class="meta">
       ${r.basic?'<span class="pill pill-note">🍝 Basic</span>':r.custom?'<span class="pill pill-note">✦ Custom</span>':''}
       <span class="pill pill-cuisine">${esc(capWords(r.t))}</span>
@@ -2655,11 +2842,19 @@ function recipeCard(r){
   </div>`;
 }
 
+// 0 = any, -1 = unrated only, 3/4/5 = that many stars or better
+let minRatingFilter=0;
+function setMinRating(n,btn){
+  minRatingFilter=n;
+  if(btn){btn.parentElement.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+  renderBrowse();
+}
+// Kept for the recipe-page keyboard shortcut and any older call sites: favouriting is now
+// "give it 5 stars", unfavouriting clears the rating.
 function toggleFav(name,btn){
-  const idx=favourites.indexOf(name);
-  if(idx>=0)favourites.splice(idx,1);else favourites.push(name);
-  saveFavs();
-  if(btn){btn.classList.toggle('active');btn.textContent=favourites.includes(name)?'★':'☆';btn.classList.add('bump');setTimeout(()=>btn.classList.remove('bump'),300)}
+  setRating(name,getRating(name)>=4?getRating(name):5);
+  refreshStars(name);
+  if(btn){btn.classList.add('bump');setTimeout(()=>btn.classList.remove('bump'),300)}
 }
 
 let curModalPC=parseInt(localStorage.getItem('gousto_modal_pc')||'1');
@@ -2676,7 +2871,12 @@ function nudgeBulk(d){setBulkN(curBulkN+d);}
 // reveals a small icon beside each ingredient, and shows anything you've hidden
 let ingEditMode=false;
 function toggleIngEdit(){ingEditMode=!ingEditMode;if(curRecipeName)openRecipe(curRecipeName,bulkMode?'bulk':curModalPC);}
-let recipeReturnPage='browse',recipeReturnTab='new';
+let recipeReturnPage='browse',recipeReturnTab='new',recipeReturnPlanIdx=null;
+// Plan detail is a modal, and opening a recipe from it closes that modal first — so by the
+// time openRecipe captures the return context, planDetailIdx is already null and Back drops
+// you on the saved-plans list instead of the plan you were reading. Stash it on the way out.
+let pendingPlanReturn=null;
+function openRecipeFromPlan(idx,name){pendingPlanReturn=idx;closePlanDetail();openRecipe(name);}
 let curRecipeName=null;
 function openRecipe(name,pc){
   const r=getAllRecipes().find(x=>x.n===name);if(!r)return;
@@ -2710,6 +2910,16 @@ function openRecipe(name,pc){
       <button class="btn btn-sm btn-outline" onclick="openRecipeEdit('${escQ(name)}')">✎ Edit recipe</button>
     </div>
     <p style="font-size:.85rem;color:var(--muted);margin-bottom:4px">Protein: <strong>${getProtein(r)}</strong></p>
+    ${(()=>{const note=getNote(name);
+      return note
+        ?`<div class="card" style="background:var(--cream);margin:10px 0;padding:10px 12px">
+            <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px">
+              <strong style="font-size:.78rem;text-transform:uppercase;letter-spacing:.4px;color:var(--teal)">My notes</strong>
+              <a onclick="openRecipeEdit('${escQ(name)}','notes')" style="cursor:pointer;color:var(--primary);font-size:.78rem;margin-left:auto">Edit</a>
+            </div>
+            <div style="font-size:.88rem;white-space:pre-wrap">${esc(note)}</div>
+          </div>`
+        :`<p style="margin:8px 0"><a onclick="openRecipeEdit('${escQ(name)}','notes')" style="cursor:pointer;color:var(--primary);font-size:.82rem">＋ Add a note</a></p>`;})()}
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0 6px">
       <h3 style="margin:0">Ingredients</h3>
       <div class="seg">
@@ -2764,7 +2974,11 @@ function openRecipe(name,pc){
           let base=u!=null?u:(a.q[pcEff-1]!=null?qtyString(a,pcEff):null);
           if(bulk&&base!=null)base=bulkOut(base);
           const disp=base!=null?ingDisplay(renameIngredient(base)):renameIngredient(a.n)+' —';
-          return `<li><span>${esc(disp)}</span></li>`;
+          // Only show the split when we didn't override the row ourselves — a user-entered
+          // amount is whatever they meant it to be, not a sum we're entitled to break up.
+          let split=u==null?cupSplit(name,a,pcEff):null;
+          if(split&&bulk)split=split.map(p=>scaleQty(p,bulk.factor)||p);
+          return `<li><span>${esc(disp)}${split?` <span style="font-size:.76rem;color:var(--muted)">— total, split ${esc(split.join(' + '))} across the method</span>`:''}</span></li>`;
         }).join('');
     })()}
     ${((recipeRemoved[name]||[]).length&&ingEditMode)?(recipeRemoved[name]||[]).map(h=>
@@ -2825,6 +3039,13 @@ function openRecipe(name,pc){
           Quantities below are for <strong>${curBulkN}</strong> — ${bulk.factor} × the ${bulk.base}-portion amounts.${bulkFallback?` Anything still marked <strong>(for ${bulk.base})</strong> is a figure with no ingredient behind it, so it hasn’t been multiplied — ×${bulk.factor} it yourself. <a onclick="openManagerFor('${escQ(name)}')" style="cursor:pointer;color:var(--primary)">Set your own →</a>`:''}
           Timings stay as written; a bigger pan takes longer to come up to heat.
         </p>`:''}
+        ${(()=>{const ys=yieldNotes(name).filter(y=>y.made!==y.planned);
+          if(!ys.length)return '';
+          const last=ys[ys.length-1];
+          return `<p style="font-size:.82rem;color:var(--teal);background:var(--bg2);border-radius:8px;padding:8px 10px;margin-bottom:10px">
+            Last time you cooked this for <strong>${last.planned}</strong> it made <strong>${last.made}</strong>${ys.length>1?` (${ys.length} times recorded)`:''}.
+            The amounts below are unchanged — <a onclick="openManagerFor('${escQ(name)}')" style="cursor:pointer;color:var(--primary)">set your own →</a>
+          </p>`;})()}
         ${oneMissing?`<p style="font-size:.82rem;color:var(--red);background:#fdecea;border-radius:8px;padding:8px 10px;margin-bottom:10px">
           1 person method not available, please update —
           <a onclick="openManagerFor('${escQ(name)}')" style="cursor:pointer;color:var(--primary);font-weight:700">open in Recipe Manager →</a>
@@ -2852,7 +3073,8 @@ function openRecipe(name,pc){
     })()}
     <div class="section" style="display:flex;gap:10px;flex-wrap:wrap">
       <button class="btn ${inPlan?'btn-red':'btn-green'}" style="padding:12px 20px" onclick="togglePlanRecipe('${escQ(name)}');openRecipe('${escQ(name)}')">${inPlan?'Remove from plan':'+ Add to plan'}</button>
-      <button class="btn btn-outline" style="padding:12px 20px" onclick="toggleFav('${escQ(name)}');openRecipe('${escQ(name)}')">${favourites.includes(name)?'★ Unfavourite':'☆ Favourite'}</button>
+      <span class="btn btn-outline" style="padding:8px 16px;display:inline-flex;align-items:center;gap:8px;cursor:default">
+        <span style="font-size:.82rem;color:var(--muted)">My rating</span>${ratingStars(name,1.25)}</span>
       ${isCustomRecipe(name)?`<button class="btn btn-outline" style="padding:12px 20px;color:var(--red);border-color:var(--red)" onclick="deleteCustomRecipe('${escQ(name)}',()=>{exitRecipePage();initFiling();})">Delete recipe</button>`:''}
       <button class="btn btn-outline" style="padding:12px 20px" onclick="openCostModal('recipe','${escQ(name)}')">💷 ${recipeCosts[name]!=null?fmtGBP(recipeCosts[name])+' · '+ (goustoOneOff()-recipeCosts[name]>=0?'save ':'+') +fmtGBP(Math.abs(goustoOneOff()-recipeCosts[name])):'Add cost'}</button>
     </div>`;
@@ -2862,8 +3084,11 @@ function openRecipe(name,pc){
     recipeReturnPage=cur?cur.id.replace('page-',''):'browse';
     if(recipeReturnPage==='recipe')recipeReturnPage='browse';
     recipeReturnTab=plannerTabState;   // come back to the half of the planner you left
+    recipeReturnPlanIdx=pendingPlanReturn!=null?pendingPlanReturn:(planDetailIdx!=null?planDetailIdx:null);
+    if(recipeReturnPlanIdx!=null){recipeReturnPage='plan';recipeReturnTab='saved';}
     try{history.pushState({recipe:name},'','#recipe');}catch(_){}
   }
+  pendingPlanReturn=null;
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-recipe').classList.add('active');
   if(!already)window.scrollTo(0,0);
@@ -2873,6 +3098,10 @@ function exitRecipePage(){
   const btn=document.querySelector(`.nav-tab[onclick*="'${recipeReturnPage}'"]`);
   showPage(recipeReturnPage,btn);
   if(recipeReturnPage==='plan')setPlannerTab(recipeReturnTab);
+  // Land back inside the plan you came from, not on the list of plans
+  if(recipeReturnPlanIdx!=null&&savedPlans[recipeReturnPlanIdx]){
+    const idx=recipeReturnPlanIdx;recipeReturnPlanIdx=null;openPlanDetail(idx);
+  } else recipeReturnPlanIdx=null;
 }
 function closeModal(){
   if(location.hash==='#recipe'){try{history.replaceState(null,'',location.pathname+location.search);}catch(_){}}
@@ -3219,7 +3448,7 @@ function mpReadOpts(){
 function mpBuildPool(o,exclude){
   const all=getAllRecipes();
   let pool=all.filter(r=>!r.basic&&!exclude.has(r.n)&&(!o.cuisine||r.t===o.cuisine||((r.t2||[]).includes(o.cuisine)))&&r.k<=o.maxCal&&r.m<=o.maxTime);
-  if(o.favOnly)pool=pool.filter(r=>favourites.includes(r.n));
+  if(o.favOnly)pool=pool.filter(r=>getRating(r.n)>=4);
   if(o.wantFreeze)pool=pool.filter(r=>r.f);
   if(o.wantPrep5)pool=pool.filter(r=>isPrep5(r));
   if(o.wantQuick)pool=pool.filter(r=>r.m<=25);
@@ -3305,7 +3534,7 @@ function renderPantryMeals(){
     const inPlan=planItems.some(it=>it.name===r.n);
     return `<div class="pantry-meal">
       <div style="flex:1;min-width:0">
-        <div style="font-weight:600;font-size:.92rem">${esc(r.n)}</div>
+        <div style="font-weight:600;font-size:.92rem">${recipeLink(r.n)}</div>
         <div style="font-size:.78rem;color:var(--muted);margin-top:2px">${used.length} from your pantry · ${esc(used.slice(0,4).map(cleanName).join(', '))}${used.length>4?` +${used.length-4} more`:''}</div>
       </div>
       <span class="pantry-meal-count">${used.length}</span>
@@ -3392,14 +3621,20 @@ function renderPlanHistory(){/* plan history UI retired in the basket redesign *
 // ===== SAVED PLANS =====
 function loadPlanToEdit(idx){
   const p=savedPlans[idx];if(!p)return;
-  const go=()=>{planItems=JSON.parse(JSON.stringify(p.items||[]));savePlanDraft();closePlanDetail();showPage('plan');setPlannerTab('new');toast(`Loaded Plan ${p.ref||''} to edit`);};
+  const go=()=>{planItems=JSON.parse(JSON.stringify(p.items||[]));savePlanDraft();
+    // Remember which plan this came from so Save can update it in place rather than
+    // always minting a new one — editing a plan usually means editing it, not forking it.
+    editingPlanRef=p.ref||null;saveEditingRef();
+    closePlanDetail();showPage('plan');setPlannerTab('new');toast(`Editing Plan ${p.ref||''}`);};
   if(planItems.length)askConfirm('This replaces the meals currently in your basket.',go,{title:'Load into basket?',okLabel:'Load',okClass:'btn-green'});
   else go();
 }
 // Copy a plan into the basket to tweak (swap meals, make bulk) and save as a brand-new plan
 function duplicatePlan(idx){
   const p=savedPlans[idx];if(!p)return;
-  const go=()=>{planItems=JSON.parse(JSON.stringify(p.items||[]));savePlanDraft();closePlanDetail();showPage('plan');setPlannerTab('new');toast(`Copied Plan ${p.ref||''} — edit it and hit Save for a new plan`);};
+  const go=()=>{planItems=JSON.parse(JSON.stringify(p.items||[]));savePlanDraft();
+    editingPlanRef=null;saveEditingRef();   // a duplicate is explicitly a new plan
+    closePlanDetail();showPage('plan');setPlannerTab('new');toast(`Copied Plan ${p.ref||''} — edit it and hit Save for a new plan`);};
   if(planItems.length)askConfirm('This replaces the meals currently in your basket with a copy of this plan.',go,{title:'Duplicate into basket?',okLabel:'Duplicate',okClass:'btn-green'});
   else go();
 }
@@ -3599,7 +3834,7 @@ function renderBasics(){
     const hasMethod=(customMethods[r.n]&&customMethods[r.n].length)||RECIPE_STEPS[r.n];
     return `<div class="card" style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
       <div>
-        <div style="font-weight:700">${esc(r.n)}</div>
+        <div style="font-weight:700">${recipeLink(r.n)}</div>
         <div class="meta" style="margin-top:4px">
           <span class="pill pill-cuisine">${esc(capWords(r.t))}</span>
           <span class="pill pill-time">${r.m} min</span>
@@ -3634,7 +3869,7 @@ function deleteCustomRecipe(name,after){
     delete customTags[name];saveTags();
     delete recipeNotes[name];saveNotes();
     delete recipeOver[name];saveRecipeOver();
-    favourites=favourites.filter(n=>n!==name);saveFavs();
+    delete recipeRatings[name];saveRatings();
     filingOrder=filingOrder.filter(n=>n!==name);
     filingNewFlags=filingNewFlags.filter(n=>n!==name);
     delete filingCatOverride[name];saveFilingCats();saveFiling();
@@ -3906,7 +4141,7 @@ function renderCustomRecipes(){
     const hasM=customMethods[r.n]&&customMethods[r.n].length;
     return `<div class="card" style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
       <div>
-        <div style="font-weight:700">${esc(r.n)}</div>
+        <div style="font-weight:700">${recipeLink(r.n)}</div>
         <div class="meta" style="margin-top:4px">
           <span class="pill pill-cuisine">${esc(capWords(r.t))}</span>
           <span class="pill pill-time">${r.m} min</span>
@@ -5184,14 +5419,317 @@ function renderSaved(){
         <h3>${esc(p.name||('Plan '+(p.ref||'')))}</h3>
         <button class="icon-btn${p.fav?' on':''}" onclick="togglePlanFav(${idx})" aria-label="Favourite">${p.fav?'★':'☆'}</button>
       </div>
-      <div class="sp-meta">${esc(TYPE_LABEL[planType(p)])} · ${(p.items||[]).length} meals · Saved ${esc(p.date||'')}${runs.length?` · <span class="sp-made">Made${runs.length>1?' ×'+runs.length:''}</span>`:''}</div>
-      <ul class="sp-list">${(p.items||[]).map(i=>`<li><span>${esc(i.name)}</span>${i.mode==='bulk'?`<span class="sp-bulk">bulk ×${i.portions}</span>`:''}</li>`).join('')}</ul>
+      <div class="sp-meta">${isLive(p)?'<span class="live-badge" style="margin-right:6px">Live</span>':''}${esc(TYPE_LABEL[planType(p)])} · ${(p.items||[]).length} meals · Saved ${esc(p.date||'')}${runs.length?` · <span class="sp-made">Made${runs.length>1?' ×'+runs.length:''}</span>`:''}</div>
+      <ul class="sp-list">${(p.items||[]).map((i,mi)=>{
+        const cooked=isLive(p)&&mealState(p,'i'+mi).status==='done';
+        return `<li${cooked?' style="opacity:.55;text-decoration:line-through"':''}><span>${esc(i.name)}</span>${i.mode==='bulk'?`<span class="sp-bulk">bulk ×${i.portions}</span>`:''}</li>`;
+      }).join('')}</ul>
       <div class="sp-actions">
-        <button class="btn btn-green btn-sm" onclick="openPlanDetail(${idx})">Open</button>
+        ${isLive(p)?`<button class="btn btn-green btn-sm" onclick="openLive(${idx})">Open live</button>
+        <button class="btn btn-outline btn-sm" onclick="openPlanDetail(${idx})">Plan</button>`
+        :`<button class="btn btn-green btn-sm" onclick="openPlanDetail(${idx})">Open</button>`}
         <button class="btn btn-outline btn-sm" onclick="duplicatePlan(${idx})">Duplicate</button>
       </div>
     </div>`;
   }).join('');
+}
+
+// ===== LIVE COOKING MODE =====
+// A saved plan can be "committed to": you then cook its meals one at a time and the shop is
+// tracked as a single pool of stock, so you can see that the chillies you're about to use
+// are also wanted by Thursday's curry. The plan itself is untouched — live state lives in
+// `p.live` and the normal plan view carries on working exactly as before.
+function liveOf(p){
+  if(!p.live)p.live={startedAt:null,meals:{},extras:[]};
+  if(!p.live.meals)p.live.meals={};
+  if(!p.live.extras)p.live.extras=[];
+  return p.live;
+}
+function isLive(p){return !!(p&&p.live&&p.live.startedAt)}
+// Meals are keyed by position so a plan holding the same recipe twice stays unambiguous
+function liveMeals(p){
+  const live=liveOf(p);
+  return (p.items||[]).map((it,i)=>({key:'i'+i,it,extra:false}))
+    .concat(live.extras.map((it,i)=>({key:'x'+i,it,extra:true})));
+}
+function mealState(p,key){return liveOf(p).meals[key]||{status:'todo'}}
+// One meal's ingredient demand, using the same path as the shopping list so the two agree
+function mealIngredients(it){
+  const r=getAllRecipes().find(x=>x.n===it.name);if(!r)return [];
+  return r.i.filter(ing=>!(recipeRemoved[it.name]||[]).includes(ing)).map(ing=>{
+    const q=parseQty(renameIngredient(bulkIngString(it.name,ing,it.portions)));
+    const key=baseIngredient(ing);
+    return {key,name:q.name||key,num:q.num,unit:q.unit,raw:ing};
+  });
+}
+// The stock ledger: what the shop bought, what cooked meals have taken out, what's left,
+// and which meals are still queued against each ingredient.
+function planLedger(p){
+  const out={};
+  liveMeals(p).forEach(m=>{
+    const done=mealState(p,m.key).status==='done';
+    mealIngredients(m.it).forEach(g=>{
+      if(!out[g.key])out[g.key]={key:g.key,name:g.name,unit:g.unit,bought:0,extra:0,used:0,meals:[]};
+      const e=out[g.key];
+      if(!e.unit&&g.unit)e.unit=g.unit;
+      // Extras weren't in the shop, so they're demand without supply
+      if(m.extra)e.extra+=g.num;else e.bought+=g.num;
+      if(done)e.used+=g.num;
+      e.meals.push({key:m.key,name:m.it.name,num:g.num,unit:g.unit,done,extra:m.extra});
+    });
+  });
+  Object.values(out).forEach(e=>{
+    e.remaining=e.bought-e.used;
+    e.committed=e.meals.filter(x=>!x.done).reduce((s,x)=>s+x.num,0);
+    e.short=e.committed-e.remaining;      // >0 means the meals still to cook can't all be made
+    e.spent=e.remaining<=0&&e.bought>0;
+  });
+  return out;
+}
+function liveProgress(p){
+  const ms=liveMeals(p);
+  return {done:ms.filter(m=>mealState(p,m.key).status==='done').length,total:ms.length};
+}
+
+let liveIdx=null,liveTab='meals';
+function startLive(idx){
+  const p=savedPlans[idx];if(!p)return;
+  const live=liveOf(p);
+  if(!live.startedAt)live.startedAt=new Date().toISOString();
+  saveSavedPlans();closePlanDetail();openLive(idx);
+  toast('Cooking started — the shop is now tracked');
+}
+function openLive(idx){
+  const p=savedPlans[idx];if(!p)return;
+  liveIdx=idx;liveTab='meals';
+  document.querySelectorAll('#liveTabs .seg-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
+  closePlanDetail();
+  document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('active'));
+  document.getElementById('page-live').classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  renderLive();window.scrollTo(0,0);
+}
+function exitLive(){
+  const idx=liveIdx;liveIdx=null;
+  showPage('saved');
+  if(idx!=null&&savedPlans[idx])openPlanDetail(idx);
+}
+function setLiveTab(tab,btn){
+  liveTab=tab;
+  if(btn){btn.parentElement.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+  renderLive();
+}
+function renderLive(){
+  const p=savedPlans[liveIdx];if(!p)return;
+  const pr=liveProgress(p);
+  const led=planLedger(p);
+  const shortCount=Object.values(led).filter(e=>e.short>0.0001).length;
+  document.getElementById('liveHeader').innerHTML=`
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px">
+        <span class="live-badge">Live</span>
+        <h2 style="margin:0;font-size:1.2rem;flex:1;min-width:0">${esc(p.name||('Plan '+(p.ref||'')))}</h2>
+      </div>
+      <div style="font-size:.85rem;color:var(--muted)">${pr.done} of ${pr.total} cooked${
+        shortCount?` · <span style="color:var(--red);font-weight:700">${shortCount} ingredient${shortCount===1?'':'s'} short</span>`:''}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+        <button class="btn btn-sm btn-outline" onclick="openLiveAdd()">+ Add a meal</button>
+        <button class="btn btn-sm btn-outline" onclick="openPlanDetailFromLive()">View plan as normal</button>
+        <button class="btn btn-sm btn-red" style="margin-left:auto" onclick="endLive()">Finish cooking</button>
+      </div>
+    </div>`;
+  document.getElementById('liveBody').innerHTML=liveTab==='meals'?liveMealsHTML(p):liveLedgerHTML(p,led);
+}
+function liveMealsHTML(p){
+  const ms=liveMeals(p);
+  if(!ms.length)return '<div class="empty-state"><p>No meals in this plan.</p></div>';
+  return ms.map(m=>{
+    const st=mealState(p,m.key);
+    const done=st.status==='done';
+    const planned=m.it.mode==='bulk'?`bulk ×${m.it.portions}`:`${m.it.portions} portion${m.it.portions==1?'':'s'}`;
+    const yieldNote=done&&st.madePortions!=null&&st.madePortions!==m.it.portions
+      ? ` · made ${st.madePortions}` : '';
+    return `<div class="live-meal${done?' done':''}" onclick="openCookSheet('${m.key}')">
+      <div style="flex:1;min-width:0">
+        <div class="lm-name">${esc(m.it.name)}</div>
+        <div class="lm-sub">${planned}${yieldNote}${done&&st.cookedAt?` · cooked ${esc(st.cookedAt)}`:''}</div>
+      </div>
+      ${m.extra?'<span class="lm-status extra">Added</span>':''}
+      <span class="lm-status ${done?'done':'todo'}">${done?'Cooked':'To cook'}</span>
+    </div>`;
+  }).join('');
+}
+function liveLedgerHTML(p,led){
+  const rows=Object.values(led).sort((a,b)=>{
+    // Anything that won't stretch to the meals still queued floats to the top
+    if((b.short>0.0001)-(a.short>0.0001))return (b.short>0.0001)-(a.short>0.0001);
+    return a.name.localeCompare(b.name);
+  });
+  if(!rows.length)return '<div class="empty-state"><p>Nothing to track.</p></div>';
+  return `<div class="card">
+    <p style="font-size:.82rem;color:var(--muted);margin-bottom:10px">
+      What the shop bought, what the cooked meals have taken, and what each remaining meal still wants.</p>
+    ${rows.map(e=>{
+      const left=formatQty(Math.max(0,round2(e.remaining)),e.unit)||String(round2(Math.max(0,e.remaining)));
+      const bought=formatQty(round2(e.bought),e.unit)||String(round2(e.bought));
+      const pending=e.meals.filter(x=>!x.done);
+      return `<div class="led-row${e.spent?' spent':''}">
+        <span class="led-name">${esc(capFirst(e.name))}</span>
+        <span class="led-left ${e.short>0.0001?'led-short':'led-ok'}">${e.spent?'all used':left+' left'}</span>
+        <span style="font-size:.78rem;color:var(--muted);white-space:nowrap">of ${bought}</span>
+      </div>
+      <div class="led-meals">${e.meals.map(x=>
+        `<span class="${x.done?'used':''}">${esc(x.name.length>34?x.name.slice(0,32)+'…':x.name)} ${formatQty(round2(x.num),x.unit)||round2(x.num)}${x.extra?' (added)':''}</span>`
+      ).join(' · ')}${
+        e.short>0.0001?`<div style="color:var(--red);font-weight:700;margin-top:4px">Short ${formatQty(round2(e.short),e.unit)||round2(e.short)} for the ${pending.length} meal${pending.length===1?'':'s'} left</div>`:''}</div>`;
+    }).join('')}
+  </div>`;
+}
+function openPlanDetailFromLive(){if(liveIdx!=null)openPlanDetail(liveIdx);}
+
+// ---- Cook sheet: one meal, with its draw on the shop ----
+let cookSheetKey=null;
+function openCookSheet(key){
+  cookSheetKey=key;renderCookSheet();
+  document.getElementById('cookSheetModal').classList.add('open');
+}
+function closeCookSheet(){document.getElementById('cookSheetModal').classList.remove('open');cookSheetKey=null;}
+function renderCookSheet(){
+  const p=savedPlans[liveIdx];if(!p||!cookSheetKey)return;
+  const m=liveMeals(p).find(x=>x.key===cookSheetKey);if(!m)return;
+  const st=mealState(p,cookSheetKey);const done=st.status==='done';
+  const led=planLedger(p);
+  const rows=mealIngredients(m.it);
+  document.getElementById('cookSheetBody').innerHTML=`
+    <h2 style="font-size:1.15rem;margin-bottom:2px">${recipeLink(m.it.name,esc(m.it.name),'color:var(--primary)')}</h2>
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:14px">
+      ${m.it.mode==='bulk'?`Bulk ×${m.it.portions}`:`${m.it.portions} portion${m.it.portions==1?'':'s'}`}
+      ${done?' · <strong style="color:var(--green)">Cooked</strong>':''}
+      · <a onclick="openRecipe('${escQ(m.it.name)}')" style="cursor:pointer;color:var(--primary)">Open the recipe →</a>
+    </div>
+    <h3 style="font-size:.95rem;margin-bottom:6px">This meal needs</h3>
+    <div style="margin-bottom:14px">${rows.map(g=>{
+      const e=led[g.key];
+      // "Left" is what's in the shop now; for a meal not yet cooked, its own draw is still in it
+      const left=e?round2(e.remaining):0;
+      const after=done?left:round2(left-g.num);
+      const tight=!done&&after<-0.0001;
+      return `<div class="led-row" style="border-bottom:1px solid var(--border)">
+        <span class="led-name">${esc(capFirst(g.name))}</span>
+        <span class="led-left">${formatQty(round2(g.num),g.unit)||round2(g.num)}</span>
+        <span style="font-size:.76rem;white-space:nowrap;color:${tight?'var(--red)':'var(--muted)'}">${
+          done?'used':`${formatQty(Math.max(0,after),g.unit)||Math.max(0,round2(after))} left after`}</span>
+      </div>`;
+    }).join('')}</div>
+    ${(()=>{
+      const clashes=rows.map(g=>({g,e:led[g.key]})).filter(({e})=>e&&e.short>0.0001);
+      return clashes.length&&!done?`<div class="card" style="background:#fdecea;border:1px solid var(--red);margin-bottom:14px;padding:10px 12px">
+        <strong style="color:var(--red);font-size:.85rem">Other meals want this too</strong>
+        <div style="font-size:.82rem;margin-top:4px">${clashes.map(({g,e})=>
+          `${esc(capFirst(e.name))} — short ${formatQty(round2(e.short),e.unit)||round2(e.short)} across ${e.meals.filter(x=>!x.done).length} uncooked meals`).join('<br>')}</div>
+      </div>`:'';})()}
+    ${done?`
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-outline" onclick="unmarkCooked('${cookSheetKey}')">Undo — not cooked yet</button>
+      </div>`:`
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+        <label style="margin:0;font-size:.85rem">Cooking</label>
+        <div class="seg">
+          <button class="seg-btn ${m.it.mode!=='bulk'?'active':''}" onclick="setLiveMealMode('${cookSheetKey}','normal')">Normal</button>
+          <button class="seg-btn ${m.it.mode==='bulk'?'active':''}" onclick="setLiveMealMode('${cookSheetKey}','bulk')">Bulk</button>
+        </div>
+        <div class="portion-toggle">
+          <button class="btn btn-sm btn-outline" onclick="setLiveMealPortions('${cookSheetKey}',-1)">−</button>
+          <span class="portion-num">${m.it.portions}</span>
+          <button class="btn btn-sm btn-outline" onclick="setLiveMealPortions('${cookSheetKey}',1)">+</button>
+        </div>
+        <span style="font-size:.76rem;color:var(--muted)">changes the ledger and shopping list</span>
+      </div>
+      <label style="font-size:.85rem">Portions it actually made</label>
+      <p style="font-size:.78rem;color:var(--muted);margin-bottom:6px">Leave as-is unless it came out different. Recorded against the recipe so you can see it next time — it never rewrites the Gousto amounts.</p>
+      <input type="number" id="cookMadePortions" min="1" max="99" value="${m.it.portions}" style="max-width:120px;margin-bottom:12px">
+      <div><button class="btn btn-green" onclick="markCooked('${cookSheetKey}')">Mark as cooked</button></div>`}`;
+}
+// Changing a meal mid-cook rewrites the plan item itself, so the shopping list, the ledger
+// and the plan view all move together — that's the point of being live.
+function liveMealItem(p,key){
+  return key[0]==='x'?liveOf(p).extras[parseInt(key.slice(1))]:(p.items||[])[parseInt(key.slice(1))];
+}
+function setLiveMealPortions(key,d){
+  const p=savedPlans[liveIdx];if(!p)return;
+  const it=liveMealItem(p,key);if(!it)return;
+  const max=it.mode==='bulk'?40:4;
+  it.portions=Math.max(1,Math.min(max,(it.portions||2)+d));
+  saveSavedPlans();renderCookSheet();renderLive();
+}
+function setLiveMealMode(key,mode){
+  const p=savedPlans[liveIdx];if(!p)return;
+  const it=liveMealItem(p,key);if(!it)return;
+  it.mode=mode;
+  if(mode==='normal'&&it.portions>4)it.portions=4;
+  saveSavedPlans();renderCookSheet();renderLive();
+}
+function markCooked(key){
+  const p=savedPlans[liveIdx];if(!p)return;
+  const m=liveMeals(p).find(x=>x.key===key);if(!m)return;
+  const el=document.getElementById('cookMadePortions');
+  const made=el?parseInt(el.value)||m.it.portions:m.it.portions;
+  liveOf(p).meals[key]={status:'done',cookedAt:new Date().toLocaleDateString(),madePortions:made};
+  if(made!==m.it.portions)recordYield(m.it.name,m.it.portions,made);
+  saveSavedPlans();closeCookSheet();renderLive();
+  toast(made!==m.it.portions?`Cooked — noted it made ${made}, not ${m.it.portions}`:'Cooked');
+}
+function unmarkCooked(key){
+  const p=savedPlans[liveIdx];if(!p)return;
+  delete liveOf(p).meals[key];
+  saveSavedPlans();closeCookSheet();renderLive();
+}
+// A yield that missed is information about the recipe, not a licence to rewrite its amounts:
+// we record what happened and surface it next time, and you decide what to change.
+function recordYield(name,planned,made){
+  if(!recipeYields[name])recipeYields[name]=[];
+  recipeYields[name].push({planned,made,date:new Date().toLocaleDateString()});
+  saveYields();
+}
+function endLive(){
+  const p=savedPlans[liveIdx];if(!p)return;
+  const pr=liveProgress(p);
+  const msg=pr.done<pr.total
+    ? `${pr.total-pr.done} meal${pr.total-pr.done===1?'':'s'} still marked as not cooked. Finishing clears the live state — the plan itself is kept.`
+    : 'Finishing clears the live state. The plan itself is kept.';
+  askConfirm(msg,()=>{
+    delete p.live;saveSavedPlans();
+    const idx=liveIdx;liveIdx=null;
+    showPage('saved');if(savedPlans[idx])openPlanDetail(idx);
+    toast('Cooking finished');
+  },{title:'Finish cooking?',okLabel:'Finish',okClass:'btn-green'});
+}
+
+// ---- Adding a last-minute meal to a live plan ----
+function openLiveAdd(){
+  document.getElementById('liveAddSearch').value='';
+  renderLiveAdd();document.getElementById('liveAddModal').classList.add('open');
+}
+function closeLiveAdd(){document.getElementById('liveAddModal').classList.remove('open');}
+function renderLiveAdd(){
+  const q=(document.getElementById('liveAddSearch').value||'').toLowerCase().trim();
+  let all=getAllRecipes();
+  if(q)all=all.filter(r=>[r.n,r.t,r.c].join(' ').toLowerCase().includes(q));
+  all=all.sort((a,b)=>a.n.localeCompare(b.n)).slice(0,40);
+  document.getElementById('liveAddList').innerHTML=all.map(r=>
+    `<div class="picker-row">
+      <button class="picker-pick" onclick="openRecipe('${escQ(r.n)}')" title="View the full recipe">
+        <span class="picker-name">${esc(r.n)}</span>
+        <span class="picker-meta">${esc(capWords(r.t))} · ${esc(r.c)}</span>
+      </button>
+      <button class="btn btn-sm btn-green" onclick="addLiveExtra('${escQ(r.n)}')">Add</button>
+    </div>`).join('')||'<p style="color:var(--muted);font-size:.85rem">No matches.</p>';
+}
+function addLiveExtra(name){
+  const p=savedPlans[liveIdx];if(!p)return;
+  liveOf(p).extras.push({name,portions:2,mode:'normal'});
+  saveSavedPlans();closeLiveAdd();renderLive();
+  toast('Added — set its portions from the meal');
 }
 
 // ---- Plan detail (shopping + cost) ----
@@ -5293,7 +5831,7 @@ function renderPlanDetail(){
       <button class="icon-btn${p.fav?' on':''}" onclick="togglePlanFav(${planDetailIdx})" aria-label="Favourite">${p.fav?'★':'☆'}</button>
     </div>
     <div style="font-size:.82rem;color:var(--muted);margin-bottom:12px">${(p.items||[]).length} meals · ${TYPE_LABEL[planType(p)]} · Saved ${esc(p.date||'')}</div>
-    <div style="margin-bottom:14px">${(p.items||[]).map(it=>`<div style="display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)"><span onclick="closePlanDetail();openRecipe('${escQ(it.name)}')" style="cursor:pointer">${esc(it.name)}</span><span style="color:var(--muted);font-size:.82rem;white-space:nowrap">${it.mode==='bulk'?'bulk ×'+it.portions:it.portions+' portion'+(it.portions==1?'':'s')}</span></div>`).join('')}</div>
+    <div style="margin-bottom:14px">${(p.items||[]).map(it=>`<div style="display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)"><span onclick="openRecipeFromPlan(${planDetailIdx},'${escQ(it.name)}')" style="cursor:pointer;color:var(--primary)">${esc(it.name)}</span><span style="color:var(--muted);font-size:.82rem;white-space:nowrap">${it.mode==='bulk'?'bulk ×'+it.portions:it.portions+' portion'+(it.portions==1?'':'s')}</span></div>`).join('')}</div>
     <div class="card" style="background:var(--bg2);margin-bottom:14px;display:flex;gap:18px;flex-wrap:wrap;font-size:.9rem;align-items:center">
       <div>Gousto equivalent<br><strong>${fmtGBP(gCost)}</strong></div>
       <div>You save<br>${saved!=null?`<span style="color:${saved>=0?'var(--green)':'var(--red)'};font-weight:800">${fmtGBP(saved)}</span>`:'<span style="color:var(--muted)">not logged</span>'}</div>
@@ -5305,6 +5843,12 @@ function renderPlanDetail(){
       <button class="btn btn-sm btn-outline" style="margin-top:8px" onclick="undoPlanMade(${planDetailIdx})">Undo last completion</button>
     </div>`:''}
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+      ${isLive(p)
+        ?`<button class="btn btn-green" style="justify-content:space-between;text-align:left" onclick="openLive(${planDetailIdx})">
+            <span><span class="live-badge" style="margin-right:8px">Live</span>Open live cook</span>
+            <span style="color:rgba(255,255,255,.85);font-weight:400">${liveProgress(p).done}/${liveProgress(p).total} cooked ›</span></button>`
+        :`<button class="btn btn-green" style="justify-content:space-between;text-align:left" onclick="startLive(${planDetailIdx})">
+            🔥 Start cooking <span style="color:rgba(255,255,255,.75);font-weight:400">track the shop as you go ›</span></button>`}
       <button class="btn btn-green" style="justify-content:space-between;text-align:left" onclick="openPlanShopping()">Shopping list <span style="color:rgba(255,255,255,.75);font-weight:400">${nItems} items ›</span></button>
       <button class="btn btn-outline" style="text-align:left" onclick="openPlanSpend()">Spend log${p.actualCost!=null?' · saved '+fmtGBP(saved):''} ›</button>
     </div>
@@ -5465,7 +6009,20 @@ function filingCompare(a,b){
 
 // Binder 1 holds the World Spice Route sections, binder 2 the rest — the split is by
 // section, exactly as the sorted list defines it, never mid-section.
-function binderSplit(){
+// getBinderRef is called once per row in list views, and it used to do a linear scan of
+// filingOrder plus a full binderSplit() (which itself rebuilds the recipe map) every time —
+// O(n²) over 250+ recipes, and the reason the Recipe Manager took seconds to draw. Both
+// results depend only on the filing order, so they're computed once and dropped on save.
+let _binderCache=null;
+function invalidateBinderCache(){_binderCache=null;}
+function binderIndex(){
+  if(!_binderCache){
+    const pos=new Map();filingOrder.forEach((n,i)=>pos.set(n,i));
+    _binderCache={pos,mid:binderSplitUncached()};
+  }
+  return _binderCache;
+}
+function binderSplitUncached(){
   const by={};binderRecipes().forEach(r=>by[r.n]=r);
   for(let i=0;i<filingOrder.length;i++){
     const r=by[filingOrder[i]];
@@ -5473,10 +6030,12 @@ function binderSplit(){
   }
   return filingOrder.length;
 }
+function binderSplit(){return binderIndex().mid}
 function getBinderRef(recipeName){
-  const idx=filingOrder.indexOf(recipeName);
+  const c=binderIndex();
+  const idx=c.pos.has(recipeName)?c.pos.get(recipeName):-1;
   if(idx<0)return null;
-  const mid=binderSplit();
+  const mid=c.mid;
   const binder=idx<mid?1:2;
   const num=idx<mid?idx+1:idx-mid+1;
   return{binder,num,label:`B${binder} R${num}`};
@@ -6257,6 +6816,22 @@ function setMgrTypeFilter(v,btn){
   if(btn)btn.classList.add('active');
   renderManager();
 }
+// Every keystroke used to rebuild all 167 rows, and each row recomputed the recipe's full
+// quantity table — which is why searching felt like the app had hung. The stats only move
+// when you edit a recipe, so they're cached and the cache is dropped on save.
+let mgrStatCache=new Map();
+function mgrStats(r){
+  let s=mgrStatCache.get(r.n);
+  if(!s){
+    s={method:hasMethod(r.n),a1:hasAmounts(r.n,1),
+       missing:managerQtyRows(r).reduce((n,row)=>n+row.vals.filter(v=>v==null).length,0)};
+    mgrStatCache.set(r.n,s);
+  }
+  return s;
+}
+function clearMgrStats(name){if(name)mgrStatCache.delete(name);else mgrStatCache.clear();}
+let mgrSearchT=null;
+function renderManagerSoon(){clearTimeout(mgrSearchT);mgrSearchT=setTimeout(renderManager,120);}
 function renderManager(){
   const all=getAllRecipes();
   const ordered=all.slice().sort((a,b)=>{
@@ -6272,14 +6847,14 @@ function renderManager(){
     if(q&&!r.n.toLowerCase().includes(q))return false;
     if(mgrTypeFilter==='gousto'&&r.basic)return false;
     if(mgrTypeFilter==='basic'&&!r.basic)return false;
-    const m=hasMethod(r.n),a1=hasAmounts(r.n,1);
+    const s=mgrStats(r);const m=s.method,a1=s.a1;
     if(fNoMethod&&m)return false;
     if(fNo1p&&a1)return false;
     if(fIncomplete&&m&&a1)return false;
     return true;
   });
-  const withM=all.filter(r=>hasMethod(r.n)).length;
-  const with1=all.filter(r=>hasAmounts(r.n,1)).length;
+  const withM=all.filter(r=>mgrStats(r).method).length;
+  const with1=all.filter(r=>mgrStats(r).a1).length;
   const sum=document.getElementById('managerSummary');
   if(sum)sum.innerHTML=`<strong>${withM}/${all.length}</strong> have a method · <strong>${with1}/${all.length}</strong> have 1-person amounts`;
   document.getElementById('managerList').innerHTML=list.map(r=>managerRow(r)).join('')||'<div class="empty-state"><p>No recipes match.</p></div>';
@@ -6287,22 +6862,36 @@ function renderManager(){
 function managerRow(r){
   const name=r.n,id=cssId(name);
   const ref=getBinderRef(name);
-  const m=hasMethod(name);
-  const missing=managerQtyRows(r).reduce((n,row)=>n+row.vals.filter(v=>v==null).length,0);
+  const s=mgrStats(r);
   const chip=(ok,label)=>`<span style="font-size:.7rem;padding:2px 8px;border-radius:999px;font-weight:700;background:${ok?'var(--primary-light)':'#fdecea'};color:${ok?'var(--primary)':'var(--red)'}">${ok?'✓':'✗'} ${label}</span>`;
-  const expanded=managerExpanded===name;
   return `<div id="mgr-row-${id}" class="card" style="margin-bottom:8px;padding:12px">
-    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;cursor:pointer" onclick="toggleManagerRow('${escQ(name)}')">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;cursor:pointer" onclick="openAmountsFor('${escQ(name)}')">
       ${ref?`<span class="binder-ref">${ref.label}</span>`:''}
       <strong style="flex:1;min-width:140px">${esc(name)}</strong>
-      ${chip(m,'Method')}
-      ${chip(missing===0,missing===0?'Amounts':`Amounts (x ${missing} missing)`)}
-      <span style="color:var(--muted);font-size:.9rem">${expanded?'▾':'▸'}</span>
+      ${chip(s.method,'Method')}
+      ${chip(s.missing===0,s.missing===0?'Amounts':`Amounts (x ${s.missing} missing)`)}
+      <span style="color:var(--muted);font-size:.9rem">›</span>
     </div>
-    ${expanded?managerEditor(r):''}
   </div>`;
 }
-function toggleManagerRow(name){managerExpanded=managerExpanded===name?null:name;renderManager();}
+// One recipe's amounts now get the whole screen instead of an accordion drawer inside a
+// 167-row list — the list stays cheap to search, and the editor has room to breathe.
+function openAmountsFor(name){
+  const r=getAllRecipes().find(x=>x.n===name);if(!r)return;
+  managerExpanded=name;
+  showAdminView('amounts');
+  const ref=getBinderRef(name);
+  document.getElementById('amountsEditorBody').innerHTML=
+    `<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+       ${ref?`<span class="binder-ref">${ref.label}</span>`:''}
+       <h2 style="margin:0;font-size:1.15rem;flex:1;min-width:0">${esc(name)}</h2>
+     </div>
+     <p style="font-size:.82rem;margin-bottom:12px"><a onclick="openRecipe('${escQ(name)}')" style="cursor:pointer;color:var(--primary)">View recipe card →</a></p>`
+    +managerEditor(r);
+  window.scrollTo(0,0);
+}
+function backToManagerList(){managerExpanded=null;showAdminView('manager');renderManager();}
+function toggleManagerRow(name){openAmountsFor(name);}
 
 function managerEditor(r){
   const name=r.n,id=cssId(name);
@@ -6346,14 +6935,21 @@ function managerEditor(r){
       ${recipeAmounts[name]?`<button class="btn btn-sm btn-outline" onclick="clearManagerAmounts('${escQ(name)}')">Reset my edits</button>`:''}
     </div>
     ${isCustomRecipe(name)?`<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-      <button class="btn btn-sm btn-red" onclick="deleteCustomRecipe('${escQ(name)}',()=>{managerExpanded=null;renderManager();initFiling();})">Delete recipe</button>
+      <button class="btn btn-sm btn-red" onclick="deleteCustomRecipe('${escQ(name)}',()=>{backToManagerList();initFiling();})">Delete recipe</button>
       <span style="font-size:.78rem;color:var(--muted)">Removes it from every device.</span>
     </div>`:''}
   </div>`;
 }
+// Gousto cards write spoon measures as vulgar fractions — "1/2 tbsp", "1 1/2 tbsp".
+// Read them as numbers; a plain trailing-digits match turns both of those into 2.
+function parseMixed(s){
+  const m=String(s).trim().match(/^(?:(\d+)\s+)?(\d+)\/(\d+)$/);
+  if(m)return (m[1]?parseInt(m[1]):0)+parseInt(m[2])/parseInt(m[3]);
+  const v=parseFloat(s);return isNaN(v)?null:v;
+}
 // Trailing number/unit from a stored amount string, e.g. "Diced beef 300g" -> 300 / "g"
-function amtNumber(s){const m=String(s).match(/(\d+(?:\.\d+)?)\s*(g|kg|ml|l|tsp|tbsp|pkt|cubes?|packs?)?\s*$/i);return m?parseFloat(m[1]):null}
-function amtUnit(s){const m=String(s).match(/\d(?:[\d.]*)\s*(g|kg|ml|l|tsp|tbsp|pkt|cubes?|packs?)\s*$/i);return m?m[1].toLowerCase().replace(/s$/,''):''}
+function amtNumber(s){const m=String(s).match(/(\d+(?:\.\d+)?(?:\s+\d+\/\d+)?|\d+\/\d+)\s*(g|kg|ml|l|tsp|tbsp|pkt|cubes?|packs?)?\s*$/i);return m?parseMixed(m[1]):null}
+function amtUnit(s){const m=String(s).match(/\d(?:[\d./ ]*)\s*(g|kg|ml|l|tsp|tbsp|pkt|cubes?|packs?)\s*$/i);return m?m[1].toLowerCase().replace(/s$/,''):''}
 const UNIT_NAMES={g:'grams',kg:'kg',ml:'ml',l:'litres',tsp:'tsp',tbsp:'tbsp',pkt:'pack',cube:'cubes','':'x'};
 // One row per card ingredient: display label, unit, and the 1/2/3/4 numbers
 // (user override > Gousto API > the card's own 2-person amount).
@@ -6611,7 +7207,8 @@ function renderStats(){
     <div class="stat"><div class="num">${countries.length}</div><div class="label">Countries</div></div>
     <div class="stat"><div class="num">${avgCal}</div><div class="label">Avg kcal</div></div>
     <div class="stat"><div class="num">${avgTime}m</div><div class="label">Avg Time</div></div>
-    <div class="stat"><div class="num">${favourites.length}</div><div class="label">Favourites</div></div>`;
+    <div class="stat"><div class="num">${Object.keys(recipeRatings).length}</div><div class="label">Rated</div></div>
+    <div class="stat"><div class="num">${(()=>{const v=Object.values(recipeRatings);return v.length?(v.reduce((a,b)=>a+b,0)/v.length).toFixed(1):"—"})()}</div><div class="label">Avg rating</div></div>`;
 
   const cc={};all.forEach(r=>{cc[r.t]=(cc[r.t]||0)+1});
   document.getElementById('statsCuisine').innerHTML=barChart(cc);
@@ -6678,7 +7275,7 @@ async function forceAppUpdate(){
   location.replace(location.pathname+'?u='+Date.now());
 }
 const SHARED_STORE='gousto-shared-ca873cfaae016299350bff25c0b9331bdd47cfe028dac4fd';
-const SYNC_KEYS=['gousto_custom','gousto_filing','gousto_filing_new','gousto_favs','gousto_plan','gousto_plan_portions','gousto_portions','gousto_checked','gousto_pantry','gousto_saved_plans','gousto_plan_history','gousto_tags','gousto_tag_vocab','gousto_notes','gousto_recipe_over','gousto_optional','gousto_removed','gousto_solo_steps','gousto_methods','gousto_amounts','gousto_bulk','gousto_bulk_saved','gousto_costs','gousto_pricing','gousto_plan_draft','gousto_plan_seq','gousto_pantry_amounts','gousto_ing_meta','gousto_ing_reviewed','gousto_card_names','gousto_cats','gousto_tombstones','gousto_filing_cat'];
+const SYNC_KEYS=['gousto_custom','gousto_filing','gousto_filing_new','gousto_favs','gousto_ratings','gousto_plan','gousto_plan_portions','gousto_portions','gousto_checked','gousto_pantry','gousto_saved_plans','gousto_plan_history','gousto_tags','gousto_tag_vocab','gousto_notes','gousto_yields','gousto_recipe_over','gousto_optional','gousto_removed','gousto_solo_steps','gousto_methods','gousto_amounts','gousto_bulk','gousto_bulk_saved','gousto_costs','gousto_pricing','gousto_plan_draft','gousto_plan_seq','gousto_pantry_amounts','gousto_ing_meta','gousto_ing_reviewed','gousto_card_names','gousto_cats','gousto_tombstones','gousto_filing_cat'];
 let applyingRemote=false, syncing=false, syncTimer=null;
 
 function syncCode(){return localStorage.getItem('gousto_sync_code')||''}
@@ -6714,6 +7311,7 @@ function stampKey(k){
 function collectState(){const o={};SYNC_KEYS.forEach(k=>{const v=localStorage.getItem(k);if(v!=null)o[k]=v});return o}
 function reloadStateVars(){
   favourites=JSON.parse(localStorage.getItem('gousto_favs')||'[]');
+  recipeRatings=JSON.parse(localStorage.getItem('gousto_ratings')||'{}');
   mealPlan=JSON.parse(localStorage.getItem('gousto_plan')||'[]');
   planPortions=parseInt(localStorage.getItem('gousto_plan_portions')||'2');
   portions=parseInt(localStorage.getItem('gousto_portions')||'2');
@@ -6726,11 +7324,12 @@ function reloadStateVars(){
   catConfig=JSON.parse(localStorage.getItem('gousto_cats')||'null');
   savedPlans=JSON.parse(localStorage.getItem('gousto_saved_plans')||'[]');
   planHistory=JSON.parse(localStorage.getItem('gousto_plan_history')||'[]');
-  filingOrder=JSON.parse(localStorage.getItem('gousto_filing')||'[]');
+  filingOrder=JSON.parse(localStorage.getItem('gousto_filing')||'[]');invalidateBinderCache();clearMgrStats();
   filingCatOverride=JSON.parse(localStorage.getItem('gousto_filing_cat')||'{}');
   filingNewFlags=JSON.parse(localStorage.getItem('gousto_filing_new')||'[]');
   customTags=JSON.parse(localStorage.getItem('gousto_tags')||'{}');
   recipeNotes=JSON.parse(localStorage.getItem('gousto_notes')||'{}');
+  recipeYields=JSON.parse(localStorage.getItem('gousto_yields')||'{}');
   recipeOver=JSON.parse(localStorage.getItem('gousto_recipe_over')||'{}');
   tagVocab=JSON.parse(localStorage.getItem('gousto_tag_vocab')||'[]');
   customRecipes=JSON.parse(localStorage.getItem('gousto_custom')||'[]');
@@ -6887,7 +7486,7 @@ function mergeStates(remote,local,rmeta,lmeta){
   mergeList('gousto_saved_plans',p=>p.ref||JSON.stringify(p.items||p.meals||p.name));
   ['gousto_methods','gousto_amounts','gousto_solo_steps','gousto_costs','gousto_ing_meta','gousto_card_names'].forEach(k=>mergeMap(k));
   ['gousto_tags','gousto_optional','gousto_removed'].forEach(k=>mergeMap(k,true));
-  ['gousto_notes','gousto_recipe_over'].forEach(k=>mergeMap(k));
+  ['gousto_notes','gousto_recipe_over','gousto_ratings','gousto_yields'].forEach(k=>mergeMap(k));
   // Additive lists — a favourite or a reviewed ingredient is never un-set by a sync
   ['gousto_favs','gousto_tag_vocab','gousto_ing_reviewed'].forEach(mergeSet);
   // Deletion logs: keep every gravestone, newest timestamp wins
