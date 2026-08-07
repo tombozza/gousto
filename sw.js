@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gousto-v62';
+const CACHE_NAME = 'gousto-v63';
 const ASSETS = ['./', './index.html'];
 
 self.addEventListener('install', e => {

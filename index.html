@@ -130,6 +130,9 @@ nav{background:var(--teal);position:sticky;top:0;z-index:100}
 /* A predicted batch figure reads as provisional until you commit to it */
 .mgr-pred{color:var(--muted);background:var(--bg2);font-style:italic}
 .mgr-pred:focus{color:inherit;background:#fff;font-style:normal}
+.step-skip{float:right;margin-left:10px;background:none;border:1px solid var(--border);border-radius:8px;
+  padding:2px 8px;font-size:.85rem;cursor:pointer;line-height:1.5}
+.step-skip.on{border-color:var(--primary);background:var(--primary-light)}
 
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;justify-content:center;align-items:start;padding:40px 20px;overflow-y:auto}
 .modal-overlay.open{display:flex}
@@ -144,7 +147,10 @@ body.modal-open{position:fixed;width:100%;overflow:hidden}
    an overlay you leave by pressing Back is a page, and it should look like one. */
 .modal-overlay{padding:0;align-items:stretch;background:var(--bg)}
 .modal{padding:14px 20px 32px;border-radius:0;max-width:820px;min-height:100%;box-shadow:none}
-.modal-back{display:inline-flex;align-items:center;gap:4px;background:#fff;border:1px solid var(--border);
+/* Back controls get a little breathing room from the edge — at the old container padding
+   they sat almost against the bezel on a phone. */
+.page-back{margin:2px 0 16px 4px;padding:10px 18px;font-size:.95rem}
+.modal-back{margin-left:4px;display:inline-flex;align-items:center;gap:4px;background:#fff;border:1px solid var(--border);
   border-radius:10px;padding:9px 16px 9px 12px;font-size:.95rem;font-weight:700;color:var(--text);
   cursor:pointer;margin-bottom:14px;font-family:inherit}
 .modal-back:hover{border-color:var(--primary);color:var(--primary)}
@@ -156,7 +162,7 @@ body.modal-open{position:fixed;width:100%;overflow:hidden}
 .modal-overlay.is-dialog{background:rgba(0,0,0,.35);align-items:center;justify-content:center;padding:24px}
 .modal-overlay.is-dialog .modal{max-width:420px;min-height:0;border-radius:16px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.18)}
 @media(max-width:600px){
-  .modal{padding:12px 14px 24px}
+  .modal{padding:12px 16px 24px}
 }
 .modal h2{color:var(--coral);margin-bottom:14px;font-size:1.3rem}
 .modal .ingredients{list-style:none;padding:0}
@@ -562,7 +568,7 @@ textarea{resize:vertical;min-height:80px}
   .filter-bar{flex-direction:column}.filter-bar>div{min-width:100%}
   .grid2,.grid3{grid-template-columns:1fr}
   .stat-grid{grid-template-columns:repeat(2,1fr)}
-  .container{padding:10px}
+  .container{padding:12px 16px}
   .pantry-grid{columns:2}
   .add-form .row{grid-template-columns:1fr}
   .constraint-row{flex-direction:column;align-items:stretch}
@@ -802,7 +808,11 @@ textarea{resize:vertical;min-height:80px}
       </div>
       <div class="card admin-menu-card" onclick="showAdminView('manager')">
         <div class="ico">✅</div><h3>Recipe Manager</h3>
-        <p>Complete methods &amp; 1-person amounts</p>
+        <p>Complete methods &amp; per-portion amounts</p>
+      </div>
+      <div class="card admin-menu-card" onclick="showAdminView('ingcheck')">
+        <div class="ico">🔎</div><h3>Ingredient Check</h3>
+        <p>Inconsistent names &amp; units across recipes</p>
       </div>
       <div class="card admin-menu-card" onclick="showAdminView('bulk')">
         <div class="ico">📦</div><h3>Bulk Scan</h3>
@@ -892,6 +902,17 @@ textarea{resize:vertical;min-height:80px}
     </div>
     <div id="customList"></div>
     <div id="customEmpty" class="empty-state"><p>No custom recipes yet. Paste one in, or let ChatGPT turn a screenshot/caption into one.</p></div>
+  </div>
+
+  <!-- Ingredient check: naming and unit inconsistencies across the whole collection -->
+  <div id="adminView-ingcheck" class="admin-view" style="display:none">
+    <button class="btn btn-sm btn-outline admin-back" onclick="showAdminMenu()">← Admin</button>
+    <div class="card" style="margin-bottom:14px">
+      <h2 style="margin:0 0 4px">Ingredient check</h2>
+      <p style="font-size:.85rem;color:var(--muted)">Anything named or measured inconsistently across your recipes.</p>
+      <div id="ingCheckSummary" style="font-size:.82rem;color:var(--muted);margin-top:8px"></div>
+    </div>
+    <div id="ingCheckBody"></div>
   </div>
 
   <!-- Amounts editor for a single recipe (its own screen, not an accordion) -->
@@ -1024,13 +1045,13 @@ textarea{resize:vertical;min-height:80px}
 </div>
 
 <div id="page-recipe" class="page">
-  <button class="btn btn-outline" onclick="closeModal()" style="margin-bottom:14px;padding:10px 18px;font-size:.95rem">← Back</button>
+  <button class="btn btn-outline page-back" onclick="closeModal()">← Back</button>
   <div class="card recipe-page" id="modalContent"></div>
 </div>
 
 <!-- Live cooking: the plan you've committed to, with what's cooked and what's left of the shop -->
 <div id="page-live" class="page">
-  <button class="btn btn-outline" onclick="exitLive()" style="margin-bottom:14px;padding:10px 18px;font-size:.95rem">← Back to plans</button>
+  <button class="btn btn-outline page-back" onclick="exitLive()">← Back to plans</button>
   <div id="liveHeader"></div>
   <div class="seg" id="liveTabs" style="margin:14px 0">
     <button class="seg-btn active" onclick="setLiveTab('meals',this)">Meals</button>
@@ -1057,7 +1078,7 @@ textarea{resize:vertical;min-height:80px}
 </div>
 
 <div id="page-recipe-edit" class="page">
-  <button class="btn btn-outline" onclick="closeRecipeEdit()" style="margin-bottom:14px;padding:10px 18px;font-size:.95rem">← Back to recipe</button>
+  <button class="btn btn-outline page-back" onclick="closeRecipeEdit()">← Back to recipe</button>
   <div class="card recipe-page" id="recipeEditContent"></div>
 </div>
 <div class="modal-overlay" id="addChoiceModal" style="z-index:256" onclick="if(event.target===this)closeAddChoice()">
@@ -1857,6 +1878,9 @@ let recipeOver=JSON.parse(localStorage.getItem('gousto_recipe_over')||'{}');
 let recipeOptional=JSON.parse(localStorage.getItem('gousto_optional')||'{}');
 let recipeRemoved=JSON.parse(localStorage.getItem('gousto_removed')||'{}');
 let soloSteps=JSON.parse(localStorage.getItem('gousto_solo_steps')||'{}');
+// Steps you always skip — the baked rice you do in the rice cooker, the side salad you
+// don't bother with. Per recipe, by step index. {recipe:[0,4]}
+let hiddenSteps=JSON.parse(localStorage.getItem('gousto_hidden_steps')||'{}');
 let customMethods=JSON.parse(localStorage.getItem('gousto_methods')||'{}'); // {name:[step,...]} manual/scanned 2-person method (fills the 60 gaps)
 let recipeAmounts=JSON.parse(localStorage.getItem('gousto_amounts')||'{}'); // {name:{"1":[...],"3":[...],"4":[...]}} full ingredient override per portion count
 // Baked-in per-portion amounts captured from the Gousto app (1-portion lists, etc.).
@@ -1888,6 +1912,17 @@ function saveTagVocab(){save('gousto_tag_vocab',tagVocab)}
 function saveOptional(){save('gousto_optional',recipeOptional)}
 function saveRemoved(){save('gousto_removed',recipeRemoved)}
 function saveSoloSteps(){save('gousto_solo_steps',soloSteps)}
+function saveHiddenSteps(){save('gousto_hidden_steps',hiddenSteps)}
+function stepHidden(name,ix){return (hiddenSteps[name]||[]).includes(ix)}
+function toggleStepHidden(name,ix){
+  const l=hiddenSteps[name]||[];
+  const i=l.indexOf(ix);
+  if(i>=0)l.splice(i,1);else l.push(ix);
+  if(l.length)hiddenSteps[name]=l;else delete hiddenSteps[name];
+  saveHiddenSteps();openRecipe(name);
+}
+let stepEditMode=false;
+function toggleStepEdit(){stepEditMode=!stepEditMode;if(curRecipeName)openRecipe(curRecipeName);}
 function saveMethods(){save('gousto_methods',customMethods);clearMgrStats()}
 function saveAmounts(){save('gousto_amounts',recipeAmounts);clearMgrStats()}
 
@@ -1939,8 +1974,20 @@ function qtyString(row,pc){
   return mapDisplayName(baseIngredient(row.n),row.n)+' '+fmtQty2(v,row.u);
 }
 // "Parsley 5g" -> "Parsley — 5g" for easier scanning
+// Dietary and marketing wording that the base ingredient already drops, so the recipe card
+// calls something the same thing the pantry and shopping list do — "Gluten free soy sauce"
+// is soy sauce. Prep words that change how you cook (raw, toasted, blanched, skinless) are
+// deliberately NOT in here: "Raw peeled king prawns" must not become "King prawns".
+const MARKETING_WORDS=/\b(gluten[\s-]?free|dairy[\s-]?free|free[\s-]range|british|scottish|welsh|irish|proper porker)\b/gi;
+function displayIngName(s){
+  return capFirst(String(s).replace(MARKETING_WORDS,'').replace(/\s+/g,' ').trim());
+}
 function ingDisplay(s){
-  const l=ingLabel(s);const amt=String(s).slice(l.length).trim();
+  // Rename rules substitute lowercase words mid-string ("Italian hard cheese" → "parmesan"),
+  // which left the list showing a lowercase ingredient. Normalise at the point of display
+  // so it doesn't matter what any individual rule produced.
+  const raw=ingLabel(s);const amt=String(s).slice(raw.length).trim();
+  const l=displayIngName(raw);
   return amt?l+' — '+amt:l;
 }
 // Find the API quantity row for a card ingredient (exact base match, then fuzzy singular/plural + containment)
@@ -1978,11 +2025,34 @@ function cupAmountStr(name,row,p){
   return null;
 }
 // Best amount string for one card ingredient at a portion count: user override > API data > null
+// Gousto print this on the card itself: "Cooking for 3? 1 and a half for each ingredient.
+// Cooking for 4? Double each ingredient." So filling a missing 3 or 4 portion figure this
+// way isn't us inventing a number — it's the instruction the card gives. There's no
+// published rule for 1 portion, so 1 stays blank.
+const GOUSTO_PORTION_RULE={3:1.5,4:2};
 function resolvedAmount(name,ing,pc){
   const base=baseIngredient(ing);
   const u=userAmountMap(name,pc)[base];if(u!=null)return u;
   const a=qtyRowFor(name,base);
-  return a?qtyString(a,pc):null;
+  const exact=a?qtyString(a,pc):null;
+  if(exact!=null)return exact;
+  return derivedAmount(name,ing,pc,a);
+}
+// Only ever a fallback: an exact figure, yours or Gousto's, always wins above.
+function derivedAmount(name,ing,pc,a){
+  const f=GOUSTO_PORTION_RULE[pc];if(!f)return null;
+  if(a===undefined)a=qtyRowFor(name,baseIngredient(ing));
+  const two=userAmountMap(name,2)[baseIngredient(ing)]
+    ||((a&&a.q[1]!=null)?qtyString(a,2):null)
+    ||ing;                                   // the card's own 2-portion line
+  if(two==null)return null;
+  return scaleAmountStr(two,f);
+}
+function isDerivedAmount(name,ing,pc){
+  if(!GOUSTO_PORTION_RULE[pc])return false;
+  if(userAmountMap(name,pc)[baseIngredient(ing)]!=null)return false;
+  const a=qtyRowFor(name,baseIngredient(ing));
+  return !(a&&a.q[pc-1]!=null);
 }
 // User-override map (full strings stored per pc)
 function userAmountMap(name,pc){
@@ -2094,20 +2164,50 @@ function round2(v){return Math.round(v*100)/100}
 // up with 2.5l in it. Recover the individual step amounts from the method text so the
 // ingredient list can show the split instead of a bare total.
 const CUP_SPLIT_RE=/(\d[\d/. ]*[a-zA-Z]*)\s*\[([^\][]+)\]\s*\[([^\][]+)\]\s*((?:[a-zA-Z'’-]+\s*){0,3})/g;
+// What a step is actually FOR, so a split can say "600ml for the rice" rather than leaving
+// you to work out which pour is which. Read off the step's own wording — the thing being
+// cooked is nearly always named in it.
+// Order matters: the dish a step is building beats an ingredient it happens to mention.
+// The curry's water goes in with the stock mix, so /stock/ must not win over /curry/.
+const STEP_PURPOSE=[
+  [/\b(rice|basmati)\b/i,'the rice'],
+  [/\b(orzo|pasta|spaghetti|tagliatelle|macaroni|penne|farfalle|mafaldine|tortiglioni|orecchiette|noodle|udon|couscous|bulgur|quinoa|spelt)\b/i,'the pasta'],
+  [/\bcurry\b/i,'the curry'],
+  [/\b(stew|braise[d]?|casserole|ragù|ragu|gravy|soup|broth|chowder|risotto|chilli con)\b/i,'the pot'],
+  [/\bsauce\b/i,'the sauce'],
+  [/\bmarinade|marinate\b/i,'the marinade'],[/\bdough|batter\b/i,'the batter'],
+  [/\bstock\b/i,'the stock'],
+];
+function stepPurpose(text){
+  const t=String(text);
+  for(const [rx,label] of STEP_PURPOSE)if(rx.test(t))return label;
+  return null;
+}
 function cupSplit(name,row,pc){
   if(!row.m||pc<2)return null;
-  const steps=(typeof RECIPE_STEPS!=='undefined'&&RECIPE_STEPS[name])?RECIPE_STEPS[name].s.flat():[];
+  const groups=(typeof RECIPE_STEPS!=='undefined'&&RECIPE_STEPS[name])?RECIPE_STEPS[name].s:[];
   const key=String(row.n).toLowerCase();
   const parts=[];
-  steps.forEach(s=>{
-    let m;CUP_SPLIT_RE.lastIndex=0;
-    while((m=CUP_SPLIT_RE.exec(String(s)))){
-      const after=m[4].toLowerCase().replace(/^(of|the|your)\s+/,'').trim();
-      if(!after.startsWith(key))continue;
-      parts.push((pc===3?m[2]:pc>=4?m[3]:m[1]).trim());
-    }
+  // Purpose comes from the whole step GROUP, not the one line: the curry's water is added
+  // on a line that never says "curry", but the group it sits in ends "this is your curry".
+  groups.forEach(g=>{
+    const lines=Array.isArray(g)?g:[g];
+    const purpose=stepPurpose(lines.join(' '));
+    lines.forEach(s=>{
+      let m;CUP_SPLIT_RE.lastIndex=0;
+      while((m=CUP_SPLIT_RE.exec(String(s)))){
+        const after=m[4].toLowerCase().replace(/^(of|the|your)\s+/,'').trim();
+        if(!after.startsWith(key))continue;
+        parts.push({amt:(pc===3?m[2]:pc>=4?m[3]:m[1]).trim(),purpose});
+      }
+    });
   });
-  return parts.length>1?parts:null;
+  if(parts.length<2)return null;
+  // Label whatever we can identify, as long as no two pours would claim the same label —
+  // "300ml for the rice + 300ml for the rice" is worse than no labels at all.
+  const named=parts.map(p=>p.purpose).filter(Boolean);
+  const unique=new Set(named).size===named.length;
+  return parts.map(p=>unique&&p.purpose?p.amt+' for '+p.purpose:p.amt);
 }
 // Big batches read better in kg/l than four-digit grams
 function fmtBulkQty(v,u){
@@ -2589,6 +2689,7 @@ function showAdminView(view){
   if(view==='basics')renderBasics();
   if(view==='custom')renderCustomRecipes();
   if(view==='savings')renderSavings();
+  if(view==='ingcheck')renderIngCheck();
 }
 // The pantry and the name/category list are one page now; kept as a no-op for old call sites
 function setIngManagerTab(){renderMappings()}
@@ -3070,7 +3171,7 @@ function openRecipe(name,pc){
         let split=u==null?cupSplit(name,a,pcEff):null;
         if(split&&bulk)split=split.map(p=>scaleQty(p,bulk.factor)||p);
         const noShop=!isShoppableCup(a);
-        return `<li><span>${esc(disp)}${noShop?' <span style="font-size:.72rem;color:var(--muted)">· from the tap/cupboard</span>':''}${split?` <span style="font-size:.76rem;color:var(--muted)">— total, split ${esc(split.join(' + '))} across the method</span>`:''}</span></li>`;
+        return `<li><span>${esc(disp)}${noShop?' <span style="font-size:.72rem;color:var(--muted)">· from the tap/cupboard</span>':''}${split?` <span style="font-size:.76rem;color:var(--muted)">total — ${esc(split.join(' + '))}</span>`:''}</span></li>`;
       }).join('');
     })()}
     ${((recipeRemoved[name]||[]).length&&ingEditMode)?(recipeRemoved[name]||[]).map(h=>
@@ -3118,7 +3219,17 @@ function openRecipe(name,pc){
       const renderLine=line=>boldIngredients(esc(portionizeStep(line,pcEff,subFn,stepOpt)),phrases);
       // Render first, then describe what's actually there: the "(for 2)" caveat only
       // applies if a quantity in the text really did fall back to the 2-person value.
-      const stepsHtml=m?m.s.map(step=>`<li>${(Array.isArray(step)?step:[step]).map(line=>`<span>${renderLine(line)}</span>`).join('')}</li>`).join(''):'';
+      const nHidden=m?m.s.filter((_,ix)=>stepHidden(name,ix)).length:0;
+      const stepsHtml=m?m.s.map((step,ix)=>{
+        const hidden=stepHidden(name,ix);
+        if(hidden&&!stepEditMode)return '';        // skipped entirely, numbering closes up
+        const body=(Array.isArray(step)?step:[step]).map(line=>`<span>${renderLine(line)}</span>`).join('');
+        return `<li${hidden?' style="opacity:.45"':''}>
+          ${stepEditMode?`<button class="step-skip${hidden?' on':''}" title="${hidden?'Put this step back':'Skip this step'}"
+            onclick="toggleStepHidden('${escQ(name)}',${ix})">${hidden?'↩':'🙈'}</button>`:''}
+          <span${hidden?' style="text-decoration:line-through"':''}>${body}</span>
+        </li>`;
+      }).join(''):'';
       const hasFallback=stepsHtml.includes('(for 2)');
       const bulkFallback=bulk&&stepsHtml.includes('(for ');
       // Whether the 1-person method is usable is a question about the DATA, not the text:
@@ -3126,7 +3237,13 @@ function openRecipe(name,pc){
       // for 1, so a lone "(for 2)" is expected even when every ingredient is known.
       const miss1=pcEff===1?missingOnePerson(name):{card:0,cupboard:0};
       const oneMissing=pcEff===1&&miss1.card>0;
-      return m?`<div class="section"><h3 style="margin-bottom:10px">Method <span class="muted-note">(for ${bulk?curBulkN:curModalPC})</span></h3>
+      return m?`<div class="section">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+          <h3 style="margin:0">Method <span class="muted-note">(for ${bulk?curBulkN:curModalPC})</span></h3>
+          <a onclick="toggleStepEdit()" style="cursor:pointer;color:var(--primary);font-size:.82rem;margin-left:auto">${stepEditMode?'Done':'Skip steps'}</a>
+        </div>
+        ${stepEditMode?'<p style="font-size:.78rem;color:var(--primary);margin-bottom:10px">🙈 hides a step you always skip — the baked rice when you use a rice cooker, a side salad you don’t bother with. It stays hidden every time you open this recipe.</p>':''}
+        ${nHidden&&!stepEditMode?`<p style="font-size:.78rem;color:var(--muted);margin-bottom:10px">${nHidden} step${nHidden===1?'':'s'} skipped — <a onclick="toggleStepEdit()" style="cursor:pointer;color:var(--primary)">show</a></p>`:''}
         ${bulk?`<p style="font-size:.82rem;color:var(--teal);background:var(--cream);border-radius:8px;padding:8px 10px;margin-bottom:10px">
           Quantities below are for <strong>${curBulkN}</strong> — ${bulk.factor} × the ${bulk.base}-portion amounts.${bulkFallback?` Anything still marked <strong>(for ${bulk.base})</strong> is a figure with no ingredient behind it, so it hasn’t been multiplied — ×${bulk.factor} it yourself. <a onclick="openManagerFor('${escQ(name)}')" style="cursor:pointer;color:var(--primary)">Set your own →</a>`:''}
           Timings stay as written; a bigger pan takes longer to come up to heat.
@@ -7036,7 +7153,8 @@ function managerEditor(r){
             const own=pc<=4?row.vals[pc-1]:mgrBulkOwn(name,row,pc);
             const pred=pc<=4?null:predictedBulkVal(name,row,pc);
             const v=own!=null?own:(pred!=null?pred:'');
-            return `<input class="mgr-amt${pc>4&&own==null&&pred!=null?' mgr-pred':''}" type="number" inputmode="decimal" step="any" min="0"
+            const provisional=pc<=4?!!(row.derived&&row.derived[pc-1]):(own==null&&pred!=null);
+            return `<input class="mgr-amt${provisional?' mgr-pred':''}" type="number" inputmode="decimal" step="any" min="0"
               id="mgrAmt-${id}-${pc}-${ix}" value="${v}"${pc>4?` title="${own!=null?'Your figure':'Predicted — '+ (bulkBase(name,pc)?bulkBase(name,pc).factor+' × the '+bulkBase(name,pc).base+'-portion amount':'no clean multiple')}"`:''}>`;
           }).join('')}`
         ).join('')}
@@ -7080,6 +7198,74 @@ function amtUnit(s){const m=String(s).match(/\d(?:[\d./ ]*)\s*(g|kg|ml|l|tsp|tbs
 const UNIT_NAMES={g:'grams',kg:'kg',ml:'ml',l:'litres',tsp:'tsp',tbsp:'tbsp',pkt:'pack',cube:'cubes','':'x'};
 // One row per card ingredient: display label, unit, and the 1/2/3/4 numbers
 // (user override > Gousto API > the card's own 2-person amount).
+// ---- Ingredient check ----
+// Naming and unit inconsistencies are easy to introduce one recipe at a time and impossible
+// to spot by browsing, so they get their own screen: every problem in one list.
+function ingCheckReport(){
+  const all=getAllRecipes();
+  const units={},labels={},marketing=[],lower=[];
+  all.forEach(r=>r.i.forEach(i=>{
+    const base=baseIngredient(i);
+    const raw=ingLabel(renameIngredient(i));
+    const shown=ingDisplay(renameIngredient(i)).split(' — ')[0];
+    const u=(parseQty(i).unit||'').toLowerCase();
+    if(u){(units[base]=units[base]||{});(units[base][u]=units[base][u]||[]).push(r.n);}
+    (labels[base]=labels[base]||new Set()).add(shown);
+    if(MARKETING_WORDS.test(raw)){MARKETING_WORDS.lastIndex=0;marketing.push({recipe:r.n,raw,shown});}
+    MARKETING_WORDS.lastIndex=0;
+    if(/^[a-z]/.test(shown))lower.push({recipe:r.n,shown});
+  }));
+  const mixedUnits=Object.entries(units).filter(([b,u])=>Object.keys(u).length>1)
+    .map(([b,u])=>({base:b,units:Object.entries(u).map(([k,v])=>({unit:k,count:v.length,recipes:[...new Set(v)]}))}))
+    .sort((a,b)=>a.base.localeCompare(b.base));
+  const mixedNames=Object.entries(labels).filter(([b,s])=>s.size>1)
+    .map(([b,s])=>({base:b,names:[...s]})).sort((a,b)=>a.base.localeCompare(b.base));
+  return {mixedUnits,mixedNames,lower,marketing:[...new Map(marketing.map(m=>[m.raw,m])).values()]};
+}
+function renderIngCheck(){
+  const rep=ingCheckReport();
+  const total=rep.mixedUnits.length+rep.mixedNames.length+rep.lower.length;
+  document.getElementById('ingCheckSummary').innerHTML=total
+    ? `<strong>${total}</strong> to look at — ${rep.mixedUnits.length} measured inconsistently, ${rep.mixedNames.length} named inconsistently${rep.lower.length?`, ${rep.lower.length} lowercase`:''}.`
+    : '<span style="color:var(--green);font-weight:700">✓ Everything is named and measured consistently.</span>';
+  const section=(title,note,rows)=>rows.length?`<div class="card" style="margin-bottom:14px">
+    <h3 style="margin:0 0 2px;font-size:1rem">${title} <span style="color:var(--muted);font-weight:400">(${rows.length})</span></h3>
+    <p style="font-size:.78rem;color:var(--muted);margin-bottom:10px">${note}</p>${rows.join('')}</div>`:'';
+  const unitRows=rep.mixedUnits.map(m=>{
+    const cur=resolveUnit(m.base,'');
+    return `<div class="led-row" style="align-items:center">
+      <span class="led-name">${esc(capFirst(m.base))}
+        <span style="display:block;font-size:.74rem;color:var(--muted);font-weight:400">${m.units.map(u=>`${u.count}× ${esc(u.unit)}`).join(' · ')}</span></span>
+      <select onchange="setIngCheckUnit('${escQ(m.base)}',this.value)" style="max-width:120px;margin:0;font-size:.8rem;padding:6px">
+        <option value=""${cur?'':' selected'}>As written</option>
+        ${m.units.map(u=>`<option value="${esc(u.unit)}"${cur===u.unit?' selected':''}>Prefer ${esc(u.unit)}</option>`).join('')}
+      </select>
+    </div>`;
+  });
+  const nameRows=rep.mixedNames.map(m=>`<div class="led-row" style="align-items:center">
+      <span class="led-name">${esc(capFirst(m.base))}
+        <span style="display:block;font-size:.74rem;color:var(--muted);font-weight:400">shown as: ${m.names.map(n=>esc(n)).join(' · ')}</span></span>
+      <button class="btn btn-sm btn-outline" onclick="openIngEditor('${escQ(m.base)}')">Set one name</button>
+    </div>`);
+  const lowerRows=[...new Map(rep.lower.map(l=>[l.shown,l])).values()].map(l=>
+    `<div class="led-row"><span class="led-name">${esc(l.shown)}</span>
+     <span style="font-size:.78rem;color:var(--red)">lowercase</span></div>`);
+  document.getElementById('ingCheckBody').innerHTML=
+    section('Measured inconsistently','The same ingredient recorded in different units across recipes. Pick one and the app converts where it can.',unitRows)+
+    section('Named inconsistently','The same ingredient printed under more than one name.',nameRows)+
+    section('Lowercase names','These should start with a capital.',lowerRows)+
+    (total?'':'<div class="empty-state"><p>Nothing to fix.</p></div>');
+}
+function setIngCheckUnit(base,unit){
+  if(!ingredientMeta[base])ingredientMeta[base]={};
+  if(!unit)delete ingredientMeta[base].unit;else ingredientMeta[base].unit=unit;
+  cleanupIngMeta(base);saveIngredientMeta();toast(unit?`${capFirst(base)} → ${unit}`:'Left as written');
+}
+function openIngEditor(base){
+  showAdminView('ingcheck');
+  toast('Set the name in Pantry → Ingredient names');
+}
+
 // Batch sizes worth holding a figure for. Even numbers only — those are the ones that
 // divide by a portion count we actually have amounts for.
 const MGR_BULK_COLS=[6,8,10];
@@ -7125,14 +7311,19 @@ function managerQtyRows(r){
     // quantity row was matched by fuzzy fallback rather than resolving to this ingredient.
     // Once a rename rule or your own fold links them, the annotation has done its job.
     const gousto=a&&baseIngredient(a.n)!==base?a.n:'';
+    const derived=[false,false,false,false];
     const vals=[1,2,3,4].map(pc=>{
       const u=userBy[pc][base];
       if(u!=null)return amtNumber(u);
       if(a&&a.q[pc-1]!=null)return a.q[pc-1];
       if(pc===2)return amtNumber(ing);
+      // 3 and 4 fall back to Gousto's own printed rule; shown as provisional so you can see
+      // which figures are theirs and which the card told us to work out
+      const d=derivedAmount(name,ing,pc,a);
+      if(d!=null){derived[pc-1]=true;return amtNumber(d);}
       return null;
     });
-    return {ing,base,label,gousto,unit,unitName:UNIT_NAMES[unit]!==undefined?UNIT_NAMES[unit]:unit,vals,api:a};
+    return {ing,base,label,gousto,unit,unitName:UNIT_NAMES[unit]!==undefined?UNIT_NAMES[unit]:unit,vals,derived,api:a};
   }).concat((qtyRowsFor(name)||[]).filter(a=>a.c).map(a=>{
     const vals=[1,2,3,4].map(pc=>{const u=userBy[pc][baseIngredient(a.n)];return u!=null?amtNumber(u):a.q[pc-1];});
     return {ing:a.n,base:baseIngredient(a.n),label:a.n,cup:1,unit:a.u,unitName:UNIT_NAMES[a.u]!==undefined?UNIT_NAMES[a.u]:a.u,vals,api:a};
@@ -7169,6 +7360,8 @@ function saveManagerAmounts(name){
         const apiV=row.api&&row.api.q[pc-1];
         if(apiV!=null&&n===apiV)return;
         if(apiV==null&&pc===2&&n===amtNumber(row.ing))return;
+        // A 3/4 cell left at the value Gousto's own rule gives isn't an override
+        if(apiV==null&&row.derived&&row.derived[pc-1]&&n===row.vals[pc-1])return;
       }
       list.push((row.label+' '+fmtQty2(n,row.unit)).trim());
     });
@@ -7442,7 +7635,7 @@ async function forceAppUpdate(){
   location.replace(location.pathname+'?u='+Date.now());
 }
 const SHARED_STORE='gousto-shared-ca873cfaae016299350bff25c0b9331bdd47cfe028dac4fd';
-const SYNC_KEYS=['gousto_custom','gousto_filing','gousto_filing_new','gousto_favs','gousto_ratings','gousto_plan','gousto_plan_portions','gousto_portions','gousto_checked','gousto_pantry','gousto_saved_plans','gousto_plan_history','gousto_tags','gousto_tag_vocab','gousto_notes','gousto_yields','gousto_recipe_over','gousto_optional','gousto_removed','gousto_solo_steps','gousto_methods','gousto_amounts','gousto_bulk','gousto_bulk_saved','gousto_costs','gousto_pricing','gousto_plan_draft','gousto_plan_seq','gousto_pantry_amounts','gousto_ing_meta','gousto_ing_reviewed','gousto_card_names','gousto_cats','gousto_tombstones','gousto_filing_cat'];
+const SYNC_KEYS=['gousto_custom','gousto_filing','gousto_filing_new','gousto_favs','gousto_ratings','gousto_plan','gousto_plan_portions','gousto_portions','gousto_checked','gousto_pantry','gousto_saved_plans','gousto_plan_history','gousto_tags','gousto_tag_vocab','gousto_notes','gousto_yields','gousto_hidden_steps','gousto_recipe_over','gousto_optional','gousto_removed','gousto_solo_steps','gousto_methods','gousto_amounts','gousto_bulk','gousto_bulk_saved','gousto_costs','gousto_pricing','gousto_plan_draft','gousto_plan_seq','gousto_pantry_amounts','gousto_ing_meta','gousto_ing_reviewed','gousto_card_names','gousto_cats','gousto_tombstones','gousto_filing_cat'];
 let applyingRemote=false, syncing=false, syncTimer=null;
 
 function syncCode(){return localStorage.getItem('gousto_sync_code')||''}
@@ -7497,6 +7690,7 @@ function reloadStateVars(){
   customTags=JSON.parse(localStorage.getItem('gousto_tags')||'{}');
   recipeNotes=JSON.parse(localStorage.getItem('gousto_notes')||'{}');
   recipeYields=JSON.parse(localStorage.getItem('gousto_yields')||'{}');
+  hiddenSteps=JSON.parse(localStorage.getItem('gousto_hidden_steps')||'{}');
   recipeOver=JSON.parse(localStorage.getItem('gousto_recipe_over')||'{}');
   tagVocab=JSON.parse(localStorage.getItem('gousto_tag_vocab')||'[]');
   customRecipes=JSON.parse(localStorage.getItem('gousto_custom')||'[]');
@@ -7652,7 +7846,7 @@ function mergeStates(remote,local,rmeta,lmeta){
   mergeList('gousto_custom',r=>r.n);
   mergeList('gousto_saved_plans',p=>p.ref||JSON.stringify(p.items||p.meals||p.name));
   ['gousto_methods','gousto_amounts','gousto_solo_steps','gousto_costs','gousto_ing_meta','gousto_card_names'].forEach(k=>mergeMap(k));
-  ['gousto_tags','gousto_optional','gousto_removed'].forEach(k=>mergeMap(k,true));
+  ['gousto_tags','gousto_optional','gousto_removed','gousto_hidden_steps'].forEach(k=>mergeMap(k,true));
   ['gousto_notes','gousto_recipe_over','gousto_ratings','gousto_yields'].forEach(k=>mergeMap(k));
   // Additive lists — a favourite or a reviewed ingredient is never un-set by a sync
   ['gousto_favs','gousto_tag_vocab','gousto_ing_reviewed'].forEach(mergeSet);
