@@ -1751,6 +1751,44 @@ function resolveCategory(base){
 }
 // Unit type (grams/ml/tsp/etc) — override wins, else the sample unit seen in recipe data
 function resolveUnit(base,fallback){const m=ingredientMeta[base];return (m&&m.unit)||fallback||'';}
+// Converting between units. The scale changes are exact; spoon↔weight uses the same 5g-per-
+// teaspoon convention the app already applies to pastes and squeezables (see HOME_CONV), so
+// it's a convention rather than a measurement — which is why it only ever runs when you've
+// explicitly asked for that unit in Admin → Ingredient Check.
+const G_PER_TSP=5;
+function convertAmt(n,from,to){
+  from=(from||'').toLowerCase().replace(/s$/,'');to=(to||'').toLowerCase().replace(/s$/,'');
+  if(!from||!to||from===to)return from===to?n:null;
+  const toBase={g:[1,'g'],kg:[1000,'g'],ml:[1,'ml'],l:[1000,'ml'],tsp:[1,'tsp'],tbsp:[3,'tsp']};
+  const a=toBase[from],b=toBase[to];
+  if(!a||!b)return null;
+  let v=n*a[0],fam=a[1];
+  if(fam!==b[1]){
+    // Cross-family: weight ↔ spoons by convention; ml and g are treated 1:1 for the
+    // liquids this applies to. Anything else we decline rather than invent.
+    if(fam==='tsp'&&(b[1]==='g'||b[1]==='ml'))v=v*G_PER_TSP;
+    else if((fam==='g'||fam==='ml')&&b[1]==='tsp')v=v/G_PER_TSP;
+    else if((fam==='g'&&b[1]==='ml')||(fam==='ml'&&b[1]==='g')){/* 1:1 */}
+    else return null;
+  }
+  return round2(v/b[0]);
+}
+// Rewrite a formatted "Name 15ml" into the unit you've asked for that ingredient
+// Deliberately NOT resolveUnit(): the pantry's `unit` is auto-populated for every
+// ingredient and was never a choice about how recipes should read. Only a unit picked in
+// Admin → Ingredient Check (`dispUnit`) rewrites what a recipe shows.
+function displayUnitPref(base){const m=ingredientMeta[base];return (m&&m.dispUnit)||'';}
+function applyUnitPref(s){
+  const str=String(s);
+  const label=ingLabel(str);
+  const want=displayUnitPref(baseIngredient(str));
+  if(!want||want==='count')return str;
+  const have=amtUnit(str);const n=amtNumber(str);
+  if(!have||n==null||have===want)return str;
+  const v=convertAmt(n,have,want);
+  if(v==null)return str;
+  return label+' '+fmtQty2(v,want);
+}
 const UNIT_TYPES=['g','ml','kg','l','tsp','tbsp','cube','pack','count'];
 // ---- "Appears in the method as" ----
 // Method text from the card is written loosely: "put the chicken in the oven" for what the
@@ -1986,7 +2024,8 @@ function ingDisplay(s){
   // Rename rules substitute lowercase words mid-string ("Italian hard cheese" → "parmesan"),
   // which left the list showing a lowercase ingredient. Normalise at the point of display
   // so it doesn't matter what any individual rule produced.
-  const raw=ingLabel(s);const amt=String(s).slice(raw.length).trim();
+  const pref=applyUnitPref(s);
+  const raw=ingLabel(pref);const amt=String(pref).slice(raw.length).trim();
   const l=displayIngName(raw);
   return amt?l+' — '+amt:l;
 }
@@ -4002,7 +4041,7 @@ function aggregatePlanItems(items){
     r.i.forEach(ing=>{
       if((recipeRemoved[it.name]||[]).includes(ing))return;
       const key=baseIngredient(ing);
-      const q=parseQty(renameIngredient(bulkIngString(it.name,ing,it.portions)));
+      const q=parseQty(applyUnitPref(renameIngredient(bulkIngString(it.name,ing,it.portions))));
       if(!out[key]){out[key]={name:q.name||key,totalNum:q.num,unit:q.unit,count:1,raw:ing,recipes:[it.name]};}
       else{out[key].totalNum+=q.num;out[key].count++;if(!out[key].recipes.includes(it.name))out[key].recipes.push(it.name);}
     });
@@ -4012,7 +4051,7 @@ function aggregatePlanItems(items){
       const s=cupAmountStr(it.name,row,it.portions);if(s==null)return;
       const key=baseIngredient(row.n);
       if((recipeRemoved[it.name]||[]).includes(row.n))return;
-      const q=parseQty(renameIngredient(s));
+      const q=parseQty(applyUnitPref(renameIngredient(s)));
       if(!out[key]){out[key]={name:q.name||key,totalNum:q.num,unit:q.unit,count:1,raw:row.n,recipes:[it.name]};}
       else{out[key].totalNum+=q.num;out[key].count++;if(!out[key].recipes.includes(it.name))out[key].recipes.push(it.name);}
     });
@@ -7232,7 +7271,7 @@ function renderIngCheck(){
     <h3 style="margin:0 0 2px;font-size:1rem">${title} <span style="color:var(--muted);font-weight:400">(${rows.length})</span></h3>
     <p style="font-size:.78rem;color:var(--muted);margin-bottom:10px">${note}</p>${rows.join('')}</div>`:'';
   const unitRows=rep.mixedUnits.map(m=>{
-    const cur=resolveUnit(m.base,'');
+    const cur=displayUnitPref(m.base);
     return `<div class="led-row" style="align-items:center">
       <span class="led-name">${esc(capFirst(m.base))}
         <span style="display:block;font-size:.74rem;color:var(--muted);font-weight:400">${m.units.map(u=>`${u.count}× ${esc(u.unit)}`).join(' · ')}</span></span>
@@ -7251,15 +7290,16 @@ function renderIngCheck(){
     `<div class="led-row"><span class="led-name">${esc(l.shown)}</span>
      <span style="font-size:.78rem;color:var(--red)">lowercase</span></div>`);
   document.getElementById('ingCheckBody').innerHTML=
-    section('Measured inconsistently','The same ingredient recorded in different units across recipes. Pick one and the app converts where it can.',unitRows)+
+    section('Measured inconsistently','The same ingredient recorded in different units across recipes. Pick one and every recipe shows it that way. Scale changes (tsp↔tbsp, g↔kg, ml↔l) are exact; spoons↔weight uses 5g per teaspoon, so treat those as a kitchen convention rather than a measurement.',unitRows)+
     section('Named inconsistently','The same ingredient printed under more than one name.',nameRows)+
     section('Lowercase names','These should start with a capital.',lowerRows)+
     (total?'':'<div class="empty-state"><p>Nothing to fix.</p></div>');
 }
 function setIngCheckUnit(base,unit){
   if(!ingredientMeta[base])ingredientMeta[base]={};
-  if(!unit)delete ingredientMeta[base].unit;else ingredientMeta[base].unit=unit;
-  cleanupIngMeta(base);saveIngredientMeta();toast(unit?`${capFirst(base)} → ${unit}`:'Left as written');
+  if(!unit)delete ingredientMeta[base].dispUnit;else ingredientMeta[base].dispUnit=unit;
+  cleanupIngMeta(base);saveIngredientMeta();renderIngCheck();
+  toast(unit?`${capFirst(base)} now shows in ${unit}`:'Left as written');
 }
 function openIngEditor(base){
   showAdminView('ingcheck');
