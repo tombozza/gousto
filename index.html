@@ -2782,6 +2782,19 @@ window.addEventListener('scroll',refreshBackToTop,{passive:true});
 document.addEventListener('scroll',refreshBackToTop,{passive:true,capture:true});
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000)}
 
+// Forms that are a different thing to buy, keyed to their own base so they never merge
+// with the plain version. Order matters — first match wins.
+const DISTINCT_FORMS=[
+  [/\bchopped tomatoes?\b/,'chopped tomatoes'],          // a tin, not a fresh tomato
+  [/\bground coriander\b/,'ground coriander'],           // the seed spice, not the herb
+  [/\bground almonds?\b/,'ground almonds'],
+  [/\bflaked almonds?\b/,'flaked almonds'],
+  [/\bground cumin\b/,'ground cumin'],
+  [/\bcooked\b.*\bwhite long grain rice\b/,'cooked white long grain rice'],
+  [/\bcooked\b.*\bbrown long grain rice\b/,'cooked brown long grain rice'],
+  [/\bcooked\b.*\bchicken\b/,'cooked chicken'],          // a pouch, not raw breast
+  [/\btoasted sesame oil\b/,'toasted sesame oil'],
+];
 function baseIngredient(s){
   // A card wording you've given its own name splits off as its OWN ingredient, keyed by that
   // name — so it gets its own row in the manager, the pantry and the shopping list
@@ -2795,7 +2808,16 @@ function baseIngredient(s){
     .replace(/\d+(\.\d+)?/g,'')
     .replace(/[()]/g,'')
     .replace(/\bintense\b/g,'')
-    .replace(/\bx\b/g,'')
+    .replace(/\bx\b/g,'');
+  // Some qualifiers change WHAT YOU BUY, not just how it was cut. The prep-word strip below
+  // treats "finely chopped", "ground", "flaked", "cooked" and "toasted" as noise, which
+  // merged a tin of chopped tomatoes into a fresh tomato, the coriander SPICE into the fresh
+  // herb, ground almonds into flaked, and a pouch of cooked rice into a bag of raw rice.
+  // Deliberately narrow rather than a blanket rule: "ground smoked paprika" and "smoked
+  // paprika" really are the same jar, and folding those is right.
+  const distinct=DISTINCT_FORMS.find(([rx])=>rx.test(r));
+  if(distinct)return distinct[1];
+  r=r
     .replace(/\b(diced|strips?|bites?|sliced|finely chopped|shredded|grated|flaked|crushed|ground|roasted|toasted|blanched|cooked|raw|peeled|skinless|skin-on|boneless|free range|british|proper porker|smoked streaky)\b/g,'')
     .replace(/^'/,'')
     .replace(/\s+/g,' ').trim();
