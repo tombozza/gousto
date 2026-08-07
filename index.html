@@ -110,6 +110,11 @@ nav{background:var(--teal);position:sticky;top:0;z-index:100}
 .led-meals{font-size:.78rem;color:var(--muted);padding:0 0 10px 2px;border-bottom:1px solid var(--border)}
 .led-meals .used{text-decoration:line-through;opacity:.7}
 
+/* A recipe name is clickable everywhere, but it's a name first — it keeps the surrounding
+   text colour and only hints at being a link on hover. Blue everywhere was too loud. */
+.recipe-link{cursor:pointer;color:inherit;text-decoration:none;border-bottom:1px solid transparent;transition:border-color .12s}
+.recipe-link:hover{border-bottom-color:currentColor}
+
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;justify-content:center;align-items:start;padding:40px 20px;overflow-y:auto}
 .modal-overlay.open{display:flex}
 .modal{background:#fff;border-radius:16px;max-width:700px;width:100%;padding:28px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.12);overflow-x:hidden}
@@ -1803,10 +1808,15 @@ function migratePlans(){
     });
     save('gousto_bulk_saved',bulkSavedPlans);changed=true;
   }
-  // Seed the draft basket from a legacy working plan / bulk batch, once
-  if(!planItems.length){
-    if(mealPlan&&mealPlan.length){planItems=mealPlan.map(n=>({name:n,mode:'normal',portions:planPortions||2}));changed=true;}
-    else if(bulkBatches&&bulkBatches.length){planItems=bulkBatches.map(b=>({name:b.name,mode:'bulk',portions:b.portions}));changed=true;}
+  // Seed the draft basket from a legacy working plan / bulk batch — genuinely once.
+  // "Basket is empty" is true again every time you save or clear it, so without a flag this
+  // re-seeded the old legacy plan on every load: a new plan was never blank.
+  if(!localStorage.getItem('gousto_draft_seeded')){
+    if(!planItems.length){
+      if(mealPlan&&mealPlan.length){planItems=mealPlan.map(n=>({name:n,mode:'normal',portions:planPortions||2}));changed=true;}
+      else if(bulkBatches&&bulkBatches.length){planItems=bulkBatches.map(b=>({name:b.name,mode:'bulk',portions:b.portions}));changed=true;}
+    }
+    try{localStorage.setItem('gousto_draft_seeded','1')}catch(e){}
   }
   if(changed){saveSavedPlans();savePlanDraft();savePlanSeq();}
 }
@@ -1931,6 +1941,21 @@ function qtyRowFor(name,base){
     cands=rows.filter(a=>{const wa=words(a.n);return wa.some(w=>wb.includes(w));});
     if(cands.length===1)return cands[0];
   }
+  return null;
+}
+// Cupboard rows split two ways. Water and oil come from the tap and the bottle — they're pan
+// measures, never a shopping item. Flour, sugar, milk and butter are things you'd have to buy
+// if you were out, so they belong on the list like any other ingredient.
+const CUP_NO_SHOP=/^(boiled|cold|warm|hot)\s+water$|^water$|oil$/i;
+function cupboardRows(name){return (qtyRowsFor(name)||[]).filter(a=>a.c)}
+function isShoppableCup(row){return !CUP_NO_SHOP.test(String(row.n).trim())}
+// One cupboard row's amount at a portion count, using the same fallbacks as a card ingredient
+function cupAmountStr(name,row,p){
+  const u=userAmountMap(name,p)[baseIngredient(row.n)];
+  if(u!=null)return String(u);
+  if(p>=1&&p<=4)return row.q[p-1]!=null?qtyString(row,p):null;
+  const b=bulkBase(name,p);
+  if(b&&row.q[b.base-1]!=null)return scaleAmountStr(qtyString(row,b.base),b.factor);
   return null;
 }
 // Best amount string for one card ingredient at a portion count: user override > API data > null
@@ -2173,7 +2198,7 @@ function cssEscape(s){return String(s).replace(/["\\]/g,'\\$&')}
 // A recipe's name is always a way into its card, wherever it's printed. `inner` lets a call
 // site keep its own markup (pills, refs); it defaults to the escaped name.
 function recipeLink(name,inner,extraStyle){
-  return `<span onclick="event.stopPropagation();openRecipe('${escQ(name)}')" style="cursor:pointer;${extraStyle||''}">${inner||esc(name)}</span>`;
+  return `<span class="recipe-link" onclick="event.stopPropagation();openRecipe('${escQ(name)}')" style="${extraStyle||''}">${inner||esc(name)}</span>`;
 }
 function savePlan(){save('gousto_plan',mealPlan);save('gousto_plan_portions',planPortions);portions=planPortions;save('gousto_portions',portions)}
 function saveChecked(){save('gousto_checked',checkedItems)}
@@ -2904,22 +2929,15 @@ function openRecipe(name,pc){
       ${r.b?'<span class="pill pill-bulk">Bulk-friendly</span>':''}
       ${r.o?`<span class="pill pill-note">${esc(r.o)}</span>`:''}
     </div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px">
+      ${ratingStars(name,1.3)}
+      <button class="btn ${inPlan?'btn-red':'btn-green'}" style="margin-left:auto" onclick="togglePlanRecipe('${escQ(name)}');openRecipe('${escQ(name)}')">${inPlan?'Remove from plan':'+ Add to plan'}</button>
+    </div>
     <div style="margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
       <label style="margin:0">My Tags:</label>
       ${getTags(name).length?getTags(name).map(t=>`<span class="pill pill-tag">${esc(capWords(t))}</span>`).join(''):'<span style="font-size:.82rem;color:var(--muted)">None yet</span>'}
-      <button class="btn btn-sm btn-outline" onclick="openRecipeEdit('${escQ(name)}')">✎ Edit recipe</button>
     </div>
     <p style="font-size:.85rem;color:var(--muted);margin-bottom:4px">Protein: <strong>${getProtein(r)}</strong></p>
-    ${(()=>{const note=getNote(name);
-      return note
-        ?`<div class="card" style="background:var(--cream);margin:10px 0;padding:10px 12px">
-            <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px">
-              <strong style="font-size:.78rem;text-transform:uppercase;letter-spacing:.4px;color:var(--teal)">My notes</strong>
-              <a onclick="openRecipeEdit('${escQ(name)}','notes')" style="cursor:pointer;color:var(--primary);font-size:.78rem;margin-left:auto">Edit</a>
-            </div>
-            <div style="font-size:.88rem;white-space:pre-wrap">${esc(note)}</div>
-          </div>`
-        :`<p style="margin:8px 0"><a onclick="openRecipeEdit('${escQ(name)}','notes')" style="cursor:pointer;color:var(--primary);font-size:.82rem">＋ Add a note</a></p>`;})()}
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0 6px">
       <h3 style="margin:0">Ingredients</h3>
       <div class="seg">
@@ -2939,8 +2957,8 @@ function openRecipe(name,pc){
       ${bulkMode
         ?(bulk
           ?`Batch of <strong>${curBulkN}</strong> — ${bulk.factor} × the ${bulk.base}-portion amounts.${bulk.base===1&&missingOnePerson(name).card>0?' <span style="color:var(--red)">Some 1-person amounts are missing (a dash) — an even number multiplies off the card instead.</span>':''}`
-          :`No exact way to make <strong>${curBulkN}</strong> from the amounts we hold — try a number that divides by 2 (or 4). `)
-        :(curModalPC===2?'Card amounts (2 portions).':(hasAmounts(name,curModalPC)?'✓ '+curModalPC+'-person amounts.':'No '+curModalPC+'-person amounts yet — a dash means unknown. '))}
+          :`No exact way to make <strong>${curBulkN}</strong> — try a number that divides by 2 (or 4). `)
+        :(hasAmounts(name,curModalPC)||curModalPC===2?'':'Some amounts aren’t set yet — a dash means unknown. ')}
       <a onclick="openManagerFor('${escQ(name)}')" style="cursor:pointer;color:var(--primary)">Edit amounts →</a>
       ${ingEditMode?'<br><span style="color:var(--primary)">◑ marks an ingredient optional · the eye hides it from the list &amp; shopping.</span>':''}
     </p>
@@ -2965,21 +2983,23 @@ function openRecipe(name,pc){
       </li>`;
     }).join('');})()}
     ${(()=>{
-      const cup=(qtyRowsFor(name)||[]).filter(a=>a.c);
+      // Cupboard staples sit in the one ingredient list with everything else. Water and oil
+      // are flagged as pan measures so it's clear why they're not on the shopping list.
+      const cup=cupboardRows(name);
       if(!cup.length)return '';
       const userMapC=userAmountMap(name,pcEff);
-      return `<li style="border:none;padding-top:14px"><span style="font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px">From your cupboard</span></li>`+
-        cup.map(a=>{
-          const u=userMapC[baseIngredient(a.n)];
-          let base=u!=null?u:(a.q[pcEff-1]!=null?qtyString(a,pcEff):null);
-          if(bulk&&base!=null)base=bulkOut(base);
-          const disp=base!=null?ingDisplay(renameIngredient(base)):renameIngredient(a.n)+' —';
-          // Only show the split when we didn't override the row ourselves — a user-entered
-          // amount is whatever they meant it to be, not a sum we're entitled to break up.
-          let split=u==null?cupSplit(name,a,pcEff):null;
-          if(split&&bulk)split=split.map(p=>scaleQty(p,bulk.factor)||p);
-          return `<li><span>${esc(disp)}${split?` <span style="font-size:.76rem;color:var(--muted)">— total, split ${esc(split.join(' + '))} across the method</span>`:''}</span></li>`;
-        }).join('');
+      return cup.map(a=>{
+        const u=userMapC[baseIngredient(a.n)];
+        let base=u!=null?u:(a.q[pcEff-1]!=null?qtyString(a,pcEff):null);
+        if(bulk&&base!=null)base=bulkOut(base);
+        const disp=base!=null?ingDisplay(renameIngredient(base)):renameIngredient(a.n)+' —';
+        // Only show the split when we didn't override the row ourselves — a user-entered
+        // amount is whatever they meant it to be, not a sum we're entitled to break up.
+        let split=u==null?cupSplit(name,a,pcEff):null;
+        if(split&&bulk)split=split.map(p=>scaleQty(p,bulk.factor)||p);
+        const noShop=!isShoppableCup(a);
+        return `<li><span>${esc(disp)}${noShop?' <span style="font-size:.72rem;color:var(--muted)">· from the tap/cupboard</span>':''}${split?` <span style="font-size:.76rem;color:var(--muted)">— total, split ${esc(split.join(' + '))} across the method</span>`:''}</span></li>`;
+      }).join('');
     })()}
     ${((recipeRemoved[name]||[]).length&&ingEditMode)?(recipeRemoved[name]||[]).map(h=>
       `<li style="opacity:.6">
@@ -3052,7 +3072,6 @@ function openRecipe(name,pc){
         </p>`:(pcEff===1&&hasFallback?`<p style="font-size:.78rem;color:var(--muted);margin-bottom:10px">Anything still marked (for 2) is a pan measure Gousto doesn’t publish a 1-person figure for${miss1.cupboard?` (${miss1.cupboard} here)`:''}. <a onclick="openManagerFor('${escQ(name)}')" style="cursor:pointer;color:var(--primary)">Set your own →</a></p>`:'')}
         <ol class="method">${stepsHtml}</ol>
         ${m.g?`<a href="https://www.gousto.co.uk/cookbook/recipes/${esc(m.g)}" target="_blank" rel="noopener" style="font-size:.82rem;color:var(--primary)">View on Gousto ↗</a>`:''}
-        <button class="btn btn-sm btn-outline" style="margin-top:10px" onclick="openRecipeEdit('${escQ(name)}','method')">Edit method</button>
       </div>`:`<div class="section">
         <h3 style="margin-bottom:6px">Method</h3>
         <p style="font-size:.85rem;color:var(--muted);margin-bottom:10px">No method yet — type it in or scan the back of the card.</p>
@@ -3061,22 +3080,16 @@ function openRecipe(name,pc){
     })()}
     ${(()=>{
       const note=getNote(name);
-      return `<div class="section">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-          <h3 style="margin:0">My notes</h3>
-          <a onclick="openRecipeEdit('${escQ(name)}','notes')" style="cursor:pointer;color:var(--primary);font-size:.82rem;margin-left:auto">${note?'Edit':'Add a note'}</a>
-        </div>
-        ${note
-          ?`<div style="background:var(--cream);border-radius:10px;padding:10px 12px;font-size:.9rem;white-space:pre-wrap">${esc(note)}</div>`
-          :'<p style="font-size:.85rem;color:var(--muted)">Nothing yet — swaps, timings, what went wrong last time.</p>'}
-      </div>`;
+      // Read-only here — Edit recipe at the foot of the page is the one way in
+      return note?`<div class="section">
+        <h3 style="margin:0 0 8px">My notes</h3>
+        <div style="background:var(--cream);border-radius:10px;padding:10px 12px;font-size:.9rem;white-space:pre-wrap">${esc(note)}</div>
+      </div>`:'';
     })()}
-    <div class="section" style="display:flex;gap:10px;flex-wrap:wrap">
-      <button class="btn ${inPlan?'btn-red':'btn-green'}" style="padding:12px 20px" onclick="togglePlanRecipe('${escQ(name)}');openRecipe('${escQ(name)}')">${inPlan?'Remove from plan':'+ Add to plan'}</button>
-      <span class="btn btn-outline" style="padding:8px 16px;display:inline-flex;align-items:center;gap:8px;cursor:default">
-        <span style="font-size:.82rem;color:var(--muted)">My rating</span>${ratingStars(name,1.25)}</span>
-      ${isCustomRecipe(name)?`<button class="btn btn-outline" style="padding:12px 20px;color:var(--red);border-color:var(--red)" onclick="deleteCustomRecipe('${escQ(name)}',()=>{exitRecipePage();initFiling();})">Delete recipe</button>`:''}
+    <div class="section" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <button class="btn btn-primary" style="padding:12px 20px" onclick="openRecipeEdit('${escQ(name)}')">✎ Edit recipe</button>
       <button class="btn btn-outline" style="padding:12px 20px" onclick="openCostModal('recipe','${escQ(name)}')">💷 ${recipeCosts[name]!=null?fmtGBP(recipeCosts[name])+' · '+ (goustoOneOff()-recipeCosts[name]>=0?'save ':'+') +fmtGBP(Math.abs(goustoOneOff()-recipeCosts[name])):'Add cost'}</button>
+      ${isCustomRecipe(name)?`<button class="btn btn-outline" style="padding:12px 20px;color:var(--red);border-color:var(--red);margin-left:auto" onclick="deleteCustomRecipe('${escQ(name)}',()=>{exitRecipePage();initFiling();})">Delete recipe</button>`:''}
     </div>`;
   const already=document.getElementById('page-recipe').classList.contains('active');
   if(!already){
@@ -3279,8 +3292,6 @@ function renderRecipeEdit(){
         <div style="min-width:110px"><label style="margin-bottom:6px">Calories</label>
           <input type="number" min="0" id="reCal" value="${r.k||''}"></div>
       </div>
-      <label style="margin-bottom:6px">Note badge <span style="font-weight:400;color:var(--muted)">(the small pill on the card)</span></label>
-      <input type="text" id="reNoteBadge" value="${esc(r.o||'')}" placeholder="e.g. Needs marinating" style="margin-bottom:12px">
       <label style="margin-bottom:6px">Heat</label>
       <select id="reSpicy" style="margin-bottom:12px">
         <option value=""${spicyVal===''?' selected':''}>Automatic — ${spicyAuto?'spicy':'not spicy'}</option>
@@ -3302,7 +3313,10 @@ function renderRecipeEdit(){
       <h3 style="margin-bottom:4px">My notes</h3>
       <p style="font-size:.8rem;color:var(--muted);margin-bottom:10px">Shown on the recipe. Swaps, timings, what to do differently next time.</p>
       <textarea id="reNotes" rows="5" style="margin-bottom:10px;font-family:inherit" placeholder="Used chicken thighs instead — better. Needs 5 min longer in the oven.">${esc(getNote(name))}</textarea>
-      <button class="btn btn-green" onclick="saveRecipeNote()">Save note</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-green" onclick="saveRecipeNote()">Save note</button>
+        ${getNote(name)?`<button class="btn btn-outline" style="color:var(--red);border-color:var(--red)" onclick="deleteRecipeNote()">Delete note</button>`:''}
+      </div>
     </div>
 
     <div class="section" id="reSec-method">
@@ -3327,8 +3341,9 @@ function saveRecipeDetails(){
   setStr('c',v('reCountry'));
   setNum('m',v('reTime'));
   setNum('k',v('reCal'));
-  const badge=v('reNoteBadge');
-  if(badge!==String(raw.o||''))ov.o=badge;          // blank clears a badge the card came with
+  // The old "note badge" field is gone — notes live in one place now. Any badge a recipe
+  // already carries is preserved rather than being cleared by the missing input.
+  if(recipeOver[name]&&recipeOver[name].o!==undefined)ov.o=recipeOver[name].o;
   const f=document.getElementById('reFreeze').checked?1:0;
   const b=document.getElementById('reBulk').checked?1:0;
   if(f!==(raw.f?1:0))ov.f=f;
@@ -3351,6 +3366,14 @@ function saveRecipeNote(){
   const t=document.getElementById('reNotes').value.trim();
   if(t)recipeNotes[name]=t;else delete recipeNotes[name];
   saveNotes();toast(t?'Note saved':'Note cleared');
+}
+function deleteRecipeNote(){
+  const name=editRecipeName;if(!name)return;
+  askConfirm('This removes the note from this recipe.',()=>{
+    delete recipeNotes[name];saveNotes();
+    const el=document.getElementById('reNotes');if(el)el.value='';
+    renderRecipeEdit();toast('Note deleted');
+  },{title:'Delete note?',okLabel:'Delete'});
 }
 function saveRecipeMethod(){
   const name=editRecipeName;if(!name)return;
@@ -3794,6 +3817,16 @@ function aggregatePlanItems(items){
       if(!out[key]){out[key]={name:q.name||key,totalNum:q.num,unit:q.unit,count:1,raw:ing,recipes:[it.name]};}
       else{out[key].totalNum+=q.num;out[key].count++;if(!out[key].recipes.includes(it.name))out[key].recipes.push(it.name);}
     });
+    // Cupboard staples you'd have to buy if you were out — flour, sugar, milk, butter.
+    // Water and oil are pan measures and stay off the list.
+    cupboardRows(it.name).filter(isShoppableCup).forEach(row=>{
+      const s=cupAmountStr(it.name,row,it.portions);if(s==null)return;
+      const key=baseIngredient(row.n);
+      if((recipeRemoved[it.name]||[]).includes(row.n))return;
+      const q=parseQty(renameIngredient(s));
+      if(!out[key]){out[key]={name:q.name||key,totalNum:q.num,unit:q.unit,count:1,raw:row.n,recipes:[it.name]};}
+      else{out[key].totalNum+=q.num;out[key].count++;if(!out[key].recipes.includes(it.name))out[key].recipes.push(it.name);}
+    });
   });
   return out;
 }
@@ -3816,6 +3849,15 @@ function bulkIngString(name,ing,p){
   const ovr=recipeAmounts[name]&&recipeAmounts[name][p];
   if(ovr){const m=ovr.find(s=>baseIngredient(s)===baseIngredient(ing));if(m!=null)return String(m);}
   if(p>=1&&p<=4){const m=resolvedAmount(name,ing,p);if(m!=null)return m;}
+  // Past 4 portions there's no column on the card. Multiply up from the largest portion
+  // count we hold real amounts for that divides p — the same path the recipe page uses, so
+  // the shopping list and the card can't disagree. (scaleIngredient only ever matched
+  // g/ml/tsp/tbsp, so bare counts — chillies, onions, garlic cloves — never scaled at all.)
+  const b=bulkBase(name,p);
+  if(b){
+    const base=b.base===2?ing:resolvedAmount(name,ing,b.base);
+    if(base!=null){const s=scaleAmountStr(base,b.factor);if(s!=null)return s;}
+  }
   return scaleIngredient(ing,p/2);
 }
 function dominantProtein(r){
@@ -5601,7 +5643,7 @@ function renderCookSheet(){
   const led=planLedger(p);
   const rows=mealIngredients(m.it);
   document.getElementById('cookSheetBody').innerHTML=`
-    <h2 style="font-size:1.15rem;margin-bottom:2px">${recipeLink(m.it.name,esc(m.it.name),'color:var(--primary)')}</h2>
+    <h2 style="font-size:1.15rem;margin-bottom:2px">${recipeLink(m.it.name)}</h2>
     <div style="font-size:.82rem;color:var(--muted);margin-bottom:14px">
       ${m.it.mode==='bulk'?`Bulk ×${m.it.portions}`:`${m.it.portions} portion${m.it.portions==1?'':'s'}`}
       ${done?' · <strong style="color:var(--green)">Cooked</strong>':''}
@@ -5752,7 +5794,7 @@ function shopTableHTML(items,bulkMap){
       const haveAmt=have&&pantryAmounts[base]?` <span style="color:var(--green)">✓ have ${esc(pantryAmounts[base])}</span>`:'';
       const note=(bq?'(incl. '+bq+' bulk)':'')+haveAmt;
       const recs=it.recipes||[];
-      const detail=recs.length?`<tr class="ing-detail" style="display:none"><td colspan="4" style="font-size:.8rem;color:var(--muted);padding-left:34px">For: ${recs.map(n=>`<a onclick="openRecipeFromShop('${escQ(n)}')" style="color:var(--primary);cursor:pointer">${esc(n)}</a>`).join(', ')}</td></tr>`:'';
+      const detail=recs.length?`<tr class="ing-detail" style="display:none"><td colspan="4" style="font-size:.8rem;color:var(--muted);padding-left:34px">For: ${recs.map(n=>`<a class="recipe-link" onclick="openRecipeFromShop('${escQ(n)}')">${esc(n)}</a>`).join(', ')}</td></tr>`:'';
       return `<tr${have?' class="pantry"':''}><td style="width:26px"><input type="checkbox" ${have?'checked':''} title="I have this" onchange="togglePantryFromShop('${escQ(base)}')" style="accent-color:var(--teal)"></td><td><span onclick="toggleIngRow(this)" style="cursor:pointer">${esc(name)} <span style="color:var(--muted);font-size:.7rem">▾</span></span></td><td class="qty"><strong>${q}</strong></td><td class="bulk-note">${note}</td></tr>${detail}`;
     }).join('');
   }).join('');
@@ -5831,7 +5873,7 @@ function renderPlanDetail(){
       <button class="icon-btn${p.fav?' on':''}" onclick="togglePlanFav(${planDetailIdx})" aria-label="Favourite">${p.fav?'★':'☆'}</button>
     </div>
     <div style="font-size:.82rem;color:var(--muted);margin-bottom:12px">${(p.items||[]).length} meals · ${TYPE_LABEL[planType(p)]} · Saved ${esc(p.date||'')}</div>
-    <div style="margin-bottom:14px">${(p.items||[]).map(it=>`<div style="display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)"><span onclick="openRecipeFromPlan(${planDetailIdx},'${escQ(it.name)}')" style="cursor:pointer;color:var(--primary)">${esc(it.name)}</span><span style="color:var(--muted);font-size:.82rem;white-space:nowrap">${it.mode==='bulk'?'bulk ×'+it.portions:it.portions+' portion'+(it.portions==1?'':'s')}</span></div>`).join('')}</div>
+    <div style="margin-bottom:14px">${(p.items||[]).map(it=>`<div style="display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)"><span class="recipe-link" onclick="openRecipeFromPlan(${planDetailIdx},'${escQ(it.name)}')">${esc(it.name)}</span><span style="color:var(--muted);font-size:.82rem;white-space:nowrap">${it.mode==='bulk'?'bulk ×'+it.portions:it.portions+' portion'+(it.portions==1?'':'s')}</span></div>`).join('')}</div>
     <div class="card" style="background:var(--bg2);margin-bottom:14px;display:flex;gap:18px;flex-wrap:wrap;font-size:.9rem;align-items:center">
       <div>Gousto equivalent<br><strong>${fmtGBP(gCost)}</strong></div>
       <div>You save<br>${saved!=null?`<span style="color:${saved>=0?'var(--green)':'var(--red)'};font-weight:800">${fmtGBP(saved)}</span>`:'<span style="color:var(--muted)">not logged</span>'}</div>
