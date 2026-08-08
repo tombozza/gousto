@@ -1768,39 +1768,60 @@ function resolveUnit(base,fallback){const m=ingredientMeta[base];return (m&&m.un
 // teaspoon convention the app already applies to pastes and squeezables (see HOME_CONV), so
 // it's a convention rather than a measurement — which is why it only ever runs when you've
 // explicitly asked for that unit in Admin → Ingredient Check.
+// Weight per teaspoon. Only ever used to cross between spoons and weight, which is the one
+// conversion that genuinely depends on the ingredient — 5g/tsp is about right for a paste
+// and wrong for oil or honey, so it's overridable per ingredient.
 const G_PER_TSP=5;
-function convertAmt(n,from,to){
+function gramsPerTsp(base){
+  const m=ingredientMeta[base];
+  const v=m&&parseFloat(m.gPerTsp);
+  return v>0?v:G_PER_TSP;
+}
+function convertAmt(n,from,to,gPerTsp){
   from=(from||'').toLowerCase().replace(/s$/,'');to=(to||'').toLowerCase().replace(/s$/,'');
   if(!from||!to||from===to)return from===to?n:null;
+  const perTsp=gPerTsp>0?gPerTsp:G_PER_TSP;
   const toBase={g:[1,'g'],kg:[1000,'g'],ml:[1,'ml'],l:[1000,'ml'],tsp:[1,'tsp'],tbsp:[3,'tsp']};
   const a=toBase[from],b=toBase[to];
   if(!a||!b)return null;
   let v=n*a[0],fam=a[1];
   if(fam!==b[1]){
-    // Cross-family: weight ↔ spoons by convention; ml and g are treated 1:1 for the
-    // liquids this applies to. Anything else we decline rather than invent.
-    if(fam==='tsp'&&(b[1]==='g'||b[1]==='ml'))v=v*G_PER_TSP;
-    else if((fam==='g'||fam==='ml')&&b[1]==='tsp')v=v/G_PER_TSP;
+    // Cross-family: weight ↔ spoons by the ingredient's own density; ml and g are treated
+    // 1:1 for the liquids this applies to. Anything else we decline rather than invent.
+    if(fam==='tsp'&&(b[1]==='g'||b[1]==='ml'))v=v*perTsp;
+    else if((fam==='g'||fam==='ml')&&b[1]==='tsp')v=v/perTsp;
     else if((fam==='g'&&b[1]==='ml')||(fam==='ml'&&b[1]==='g')){/* 1:1 */}
     else return null;
   }
   return round2(v/b[0]);
 }
-// Rewrite a formatted "Name 15ml" into the unit you've asked for that ingredient
-// Deliberately NOT resolveUnit(): the pantry's `unit` is auto-populated for every
-// ingredient and was never a choice about how recipes should read. Only a unit picked in
-// Admin → Ingredient Check (`dispUnit`) rewrites what a recipe shows.
-function displayUnitPref(base){const m=ingredientMeta[base];return (m&&m.dispUnit)||'';}
-function applyUnitPref(s){
+// Two preferences, because they answer different questions: ginger paste is BOUGHT in grams
+// and MEASURED in spoons. `shopUnit` drives the shopping list, `methodUnit` the recipe's own
+// ingredient list and any amount the app writes into the method.
+// Deliberately NOT resolveUnit(): the pantry's `unit` is auto-populated for every ingredient
+// and was never a choice about how recipes should read.
+function unitPrefFor(base,which){
+  const m=ingredientMeta[base];if(!m)return '';
+  if(which==='method')return m.methodUnit||'';
+  return m.shopUnit||m.dispUnit||'';       // dispUnit was the single-preference version
+}
+function applyUnitPref(s,which){
   const str=String(s);
   const label=ingLabel(str);
-  const want=displayUnitPref(baseIngredient(str));
+  const base=baseIngredient(str);
+  const want=unitPrefFor(base,which||'shop');
   if(!want||want==='count')return str;
   const have=amtUnit(str);const n=amtNumber(str);
   if(!have||n==null||have===want)return str;
-  const v=convertAmt(n,have,want);
+  const v=convertAmt(n,have,want,gramsPerTsp(base));
   if(v==null)return str;
   return label+' '+fmtQty2(v,want);
+}
+// True when a preference would need the grams-per-spoon figure to be honest about it
+function crossesSpoonWeight(from,to){
+  const fam=u=>{u=(u||'').toLowerCase().replace(/s$/,'');return (u==='tsp'||u==='tbsp')?'spoon':((u==='g'||u==='kg'||u==='ml'||u==='l')?'weight':'')};
+  const a=fam(from),b=fam(to);
+  return !!a&&!!b&&a!==b;
 }
 const UNIT_TYPES=['g','ml','kg','l','tsp','tbsp','cube','pack','count'];
 // ---- "Appears in the method as" ----
@@ -2033,11 +2054,13 @@ const MARKETING_WORDS=/\b(gluten[\s-]?free|dairy[\s-]?free|free[\s-]range|britis
 function displayIngName(s){
   return capFirst(String(s).replace(MARKETING_WORDS,'').replace(/\s+/g,' ').trim());
 }
-function ingDisplay(s){
+// `which` picks the preference: the recipe card is where you cook from, so it reads in
+// method units; the shopping list reads in the units you buy in.
+function ingDisplay(s,which){
   // Rename rules substitute lowercase words mid-string ("Italian hard cheese" → "parmesan"),
   // which left the list showing a lowercase ingredient. Normalise at the point of display
   // so it doesn't matter what any individual rule produced.
-  const pref=applyUnitPref(s);
+  const pref=applyUnitPref(s,which||'method');
   const raw=ingLabel(pref);const amt=String(pref).slice(raw.length).trim();
   const l=displayIngName(raw);
   return amt?l+' — '+amt:l;
@@ -4123,7 +4146,7 @@ function aggregatePlanItems(items){
     r.i.forEach(ing=>{
       if((recipeRemoved[it.name]||[]).includes(ing))return;
       const key=baseIngredient(ing);
-      const q=parseQty(applyUnitPref(renameIngredient(bulkIngString(it.name,ing,it.portions))));
+      const q=parseQty(applyUnitPref(renameIngredient(bulkIngString(it.name,ing,it.portions)),'shop'));
       if(!out[key]){out[key]={name:q.name||key,totalNum:q.num,unit:q.unit,count:1,raw:ing,recipes:[it.name]};}
       else{out[key].totalNum+=q.num;out[key].count++;if(!out[key].recipes.includes(it.name))out[key].recipes.push(it.name);}
     });
@@ -4133,7 +4156,7 @@ function aggregatePlanItems(items){
       const s=cupAmountStr(it.name,row,it.portions);if(s==null)return;
       const key=baseIngredient(row.n);
       if((recipeRemoved[it.name]||[]).includes(row.n))return;
-      const q=parseQty(applyUnitPref(renameIngredient(s)));
+      const q=parseQty(applyUnitPref(renameIngredient(s),'shop'));
       if(!out[key]){out[key]={name:q.name||key,totalNum:q.num,unit:q.unit,count:1,raw:row.n,recipes:[it.name]};}
       else{out[key].totalNum+=q.num;out[key].count++;if(!out[key].recipes.includes(it.name))out[key].recipes.push(it.name);}
     });
@@ -4861,6 +4884,30 @@ function openIngEditor(base){
     <select id="ingEditUnit" onchange="ingEditChanged()">
       ${UNIT_TYPES.map(u=>`<option value="${u}" ${u===resolveUnit(base,autoUnit)?'selected':''}>${esc(unitLabel(u))}</option>`).join('')}
     </select>
+    <label class="ing-lbl">Show amounts in</label>
+    <p style="font-size:.76rem;color:var(--muted);margin:-2px 0 6px">Buying and cooking ask different questions — a paste comes in grams but you measure it in spoons. Leave either on “as written” to keep Gousto’s.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <div style="flex:1;min-width:130px">
+        <label style="font-size:.75rem;color:var(--muted);margin-bottom:4px">On the shopping list</label>
+        <select id="ingEditShopUnit" onchange="ingEditChanged()">
+          <option value="">As written</option>
+          ${UNIT_TYPES.filter(u=>u!=='count'&&u!=='pack'&&u!=='cube').map(u=>`<option value="${u}" ${u===unitPrefFor(base,'shop')?'selected':''}>${esc(unitLabel(u))}</option>`).join('')}
+        </select>
+      </div>
+      <div style="flex:1;min-width:130px">
+        <label style="font-size:.75rem;color:var(--muted);margin-bottom:4px">When cooking</label>
+        <select id="ingEditMethodUnit" onchange="ingEditChanged()">
+          <option value="">As written</option>
+          ${UNIT_TYPES.filter(u=>u!=='count'&&u!=='pack'&&u!=='cube').map(u=>`<option value="${u}" ${u===unitPrefFor(base,'method')?'selected':''}>${esc(unitLabel(u))}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div id="ingEditDensityWrap" style="display:none;margin-top:8px">
+      <label style="font-size:.75rem;color:var(--muted);margin-bottom:4px">Grams per teaspoon</label>
+      <p style="font-size:.74rem;color:var(--muted);margin:0 0 4px">Going between spoons and weight needs this. 5g suits most pastes; oil is nearer 4.5g and honey 7g.</p>
+      <input type="number" id="ingEditGPerTsp" min="0.5" step="0.5" style="max-width:110px"
+        value="${esc(String((ingredientMeta[base]&&ingredientMeta[base].gPerTsp)||''))}" placeholder="5" oninput="ingEditChanged()">
+    </div>
     <div class="ing-warn" id="ingEditWarn" style="display:none"></div>
     <div class="ing-actions">
       <button class="btn btn-green" id="ingEditSave" onclick="saveIngEditor()">Save</button>
@@ -4913,6 +4960,16 @@ function ingEditChanged(){
   const btn=document.getElementById('ingEditSave');
   btn.textContent=target?'Merge & save':'Save';
   btn.className='btn '+(target?'btn-red':'btn-green');
+  // The grams-per-spoon figure only matters if a preference actually crosses that boundary
+  const wrap=document.getElementById('ingEditDensityWrap');
+  if(wrap){
+    // resolveUnit, not allBaseIngredients() — this runs on every keystroke in the name field
+    const written=resolveUnit(base,'');
+    const shopU=(document.getElementById('ingEditShopUnit')||{}).value||'';
+    const methU=(document.getElementById('ingEditMethodUnit')||{}).value||'';
+    const needed=[shopU,methU].some(u=>u&&crossesSpoonWeight(written,u));
+    wrap.style.display=needed?'':'none';
+  }
 }
 // Renaming onto an ingredient that already exists genuinely combines the two: every card
 // wording of the old one is pointed at the target, so it stops being a separate ingredient.
@@ -4953,6 +5010,13 @@ function saveIngEditor(){
   if(!cat||cat===categorize(base))delete ingredientMeta[base].cat;else ingredientMeta[base].cat=cat;
   if(!sub||sub===subCategorize(cat,base))delete ingredientMeta[base].sub;else ingredientMeta[base].sub=sub;
   if(!unit)delete ingredientMeta[base].unit;else ingredientMeta[base].unit=unit;
+  const shopU=(document.getElementById('ingEditShopUnit')||{}).value||'';
+  const methU=(document.getElementById('ingEditMethodUnit')||{}).value||'';
+  const gpt=parseFloat((document.getElementById('ingEditGPerTsp')||{}).value);
+  delete ingredientMeta[base].dispUnit;                 // superseded by the pair below
+  if(!shopU)delete ingredientMeta[base].shopUnit;else ingredientMeta[base].shopUnit=shopU;
+  if(!methU)delete ingredientMeta[base].methodUnit;else ingredientMeta[base].methodUnit=methU;
+  if(!(gpt>0)||gpt===G_PER_TSP)delete ingredientMeta[base].gPerTsp;else ingredientMeta[base].gPerTsp=gpt;
   cleanupIngMeta(base);saveIngredientMeta();
   if(!ingredientReviewed.includes(base)){ingredientReviewed.push(base);saveIngredientReviewed();}
   closeIngEditor();renderMappings();renderPantry();toast('Saved');
@@ -7374,14 +7438,19 @@ function renderIngCheck(){
     <h3 style="margin:0 0 2px;font-size:1rem">${title} <span style="color:var(--muted);font-weight:400">(${rows.length})</span></h3>
     <p style="font-size:.78rem;color:var(--muted);margin-bottom:10px">${note}</p>${rows.join('')}</div>`:'';
   const unitRows=rep.mixedUnits.map(m=>{
-    const cur=displayUnitPref(m.base);
-    return `<div class="led-row" style="align-items:center">
+    const pick=(which,label)=>{
+      const cur=unitPrefFor(m.base,which);
+      return `<label style="font-size:.7rem;color:var(--muted);display:block">${label}
+        <select onchange="setIngCheckUnit('${escQ(m.base)}','${which}',this.value)" style="max-width:110px;margin:2px 0 0;font-size:.8rem;padding:5px">
+          <option value=""${cur?'':' selected'}>As written</option>
+          ${m.units.map(u=>`<option value="${esc(u.unit)}"${cur===u.unit?' selected':''}>${esc(u.unit)}</option>`).join('')}
+        </select></label>`;
+    };
+    return `<div class="led-row" style="align-items:flex-start">
       <span class="led-name">${esc(capFirst(m.base))}
-        <span style="display:block;font-size:.74rem;color:var(--muted);font-weight:400">${m.units.map(u=>`${u.count}× ${esc(u.unit)}`).join(' · ')}</span></span>
-      <select onchange="setIngCheckUnit('${escQ(m.base)}',this.value)" style="max-width:120px;margin:0;font-size:.8rem;padding:6px">
-        <option value=""${cur?'':' selected'}>As written</option>
-        ${m.units.map(u=>`<option value="${esc(u.unit)}"${cur===u.unit?' selected':''}>Prefer ${esc(u.unit)}</option>`).join('')}
-      </select>
+        <span style="display:block;font-size:.74rem;color:var(--muted);font-weight:400">${m.units.map(u=>`${u.count}× ${esc(u.unit)}`).join(' · ')}</span>
+        <a onclick="openIngEditor('${escQ(m.base)}')" style="cursor:pointer;color:var(--primary);font-size:.74rem">Edit ingredient →</a></span>
+      <span style="display:flex;gap:8px">${pick('shop','Shopping')}${pick('method','Cooking')}</span>
     </div>`;
   });
   const nameRows=rep.mixedNames.map(m=>`<div class="led-row" style="align-items:center">
@@ -7398,11 +7467,13 @@ function renderIngCheck(){
     section('Lowercase names','These should start with a capital.',lowerRows)+
     (total?'':'<div class="empty-state"><p>Nothing to fix.</p></div>');
 }
-function setIngCheckUnit(base,unit){
+function setIngCheckUnit(base,which,unit){
   if(!ingredientMeta[base])ingredientMeta[base]={};
-  if(!unit)delete ingredientMeta[base].dispUnit;else ingredientMeta[base].dispUnit=unit;
+  const field=which==='method'?'methodUnit':'shopUnit';
+  delete ingredientMeta[base].dispUnit;                  // superseded by the pair
+  if(!unit)delete ingredientMeta[base][field];else ingredientMeta[base][field]=unit;
   cleanupIngMeta(base);saveIngredientMeta();renderIngCheck();
-  toast(unit?`${capFirst(base)} now shows in ${unit}`:'Left as written');
+  toast(unit?`${capFirst(base)}: ${which==='method'?'cooking':'shopping'} in ${unit}`:'Left as written');
 }
 // (The real openIngEditor lives with the pantry mappings — a stub here shadowed it and
 // broke editing an ingredient from anywhere in the app.)
