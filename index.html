@@ -3293,6 +3293,10 @@ function openRecipe(name,pc){
         </li>`});
       });
       const userMapC=userAmountMap(name,pcEff);
+      // Staples you'd have to buy (flour, sugar, milk, butter) belong in the list proper.
+      // Water and oil are pan measures you never shop for, so they sit on their own at the
+      // end rather than interleaving with things you actually need to have in.
+      const tap=[];
       cupboardRows(name).forEach(a=>{
         const u=userMapC[baseIngredient(a.n)];
         const amt=cupAmountStr(name,a,bulk?curBulkN:pcEff);
@@ -3301,14 +3305,16 @@ function openRecipe(name,pc){
         // amount is whatever they meant it to be, not a sum we're entitled to break up.
         let split=u==null?cupSplit(name,a,pcEff):null;
         if(split&&bulk)split=split.map(p=>scaleQty(p,bulk.factor)||p);
-        const noShop=!isShoppableCup(a);
         const inP=pantryItems.includes(baseIngredient(a.n));
-        rows.push({sort:disp.toLowerCase(),html:`<li><span>${esc(disp)}${
-          noShop?' <span style="font-size:.72rem;color:var(--muted)">· from the tap/cupboard</span>':''}${
+        const html=`<li><span>${esc(disp)}${
           inP?' <span style="color:var(--green);font-size:.78rem">✓ in pantry</span>':''}${
-          split?` <span style="font-size:.76rem;color:var(--muted)">total — ${esc(split.join(' + '))}</span>`:''}</span></li>`});
+          split?` <span style="font-size:.76rem;color:var(--muted)">total — ${esc(split.join(' + '))}</span>`:''}</span></li>`;
+        (isShoppableCup(a)?rows:tap).push({sort:disp.toLowerCase(),html});
       });
-      return rows.sort((a,b)=>a.sort.localeCompare(b.sort)).map(x=>x.html).join('');
+      const byName=(a,b)=>a.sort.localeCompare(b.sort);
+      return rows.sort(byName).map(x=>x.html).join('')
+        +(tap.length?`<li style="border:none;padding-top:14px"><span style="font-size:.74rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px">From the tap &amp; cupboard</span></li>`
+          +tap.sort(byName).map(x=>x.html).join(''):'');
     })()}
     ${((recipeRemoved[name]||[]).length&&ingEditMode)?(recipeRemoved[name]||[]).map(h=>
       `<li style="opacity:.6">
