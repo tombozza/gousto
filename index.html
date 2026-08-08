@@ -3267,44 +3267,48 @@ function openRecipe(name,pc){
       ${ingEditMode?'<br><span style="color:var(--primary)">◑ marks an ingredient optional · the eye hides it from the list &amp; shopping.</span>':''}
     </p>
     <ul class="ingredients">${(()=>{
-      return r.i.map(i=>{
-      const base=baseIngredient(i);
-      const inP=pantryItems.includes(base);
-      const isOpt=(recipeOptional[name]||[]).includes(i);
-      const isRem=(recipeRemoved[name]||[]).includes(i);
-      if(isRem)return '';
-      // In bulk, go through the same function the shopping list uses so your own batch
-      // figures from the Recipe Manager show here too — the card used to scale from the
-      // 2-portion amount itself and silently ignore them.
-      let resolved=bulk?bulkIngString(name,i,curBulkN):resolvedAmount(name,i,pcEff);
-      if(resolved==null&&pcEff===2)resolved=i;
-      let disp=resolved!=null?ingDisplay(renameIngredient(resolved)):ingLabel(renameIngredient(i))+' —';
-      disp=applyCardName(i,disp);
-      return `<li style="${isOpt?'opacity:.55;font-style:italic':''}">
-        ${ingEditMode?`<span class="ing-edit-cell">
-          <button class="ing-edit-btn ${isOpt?'on':''}" title="${isOpt?'Make required':'Mark optional'}" onclick="toggleIngOptional('${escQ(name)}','${escQ(i)}')">◑</button>
-          <button class="ing-edit-btn" title="Hide from ingredients &amp; shopping list" onclick="removeIngredient('${escQ(name)}','${escQ(i)}')">🙈</button>
-        </span>`:''}
-        <span>${esc(disp)}${isOpt?' <span style="font-size:.75rem;color:var(--muted)">(optional)</span>':''}${inP?' <span style="color:var(--green);font-size:.78rem">✓ in pantry</span>':''}</span>
-      </li>`;
-    }).join('');})()}
-    ${(()=>{
-      // Cupboard staples sit in the one ingredient list with everything else. Water and oil
-      // are flagged as pan measures so it's clear why they're not on the shopping list.
-      const cup=cupboardRows(name);
-      if(!cup.length)return '';
+      // Card ingredients and cupboard staples are one list, sorted by the name you actually
+      // see. The old order was alphabetical by Gousto's raw wording, so any rename
+      // ("Italian hard cheese" → "Parmesan") landed in the wrong place, and the cupboard
+      // rows were tacked on the end as a separate group.
+      const rows=[];
+      r.i.forEach(i=>{
+        if((recipeRemoved[name]||[]).includes(i))return;
+        const base=baseIngredient(i);
+        const inP=pantryItems.includes(base);
+        const isOpt=(recipeOptional[name]||[]).includes(i);
+        // In bulk, go through the same function the shopping list uses so your own batch
+        // figures from the Recipe Manager show here too — the card used to scale from the
+        // 2-portion amount itself and silently ignore them.
+        let resolved=bulk?bulkIngString(name,i,curBulkN):resolvedAmount(name,i,pcEff);
+        if(resolved==null&&pcEff===2)resolved=i;
+        let disp=resolved!=null?ingDisplay(renameIngredient(resolved)):displayIngName(ingLabel(renameIngredient(i)))+' —';
+        disp=applyCardName(i,disp);
+        rows.push({sort:disp.toLowerCase(),html:`<li style="${isOpt?'opacity:.55;font-style:italic':''}">
+          ${ingEditMode?`<span class="ing-edit-cell">
+            <button class="ing-edit-btn ${isOpt?'on':''}" title="${isOpt?'Make required':'Mark optional'}" onclick="toggleIngOptional('${escQ(name)}','${escQ(i)}')">◑</button>
+            <button class="ing-edit-btn" title="Hide from ingredients &amp; shopping list" onclick="removeIngredient('${escQ(name)}','${escQ(i)}')">🙈</button>
+          </span>`:''}
+          <span>${esc(disp)}${isOpt?' <span style="font-size:.75rem;color:var(--muted)">(optional)</span>':''}${inP?' <span style="color:var(--green);font-size:.78rem">✓ in pantry</span>':''}</span>
+        </li>`});
+      });
       const userMapC=userAmountMap(name,pcEff);
-      return cup.map(a=>{
+      cupboardRows(name).forEach(a=>{
         const u=userMapC[baseIngredient(a.n)];
-        const base=cupAmountStr(name,a,bulk?curBulkN:pcEff);
-        const disp=base!=null?ingDisplay(renameIngredient(base)):renameIngredient(a.n)+' —';
+        const amt=cupAmountStr(name,a,bulk?curBulkN:pcEff);
+        const disp=amt!=null?ingDisplay(renameIngredient(amt)):displayIngName(renameIngredient(a.n))+' —';
         // Only show the split when we didn't override the row ourselves — a user-entered
         // amount is whatever they meant it to be, not a sum we're entitled to break up.
         let split=u==null?cupSplit(name,a,pcEff):null;
         if(split&&bulk)split=split.map(p=>scaleQty(p,bulk.factor)||p);
         const noShop=!isShoppableCup(a);
-        return `<li><span>${esc(disp)}${noShop?' <span style="font-size:.72rem;color:var(--muted)">· from the tap/cupboard</span>':''}${split?` <span style="font-size:.76rem;color:var(--muted)">total — ${esc(split.join(' + '))}</span>`:''}</span></li>`;
-      }).join('');
+        const inP=pantryItems.includes(baseIngredient(a.n));
+        rows.push({sort:disp.toLowerCase(),html:`<li><span>${esc(disp)}${
+          noShop?' <span style="font-size:.72rem;color:var(--muted)">· from the tap/cupboard</span>':''}${
+          inP?' <span style="color:var(--green);font-size:.78rem">✓ in pantry</span>':''}${
+          split?` <span style="font-size:.76rem;color:var(--muted)">total — ${esc(split.join(' + '))}</span>`:''}</span></li>`});
+      });
+      return rows.sort((a,b)=>a.sort.localeCompare(b.sort)).map(x=>x.html).join('');
     })()}
     ${((recipeRemoved[name]||[]).length&&ingEditMode)?(recipeRemoved[name]||[]).map(h=>
       `<li style="opacity:.6">
