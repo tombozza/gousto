@@ -84,13 +84,26 @@ nav{background:var(--teal);position:sticky;top:0;z-index:100}
 .card-stars{display:block;margin:2px 0 6px}
 
 /* ---- Live cooking mode ---- */
+/* The live cook page runs edge to edge — it's a working screen you read at arm's length at
+   the hob, so rows and cards span the full width with no gutter round them. The text inside
+   still needs its own breathing room, hence --bleed being added back as padding: cancel the
+   container's gutter on the box, restore it on the content. */
+.live-page{--bleed:20px;margin:0 calc(-1 * var(--bleed))}
+@media(max-width:600px){.live-page{--bleed:16px}}
+.live-page>.page-back{margin-left:calc(var(--bleed) + 4px)}
+.live-page #liveTabs{margin:14px calc(var(--bleed) + 16px)}
+.live-page #liveHeader .card,.live-page #liveBody>.card{
+  border-radius:0;border-left:none;border-right:none;
+  padding-left:calc(var(--bleed) + 16px);padding-right:calc(var(--bleed) + 16px)}
 .live-badge{display:inline-flex;align-items:center;gap:6px;background:var(--green);color:#fff;font-size:.72rem;
   font-weight:800;letter-spacing:.4px;text-transform:uppercase;padding:3px 10px;border-radius:999px}
 .live-badge::before{content:"";width:7px;height:7px;border-radius:50%;background:#fff;animation:livePulse 1.8s infinite}
 @keyframes livePulse{0%,100%{opacity:1}50%{opacity:.25}}
-.live-meal{display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff;border:1px solid var(--border);
-  border-radius:12px;margin-bottom:10px;cursor:pointer;transition:.15s}
-.live-meal:hover{border-color:var(--primary);transform:translateY(-1px)}
+.live-meal{display:flex;align-items:center;gap:12px;background:#fff;
+  padding:16px calc(var(--bleed,20px) + 16px);
+  border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.live-meal:first-child{border-top:1px solid var(--border)}
+.live-meal:hover{background:var(--bg2)}
 .live-meal.done{opacity:.6;background:var(--bg2)}
 .live-meal.done .lm-name{text-decoration:line-through}
 .lm-name{font-weight:700;font-size:1rem;line-height:1.3}
@@ -1050,10 +1063,10 @@ textarea{resize:vertical;min-height:80px}
 </div>
 
 <!-- Live cooking: the plan you've committed to, with what's cooked and what's left of the shop -->
-<div id="page-live" class="page">
+<div id="page-live" class="page live-page">
   <button class="btn btn-outline page-back" onclick="exitLive()">← Back to plans</button>
   <div id="liveHeader"></div>
-  <div class="seg" id="liveTabs" style="margin:14px 0">
+  <div class="seg" id="liveTabs">
     <button class="seg-btn active" onclick="setLiveTab('meals',this)">Meals</button>
     <button class="seg-btn" onclick="setLiveTab('ingredients',this)">Ingredients</button>
   </div>
@@ -2318,7 +2331,42 @@ function renderTagFilters(){
     tags.map(t=>`<label class="toggle-chip tag-filter-chip"><input type="checkbox" value="${esc(t)}" ${active.includes(t)?'checked':''} onchange="renderBrowse()"><span>${esc(t)}</span></label>`).join('')+`</div>`;
 }
 
-function save(k,v){localStorage.setItem(k,JSON.stringify(v));stampKey(k);scheduleSync()}
+// Stores that are a plain {name: value} map. Deleting a key out of one of these has to
+// leave a gravestone, or the union in mergeMap simply hands it back on the next sync from
+// any device that still has it — which is why a deleted rating or note kept reappearing.
+const MAP_STORES=['gousto_ratings','gousto_yields','gousto_notes','gousto_methods','gousto_amounts',
+  'gousto_solo_steps','gousto_costs','gousto_tags','gousto_optional','gousto_removed',
+  'gousto_hidden_steps','gousto_recipe_over','gousto_ing_meta','gousto_card_names','gousto_pantry_amounts'];
+// Diffing at save time catches every call site — there are dozens of `delete store[name]`
+// scattered about, and instrumenting each one would be a standing invitation to miss one.
+// localStorage is the source of truth here, not the `tombstones` variable: save() runs
+// during module init, well before that `let` is initialised, so touching it directly would
+// throw on a temporal dead zone. The assignment below is guarded for the same reason.
+function recordMapDeletions(k,next){
+  if(!MAP_STORES.includes(k))return;
+  let prev={};try{prev=JSON.parse(localStorage.getItem(k)||'{}')}catch(_){return}
+  if(!prev||typeof prev!=='object'||Array.isArray(prev))return;
+  if(!next||typeof next!=='object'||Array.isArray(next))return;
+  let tomb={};try{tomb=JSON.parse(localStorage.getItem('gousto_tombstones')||'{}')||{}}catch(_){tomb={}}
+  let changed=false;
+  Object.keys(prev).forEach(id=>{
+    if(next[id]===undefined){
+      if(!tomb[k])tomb[k]={};
+      tomb[k][id]=Date.now();changed=true;
+    }
+  });
+  // Re-adding clears the gravestone so it isn't deleted again on the next sync
+  Object.keys(next).forEach(id=>{
+    if(prev[id]===undefined&&tomb[k]&&tomb[k][id]!==undefined){
+      delete tomb[k][id];changed=true;
+    }
+  });
+  if(changed){
+    localStorage.setItem('gousto_tombstones',JSON.stringify(tomb));
+    try{tombstones=tomb}catch(_){}   // ReferenceError while `tombstones` is still in TDZ
+  }
+}
+function save(k,v){recordMapDeletions(k,v);localStorage.setItem(k,JSON.stringify(v));stampKey(k);scheduleSync()}
 function saveFavs(){save('gousto_favs',favourites)}
 function getRating(name){return recipeRatings[name]||0}
 function saveRatings(){
@@ -4025,7 +4073,19 @@ function renameSavedPlan(idx){
   saveSavedPlans();renderSaved();if(planDetailIdx===idx)renderPlanDetail();
 }
 
+// Everything downstream of parseQty adds these numbers up, so kg and l are folded to g and
+// ml first. A bulk amount comes back promoted for readability ("1.6kg"), and summing that
+// straight into a 320g portion gave 321.6 — a shopping list asking for 321.6kg of chicken.
+// formatQty re-promotes for display, so nothing reads worse for it.
+function normQtyUnit(q){
+  if(q.unit==='kg'){return{num:q.num*1000,unit:'g',name:q.name}}
+  if(q.unit==='l'||q.unit==='L'){return{num:q.num*1000,unit:'ml',name:q.name}}
+  return q;
+}
 function parseQty(raw){
+  return normQtyUnit(parseQtyRaw(raw));
+}
+function parseQtyRaw(raw){
   // Extract number and unit from ingredient string e.g. "Garlic clove 2" -> {num:2, unit:'', name:'garlic clove'}
   // "Chicken breast strips 250g" -> {num:250, unit:'g', name:'chicken breast strips'}
   // "Tomato paste 2x16g" -> {num:32, unit:'g', name:'tomato paste'}
@@ -5753,18 +5813,26 @@ function mealIngredients(it){
 }
 // The stock ledger: what the shop bought, what cooked meals have taken out, what's left,
 // and which meals are still queued against each ingredient.
+// Cooking a batch to freeze rarely means cooking the whole recipe: you make the curry now
+// and the rice on the night you eat it. So a cooked meal only takes what you say it took —
+// anything left out stays in the shop and is still owed to the meals ahead of it.
+function mealSkipped(p,key){return (mealState(p,key).skipped)||[]}
 function planLedger(p){
   const out={};
   liveMeals(p).forEach(m=>{
-    const done=mealState(p,m.key).status==='done';
+    const st=mealState(p,m.key);
+    const done=st.status==='done';
+    const skipped=mealSkipped(p,m.key);
     mealIngredients(m.it).forEach(g=>{
       if(!out[g.key])out[g.key]={key:g.key,name:g.name,unit:g.unit,bought:0,extra:0,used:0,meals:[]};
       const e=out[g.key];
       if(!e.unit&&g.unit)e.unit=g.unit;
+      const left=skipped.includes(g.key);
       // Extras weren't in the shop, so they're demand without supply
       if(m.extra)e.extra+=g.num;else e.bought+=g.num;
-      if(done)e.used+=g.num;
-      e.meals.push({key:m.key,name:m.it.name,num:g.num,unit:g.unit,done,extra:m.extra});
+      if(done&&!left)e.used+=g.num;
+      e.meals.push({key:m.key,name:m.it.name,num:g.num,unit:g.unit,done:done&&!left,extra:m.extra,
+        pending:done&&left});   // cooked the meal, but this bit is still to do
     });
   });
   Object.values(out).forEach(e=>{
@@ -5896,18 +5964,27 @@ function renderCookSheet(){
       ${done?' · <strong style="color:var(--green)">Cooked</strong>':''}
       · <a onclick="openRecipe('${escQ(m.it.name)}')" style="cursor:pointer;color:var(--primary)">Open the recipe →</a>
     </div>
-    <h3 style="font-size:.95rem;margin-bottom:6px">This meal needs</h3>
+    <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:2px">
+      <h3 style="font-size:.95rem;margin:0">This meal needs</h3>
+      ${done?'':'<span style="font-size:.76rem;color:var(--muted);margin-left:auto">untick anything you’re not using yet</span>'}
+    </div>
+    <p style="font-size:.78rem;color:var(--muted);margin-bottom:8px">${done
+      ?'Unticked items weren’t used — they’re still in the shop.'
+      :'Cooking a batch to freeze? Leave the rice unticked and it stays in the shop for the night you eat it.'}</p>
     <div style="margin-bottom:14px">${rows.map(g=>{
       const e=led[g.key];
+      const skipped=mealSkipped(p,cookSheetKey).includes(g.key);
       // "Left" is what's in the shop now; for a meal not yet cooked, its own draw is still in it
       const left=e?round2(e.remaining):0;
       const after=done?left:round2(left-g.num);
-      const tight=!done&&after<-0.0001;
-      return `<div class="led-row" style="border-bottom:1px solid var(--border)">
-        <span class="led-name">${esc(capFirst(g.name))}</span>
+      const tight=!done&&after<-0.0001&&!skipped;
+      return `<div class="led-row" style="border-bottom:1px solid var(--border);${skipped?'opacity:.5':''}">
+        <input type="checkbox" class="cook-use" data-ing="${esc(g.key)}" ${skipped?'':'checked'} ${done?'disabled':''}
+          style="margin:0 4px 0 0;accent-color:var(--green);width:18px;height:18px;flex:none">
+        <span class="led-name"${skipped?' style="text-decoration:line-through"':''}>${esc(capFirst(g.name))}</span>
         <span class="led-left">${formatQty(round2(g.num),g.unit)||round2(g.num)}</span>
         <span style="font-size:.76rem;white-space:nowrap;color:${tight?'var(--red)':'var(--muted)'}">${
-          done?'used':`${formatQty(Math.max(0,after),g.unit)||Math.max(0,round2(after))} left after`}</span>
+          skipped?'not used yet':(done?'used':`${formatQty(Math.max(0,after),g.unit)||Math.max(0,round2(after))} left after`)}</span>
       </div>`;
     }).join('')}</div>
     ${(()=>{
@@ -5963,7 +6040,11 @@ function markCooked(key){
   const m=liveMeals(p).find(x=>x.key===key);if(!m)return;
   const el=document.getElementById('cookMadePortions');
   const made=el?parseInt(el.value)||m.it.portions:m.it.portions;
-  liveOf(p).meals[key]={status:'done',cookedAt:new Date().toLocaleDateString(),madePortions:made};
+  // Anything you unticked wasn't used — it stays in the shop and still counts against the
+  // meals ahead of it, so a curry frozen without its rice doesn't eat the rice.
+  const skipped=[...document.querySelectorAll('#cookSheetBody .cook-use')]
+    .filter(c=>!c.checked).map(c=>c.getAttribute('data-ing'));
+  liveOf(p).meals[key]={status:'done',cookedAt:new Date().toLocaleDateString(),madePortions:made,skipped};
   if(made!==m.it.portions)recordYield(m.it.name,m.it.portions,made);
   saveSavedPlans();closeCookSheet();renderLive();
   toast(made!==m.it.portions?`Cooked — noted it made ${made}, not ${m.it.portions}`:'Cooked');
@@ -7323,10 +7404,8 @@ function setIngCheckUnit(base,unit){
   cleanupIngMeta(base);saveIngredientMeta();renderIngCheck();
   toast(unit?`${capFirst(base)} now shows in ${unit}`:'Left as written');
 }
-function openIngEditor(base){
-  showAdminView('ingcheck');
-  toast('Set the name in Pantry → Ingredient names');
-}
+// (The real openIngEditor lives with the pantry mappings — a stub here shadowed it and
+// broke editing an ingredient from anywhere in the app.)
 
 // Batch sizes worth holding a figure for. Even numbers only — those are the ones that
 // divide by a portion count we actually have amounts for.
@@ -7878,6 +7957,16 @@ function mergeStates(remote,local,rmeta,lmeta){
     const m=Object.assign({},newerIsLocal(k)?r:l,newerIsLocal(k)?l:r);
     if(unionArrays)Object.keys(m).forEach(n=>{
       if(Array.isArray(r[n])&&Array.isArray(l[n]))m[n]=[...new Set([...r[n],...l[n]])];
+    });
+    // Honour deletions, exactly as mergeList does. Without this the union above simply
+    // hands back anything the other device still holds, so a deleted rating or note came
+    // straight back on the next sync and could never be got rid of.
+    const graves=Object.assign({},(tombs.remote||{})[k],(tombs.local||{})[k]);
+    Object.entries(graves).forEach(([id,when])=>{
+      if(m[id]===undefined)return;
+      const survivesRemote=r[id]!==undefined&&(rmeta[k]||0)>when;
+      const survivesLocal=l[id]!==undefined&&(lmeta[k]||0)>when;
+      if(!survivesRemote&&!survivesLocal)delete m[id];
     });
     out[k]=JSON.stringify(m);
   };
