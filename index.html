@@ -1184,24 +1184,35 @@ textarea{resize:vertical;min-height:80px}
         </div>
         <input type="hidden" id="planPortions" value="2">
       </div>
-      <div style="display:flex;flex-wrap:wrap;gap:16px;margin-bottom:14px">
-        <div style="flex:1;min-width:160px">
-          <label style="margin-bottom:6px">Protein</label>
-          <select id="planProtein">
-            <option value="vary">Vary proteins</option>
-            <option value="any">Any</option>
-            <option value="Chicken">Chicken only</option>
-            <option value="Pork">Pork only</option>
-            <option value="Beef">Beef only</option>
-            <option value="Lamb">Lamb only</option>
-            <option value="Seafood">Seafood only</option>
-            <option value="Vegetarian">Vegetarian only</option>
-          </select>
+      <div style="margin-bottom:14px">
+        <label style="margin-bottom:8px">Protein</label>
+        <div class="seg" id="mpProteinModeSeg" style="margin-bottom:10px">
+          <button class="seg-btn active" onclick="setMpProteinMode('meat',this)">Meat &amp; fish</button>
+          <button class="seg-btn" onclick="setMpProteinMode('veg',this)">Vegetarian</button>
         </div>
-        <div style="flex:1;min-width:160px">
-          <label style="margin-bottom:6px">Cuisine</label>
-          <select id="planCuisine"><option value="">Any</option></select>
+        <input type="hidden" id="mpProteinMode" value="meat">
+        <div id="mpMeatOpts">
+          <label style="margin-bottom:6px;font-size:.8rem;color:var(--muted)">How many different proteins across the plan</label>
+          <div class="chip-select" id="mpProteinCountChips" style="margin-bottom:10px">
+            <button class="chip" data-val="1">1</button>
+            <button class="chip active" data-val="2">2</button>
+            <button class="chip" data-val="3">3</button>
+            <button class="chip" data-val="4">4</button>
+            <button class="chip" data-val="5">5</button>
+          </div>
+          <input type="hidden" id="mpProteinCount" value="2">
+          <label style="margin-bottom:6px;font-size:.8rem;color:var(--muted)">Must include</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+            <select id="mpSlot1" style="flex:1;min-width:130px;margin:0"></select>
+            <select id="mpSlot2" style="flex:1;min-width:130px;margin:0"></select>
+          </div>
+          <label class="toggle-chip"><input type="checkbox" id="mpMatchCuts" checked><span>Match cuts — one cut per meat</span></label>
+          <p style="font-size:.76rem;color:var(--muted);margin:6px 0 0">So a chicken week is all thigh or all breast, not a bit of each. Turn off if you don't mind buying more than one.</p>
         </div>
+      </div>
+      <div style="margin-bottom:14px">
+        <label style="margin-bottom:6px">Cuisine</label>
+        <select id="planCuisine"><option value="">Any</option></select>
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:16px;margin-bottom:14px">
         <div style="flex:1;min-width:140px">
@@ -3205,15 +3216,41 @@ function renameIngredient(s){
   return s;
 }
 
+// Classify one ingredient (its base name) — only ever called on things that are actually
+// meat or fish, so "beef stock" and "fish sauce" never get a vote.
+function proteinOfBase(b){
+  b=String(b).toLowerCase();
+  if(/chicken|poultry|turkey/.test(b))return 'Chicken';
+  if(/pork|sausage|bacon|chorizo|lardon|prosciutto|nduja|\bham\b|pancetta|salami/.test(b))return 'Pork';
+  if(/beef|steak|brisket/.test(b))return 'Beef';
+  if(/lamb|mutton/.test(b))return 'Lamb';
+  if(/prawn|squid|mussel|scallop|crab|lobster|clam|shellfish|seafood/.test(b))return 'Seafood';
+  if(/mackerel|haddock|basa|pollock|salmon|\bcod\b|tuna|bass|trout|hake|\bfish\b/.test(b))return 'Fish';
+  return null;
+}
+// The ingredients that are the meat or fish of the dish, in card order
+function proteinIngredients(r){
+  return r.i.map(baseIngredient).filter(b=>PROTEIN_CATS.includes(resolveCategory(b))&&proteinOfBase(b));
+}
 function getProtein(r){
-  const s=(r.n+' '+r.i.join(' ')).toLowerCase();
-  if(/chicken|poultry/.test(s))return 'Chicken';
-  if(/pork|sausage|bacon|chorizo|lardons|prosciutto|nduja|pork belly/.test(s))return 'Pork';
-  if(/beef|steak/.test(s))return 'Beef';
-  if(/lamb/.test(s))return 'Lamb';
-  if(/prawn|fish|mackerel|haddock|basa|pollock/.test(s))return 'Seafood';
-  if(/paneer/.test(s))return 'Vegetarian';
-  return 'Other';
+  // The dish is named after its protein — "Spicy Lamb Stew" is lamb whatever's in the pot
+  const byName=proteinOfBase(r.n);
+  if(byName)return byName;
+  const ings=proteinIngredients(r);
+  if(ings.length)return proteinOfBase(ings[0]);
+  if(/paneer|halloumi|tofu/i.test(r.n+' '+r.i.join(' ')))return 'Vegetarian';
+  return isVeggieAuto(r)?'Vegetarian':'Other';
+}
+const MP_PROTEINS=['Chicken','Pork','Beef','Lamb','Fish','Seafood'];
+// The specific thing you'd buy — "chicken thigh" rather than "chicken" — so a plan can be
+// told to stick to one cut instead of sending you home with breast, thigh AND mince.
+function proteinCut(r){
+  const p=getProtein(r);
+  // The first meat ingredient OF THAT PROTEIN — a chicken dish with chorizo in it is still a
+  // chicken dish, and its cut is the chicken, not the chorizo
+  const ings=proteinIngredients(r);
+  const own=ings.find(b=>proteinOfBase(b)===p)||ings[0];
+  return cleanName(own||p).toLowerCase().replace(/\(\s*\)/g,'').trim();
 }
 
 function isPrep5(r){return (r.o||'').toLowerCase().includes('prepped in 5')}
@@ -3976,7 +4013,10 @@ function mpReadOpts(){
     wantFreeze:document.getElementById('cFreeze').checked,
     wantPrep5:document.getElementById('cPrep5').checked,
     wantQuick:document.getElementById('cQuick').checked,
-    protein:document.getElementById('planProtein').value,
+    proteinMode:document.getElementById('mpProteinMode').value,
+    proteinCount:parseInt(document.getElementById('mpProteinCount').value)||2,
+    slots:[document.getElementById('mpSlot1').value,document.getElementById('mpSlot2').value].filter(v=>v&&v!=='any'),
+    matchCuts:document.getElementById('mpMatchCuts').checked,
     varyRegion:document.getElementById('cVaryRegion').checked,
     favOnly:document.getElementById('cFavOnly').checked,
     matchBulk:document.getElementById('mpMatchBulk').checked,
@@ -3990,7 +4030,13 @@ function mpBuildPool(o,exclude){
   if(o.wantFreeze)pool=pool.filter(r=>r.f);
   if(o.wantPrep5)pool=pool.filter(r=>isPrep5(r));
   if(o.wantQuick)pool=pool.filter(r=>r.m<=25);
-  if(o.protein!=='vary'&&o.protein!=='any')pool=pool.filter(r=>getProtein(r)===o.protein);
+  if(o.proteinMode==='veg')pool=pool.filter(r=>isVeggieAuto(r));
+  else{
+    pool=pool.filter(r=>!isVeggieAuto(r)&&MP_PROTEINS.includes(getProtein(r)));
+    // Once the pinned slots use up the protein budget there's no room for anything else
+    const pinned=[...new Set(o.slots||[])];
+    if(pinned.length&&pinned.length>=o.proteinCount)pool=pool.filter(r=>pinned.includes(getProtein(r)));
+  }
   return pool;
 }
 // Core: choose an ingredient-tight set of `days` recipes; returns ordered recipe objects or null
@@ -4002,19 +4048,48 @@ function pickMealPlan(o){
   const pool=mpBuildPool(o,exclude);
   if(pool.length<o.days)return null;
   let best=null,bestScore=-Infinity;
-  for(let attempt=0;attempt<200;attempt++){
-    const shuffled=[...pool].sort(()=>Math.random()-.5);
+  // For cut-matching, a random draw across 13 pork cuts almost never lands on four dishes
+  // that share one. So each attempt first commits to a cut per protein (weighted by how many
+  // recipes use it) and draws from those; if that can't fill the week it falls back to the
+  // whole pool and lets the score sort it out.
+  // Protein and cut are fixed per recipe, so work them out once here rather than on every
+  // one of a few hundred attempts — that was the difference between 2s and instant.
+  const pInfo=new Map();pool.forEach(r=>pInfo.set(r.n,{p:getProtein(r),c:proteinCut(r)}));
+  const pOf=r=>pInfo.get(r.n).p,cOf=r=>pInfo.get(r.n).c;
+  const cutsByProtein={};
+  if(o.matchCuts&&o.proteinMode!=='veg')pool.forEach(r=>{const p=pOf(r),c=cOf(r);(cutsByProtein[p]=cutsByProtein[p]||{})[c]=(cutsByProtein[p][c]||0)+1});
+  const pickCut=p=>{const cs=cutsByProtein[p];if(!cs)return null;const total=Object.values(cs).reduce((a,b)=>a+b,0);let x=Math.random()*total;
+    for(const [c,n] of Object.entries(cs)){x-=n;if(x<=0)return c}return Object.keys(cs)[0]};
+  for(let attempt=0;attempt<250;attempt++){
+    let shuffled=[...pool].sort(()=>Math.random()-.5);
+    if(o.matchCuts&&o.proteinMode!=='veg'){
+      const chosen={};Object.keys(cutsByProtein).forEach(p=>{chosen[p]=pickCut(p)});
+      const narrowed=shuffled.filter(r=>cOf(r)===chosen[pOf(r)]);
+      if(narrowed.length>=o.days)shuffled=narrowed;
+    }
     const selected=[];const proteins=new Set();const regions={};
     for(let j=0;j<shuffled.length&&selected.length<o.days;j++){
       const c=shuffled[j];if(selected.find(s=>s.n===c.n))continue;
-      selected.push(c);proteins.add(getProtein(c));const rg=regionOf(c);regions[rg]=(regions[rg]||0)+1;
+      selected.push(c);proteins.add(pOf(c));const rg=regionOf(c);regions[rg]=(regions[rg]||0)+1;
     }
     if(selected.length<o.days)continue;
     const allIngs=new Set();selected.forEach(r=>r.i.forEach(i=>allIngs.add(baseIngredient(i))));
     let score=-allIngs.size;
     for(let d=1;d<selected.length;d++){const prev=new Set(selected[d-1].i.map(baseIngredient));selected[d].i.forEach(i=>{if(prev.has(baseIngredient(i)))score+=3});}
     if(existingIngs.size)selected.forEach(r=>{r.i.forEach(i=>{if(existingIngs.has(baseIngredient(i)))score+=4});});
-    if(o.protein==='vary')score+=proteins.size*5;
+    if(o.proteinMode!=='veg'){
+      const target=Math.min(o.proteinCount,o.days);
+      // Hit the number of different proteins you asked for, and make sure each pinned one shows
+      // up. These are instructions, not preferences, so they outweigh the ingredient-overlap
+      // score — which otherwise happily clusters five chicken dishes to save an onion.
+      score-=Math.abs(proteins.size-target)*40;
+      (o.slots||[]).forEach(p=>{if(!proteins.has(p))score-=40});
+      // Match cuts: within one protein, every extra cut is another thing to buy
+      if(o.matchCuts){
+        const cuts={};selected.forEach(r=>{const p=pOf(r);(cuts[p]=cuts[p]||new Set()).add(cOf(r))});
+        Object.values(cuts).forEach(set=>{score-=(set.size-1)*30});
+      }
+    }
     if(o.varyRegion){score+=Object.keys(regions).length*6;const maxOne=Math.max(...Object.values(regions));if(maxOne>Math.ceil(o.days/2))score-=(maxOne-Math.ceil(o.days/2))*8;}
     if(score>bestScore){bestScore=score;best=[...selected]}
   }
@@ -4084,6 +4159,7 @@ function renderPantryMeals(){
 // ===== MEAL PLAN BUILDER MODAL =====
 let mpDraft=[];
 function openMealPlan(){
+  populateMpSlots();
   const hasBulk=planItems.some(it=>it.mode==='bulk');
   document.getElementById('mpMatchBulkWrap').style.display=hasBulk?'inline-flex':'none';
   document.getElementById('mpRegenBtn').style.display='none';
@@ -4092,10 +4168,23 @@ function openMealPlan(){
   document.getElementById('mealPlanModal').classList.add('open');
 }
 function closeMealPlan(){document.getElementById('mealPlanModal').classList.remove('open');}
+function setMpProteinMode(mode,btn){
+  document.getElementById('mpProteinMode').value=mode;
+  if(btn){btn.parentElement.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+  document.getElementById('mpMeatOpts').style.display=mode==='veg'?'none':'';
+}
+function populateMpSlots(){
+  const opts='<option value="any">Any</option>'+MP_PROTEINS.map(p=>`<option value="${p}">${p}</option>`).join('');
+  ['mpSlot1','mpSlot2'].forEach(id=>{const el=document.getElementById(id);if(el&&!el.options.length)el.innerHTML=opts;});
+}
 function mpGenerate(){
   const o=mpReadOpts();
   const ordered=pickMealPlan(o);
-  if(!ordered){toast('Not enough recipes — loosen the filters');return}
+  if(!ordered){
+    const n=mpBuildPool(o,new Set(planItems.map(i=>i.name))).length;
+    toast(`Only ${n} recipe${n===1?'':'s'} fit${n===1?'s':''} these filters — you asked for ${o.days} meals`);
+    return;
+  }
   mpDraft=ordered.map(r=>({name:r.n,mode:'normal',portions:Math.max(1,Math.min(4,o.genPortions))}));
   document.getElementById('mpRegenBtn').style.display='';
   document.getElementById('mpFilters').open=false;
