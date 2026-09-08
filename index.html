@@ -4204,6 +4204,13 @@ function mpSwap(i){
   renderMpResult();
 }
 function mpRemove(i){mpDraft.splice(i,1);renderMpResult();}
+// Portions per meal, right on the preview — the shopping list underneath is built from
+// mpDraft, so it follows immediately
+function mpSetPortions(i,d){
+  const it=mpDraft[i];if(!it)return;
+  it.portions=Math.max(1,Math.min(4,(it.portions||2)+d));
+  renderMpResult();
+}
 function mpAddToPlan(){
   if(!mpDraft.length)return;
   planItems=planItems.concat(mpDraft.map(x=>({name:x.name,mode:'normal',portions:x.portions})));
@@ -4217,10 +4224,21 @@ function renderMpResult(){
   footer.style.display='flex';
   document.getElementById('mpAddLabel').textContent=`Add ${mpDraft.length} meal${mpDraft.length!==1?'s':''} to plan`;
   const all=getAllRecipes();
+  // Remember whether the shopping preview was open — changing a portion count re-renders
+  // this, and it shouldn't snap shut under you while you're watching the list change
+  const prevDetails=el.querySelector('details');
   const meals=mpDraft.map((it,i)=>{const r=all.find(x=>x.n===it.name);
     return `<div class="pg-row">
-      <div style="flex:1;min-width:150px"><div class="recipe-name" style="cursor:pointer;font-size:.92rem" onclick="openRecipe('${escQ(it.name)}')">${esc(it.name)}</div><div style="font-size:.75rem;color:var(--muted)">${r?esc(capWords(r.t))+' · '+esc(r.c):''}</div></div>
-      <div style="display:flex;gap:6px"><button class="btn btn-sm btn-outline" onclick="mpSwap(${i})">↻ Swap</button><button class="btn btn-sm btn-red" onclick="mpRemove(${i})">✕</button></div>
+      <div style="flex:1;min-width:150px"><div class="recipe-name" style="cursor:pointer;font-size:.92rem" onclick="openRecipe('${escQ(it.name)}')">${esc(it.name)}</div>
+        <div style="font-size:.75rem;color:var(--muted)">${r?esc(capWords(r.t))+' · '+esc(r.c)+' · <strong>'+r.m+' min</strong>':''}</div></div>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+        <div class="portion-toggle" title="Portions for this meal">
+          <button class="btn btn-sm btn-outline" onclick="mpSetPortions(${i},-1)">−</button>
+          <span class="portion-num">${it.portions}</span>
+          <button class="btn btn-sm btn-outline" onclick="mpSetPortions(${i},1)">+</button>
+        </div>
+        <button class="btn btn-sm btn-outline" onclick="mpSwap(${i})">↻ Swap</button><button class="btn btn-sm btn-red" onclick="mpRemove(${i})">✕</button>
+      </div>
     </div>`;}).join('');
   // Shopping preview: meal-plan items combined, with the bulk contribution broken out in brackets
   const mealSideItems=aggregatePlanItems(planItems.filter(x=>x.mode!=='bulk').concat(mpDraft));
@@ -4240,7 +4258,7 @@ function renderMpResult(){
   }).join('');
   const table=rows?`<table class="shop-table"><tbody>${rows}</tbody></table>`:'<p style="color:var(--muted)">No ingredients.</p>';
   el.innerHTML=`<div class="plan-group" style="margin-bottom:12px"><div class="pg-head"><h3>🍲 ${mpDraft.length} meals</h3></div>${meals}</div>
-    <details style="margin-bottom:6px"${shared?' open':''}><summary style="cursor:pointer;font-weight:700;font-size:.9rem">🛒 Shopping preview${shared?` · ${shared} shared item${shared!==1?'s':''}`:''}</summary><div style="margin-top:8px">${table}</div></details>`;
+    <details style="margin-bottom:6px"${(prevDetails?prevDetails.open:!!shared)?' open':''}><summary style="cursor:pointer;font-weight:700;font-size:.9rem">🛒 Shopping preview${shared?` · ${shared} shared item${shared!==1?'s':''}`:''}</summary><div style="margin-top:8px">${table}</div></details>`;
 }
 
 function renderPlanHistory(){/* plan history UI retired in the basket redesign */}
