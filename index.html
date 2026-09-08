@@ -2082,10 +2082,21 @@ function ingDisplay(s,which){
   return amt?l+' — '+amt:l;
 }
 // Find the API quantity row for a card ingredient (exact base match, then fuzzy singular/plural + containment)
+// Words too generic to identify an ingredient on their own — "sauce" must not marry
+// Worcestershire sauce to the soy sauce row.
+const QTY_MATCH_STOPWORDS=new Set(['sauce','paste','stock','powder','mix','cheese','cream','oil',
+  'dried','fresh','ground','chopped','sliced','flakes','seeds','leaves','leaf','pesto','mince','fillet','fillets']);
 function qtyRowFor(name,base){
   let rows=qtyRowsFor(name);if(!rows)return null;
   rows=rows.filter(a=>!a.c); // cupboard rows never correspond to card ingredients
   for(const a of rows)if(baseIngredient(a.n)===base)return a;
+  // A row that exactly matches a DIFFERENT ingredient on this card is spoken for — matching
+  // it here would give this ingredient the other one's name and amount.
+  const r=getAllRecipes().find(x=>x.n===name);
+  if(r){
+    const otherBases=new Set(r.i.map(baseIngredient).filter(b=>b!==base));
+    rows=rows.filter(a=>!otherBases.has(baseIngredient(a.n)));
+  }
   // Fuzzy fallback: fold accents/plurals/spaces, then containment, then a unique shared word
   const norm=s=>String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/ves\b/g,'f').replace(/s\b/g,'').replace(/[^a-z]/g,'');
   const words=s=>String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/ves\b/g,'f').replace(/s\b/g,'').split(/[^a-z]+/).filter(w=>w.length>=4);
@@ -2094,8 +2105,8 @@ function qtyRowFor(name,base){
     return na===nb||(nb.length>=5&&na.includes(nb))||(norm(a.n).length>=5&&nb.includes(norm(baseIngredient(a.n))));});
   if(cands.length===1)return cands[0];
   if(!cands.length){
-    const wb=words(base);
-    cands=rows.filter(a=>{const wa=words(a.n);return wa.some(w=>wb.includes(w));});
+    const wb=words(base).filter(w=>!QTY_MATCH_STOPWORDS.has(w));
+    cands=wb.length?rows.filter(a=>{const wa=words(a.n).filter(w=>!QTY_MATCH_STOPWORDS.has(w));return wa.some(w=>wb.includes(w));}):[];
     if(cands.length===1)return cands[0];
   }
   return null;
@@ -3122,8 +3133,12 @@ function baseIngredient(s){
     if(over)return over.toLowerCase().trim();
   }
   let r=s.toLowerCase()
-    .replace(/\d+(\.\d+)?\s*x\s*\d+(\.\d+)?\s*(g|kg|ml|l|tsp|tbsp|pkt)\b/g,'')
-    .replace(/\d+(\.\d+)?\s*(g|kg|ml|l|tsp|tbsp|pkt)\b/g,'')
+    // "cube", "pack" and "sachet" are measure words too. Without them "Chicken stock mix
+    // 1 cube" kept the trailing "cube", became "chicken stock cube CUBE" once the stock-mix
+    // rename ran, and sat on the shopping list as a second, identically-named line.
+    // Only ever stripped as <number> <unit>, so "Chicken stock cube 1" keeps its name.
+    .replace(/\d+(\.\d+)?\s*x\s*\d+(\.\d+)?\s*(g|kg|ml|l|tsp|tbsp|pkt|cubes?|packs?|sachets?)\b/g,'')
+    .replace(/\d+(\.\d+)?\s*(g|kg|ml|l|tsp|tbsp|pkt|cubes?|packs?|sachets?)\b/g,'')
     .replace(/\d+(\.\d+)?/g,'')
     .replace(/[()]/g,'')
     .replace(/\bintense\b/g,'')
@@ -3186,6 +3201,11 @@ function normalizeIngredient(s){
 }
 
 function cleanName(s){
+  // For the handful of wordings where the qualifier IS the product (DISTINCT_FORMS — cooked
+  // rice, toasted sesame oil), stripping it here printed two separate ingredients as one
+  // identical shopping line. Those keep their full name.
+  const t=String(s).toLowerCase().replace(/\s+/g,' ').trim();
+  if(typeof DISTINCT_FORMS!=='undefined'&&DISTINCT_FORMS.some(([,id])=>id===t))return String(s).replace(/\s+/g,' ').trim();
   // Keep product-identifying words (diced/strips/mince) so "Beef strips" stays meaningful; drop pure prep words.
   return String(s)
     .replace(/\(\s*\)/g,'')
@@ -4417,6 +4437,10 @@ function parseQtyRaw(raw){
   // Handle "2x16g" pattern
   const mx=s.match(/(\d+)\s*x\s*(\d+(?:\.\d+)?)\s*(g|ml|kg|l)\b/i);
   if(mx){const num=parseInt(mx[1])*parseFloat(mx[2]);const unit=mx[3];const name=s.replace(mx[0],'').trim();return{num,unit,name};}
+  // Countable units matter as much as weights — without these, "Chicken stock cube 2 cubes"
+  // and "Saffron 1pkt" parsed as zero and showed on the shopping list with no quantity.
+  const mc=s.match(/(\d+(?:\.\d+)?)\s*(cubes?|packs?|sachets?|pkt)\b/i);
+  if(mc){return{num:parseFloat(mc[1]),unit:mc[2].toLowerCase().replace(/s$/,''),name:s.replace(mc[0],'').replace(/\s+/g,' ').trim()};}
   // Handle "2x100g" at start like "Farfalle 2x100g"
   const mx2=s.match(/(\d+(?:\.\d+)?)\s*(g|ml|kg|l|tsp|tbsp)\b/i);
   if(mx2){return{num:parseFloat(mx2[1]),unit:mx2[2],name:s.replace(mx2[0],'').replace(/\s+/g,' ').trim()};}
@@ -4434,6 +4458,12 @@ function formatQty(num,unit){
   // Promote large weights/volumes to kg/l for readability
   if(unit==='g'&&num>=1000){const kg=num/1000;return (kg===Math.floor(kg)?kg:parseFloat(kg.toFixed(2)))+'kg';}
   if(unit==='ml'&&num>=1000){const l=num/1000;return (l===Math.floor(l)?l:parseFloat(l.toFixed(2)))+'L';}
+  // Countables read as words, not suffixes: "2 cubes", not "2cube"
+  if(unit==='cube'||unit==='pack'||unit==='sachet'||unit==='pkt'){
+    const n=num===Math.floor(num)?num:parseFloat(num.toFixed(1));
+    const word=unit==='pkt'?'pack':unit;
+    return n+' '+word+(n===1?'':'s');
+  }
   if(num===Math.floor(num))return num+unit;
   return parseFloat(num.toFixed(1))+unit;
 }
@@ -4444,9 +4474,30 @@ function aggregatePlanItems(items){
   const all=getAllRecipes();const out={};
   items.forEach(it=>{
     const r=all.find(x=>x.n===it.name);if(!r)return;
+    // Gousto sometimes ship ONE pack that covers two lines on the card — a "Parsley & mint"
+    // pack for the parsley AND the mint. Both resolve to the same quantity row, and counting
+    // each of them bought the pack twice. It's one thing to buy, so it counts once, under
+    // the pack's own name.
+    const sharedRow={};
+    r.i.forEach(ing=>{
+      const row=qtyRowFor(it.name,baseIngredient(ing));
+      if(!row)return;
+      const rb=baseIngredient(row.n);
+      if(rb===baseIngredient(ing))return;
+      (sharedRow[rb]=sharedRow[rb]||[]).push(ing);
+    });
+    const packClaimed=new Set();
     r.i.forEach(ing=>{
       if((recipeRemoved[it.name]||[]).includes(ing))return;
-      const key=baseIngredient(ing);
+      let key=baseIngredient(ing);
+      const row=qtyRowFor(it.name,key);
+      if(row){
+        const rb=baseIngredient(row.n);
+        if(rb!==key&&(sharedRow[rb]||[]).length>1){
+          if(packClaimed.has(rb))return;   // this pack is already on the list
+          packClaimed.add(rb);key=rb;
+        }
+      }
       const q=parseQty(applyUnitPref(renameIngredient(bulkIngString(it.name,ing,it.portions)),'shop'));
       if(!out[key]){out[key]={name:q.name||key,totalNum:q.num,unit:q.unit,count:1,raw:ing,recipes:[it.name]};}
       else{out[key].totalNum+=q.num;out[key].count++;if(!out[key].recipes.includes(it.name))out[key].recipes.push(it.name);}
