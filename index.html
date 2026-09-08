@@ -125,6 +125,12 @@ nav{background:var(--teal);position:sticky;top:0;z-index:100}
 
 /* A recipe name is clickable everywhere, but it's a name first — it keeps the surrounding
    text colour and only hints at being a link on hover. Blue everywhere was too loud. */
+.tag-pick{background:#fff;border:1px solid var(--border);border-radius:999px;padding:7px 14px;font-size:.85rem;
+  font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:6px;color:var(--text);transition:.12s}
+.tag-pick:hover{border-color:var(--primary)}
+.tag-pick.on{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:700}
+.tag-pick.on.auto{background:var(--primary-light);color:var(--primary)}
+.tag-pick .tp-auto{font-size:.68rem;text-transform:uppercase;letter-spacing:.4px;opacity:.75;font-weight:700}
 .recipe-link{cursor:pointer;color:inherit;text-decoration:none;border-bottom:1px solid transparent;transition:border-color .12s}
 .recipe-link:hover{border-bottom-color:currentColor}
 
@@ -667,28 +673,6 @@ textarea{resize:vertical;min-height:80px}
       </div>
     </div>
     <div class="filter-group">
-      <label class="group-label">Time &amp; effort</label>
-      <div style="display:flex;flex-wrap:wrap;gap:6px">
-        <label class="toggle-chip"><input type="checkbox" id="filterQuick" onchange="renderBrowse()"><span>Quick (≤25m)</span></label>
-        <label class="toggle-chip"><input type="checkbox" id="filterPrep5" onchange="renderBrowse()"><span>Prepped in 5</span></label>
-      </div>
-    </div>
-    <div class="filter-group">
-      <label class="group-label">Storage &amp; batch</label>
-      <div style="display:flex;flex-wrap:wrap;gap:6px">
-        <label class="toggle-chip"><input type="checkbox" id="filterFreeze" onchange="renderBrowse()"><span>Freezable</span></label>
-        <label class="toggle-chip"><input type="checkbox" id="filterBulk" onchange="renderBrowse()"><span>Bulk-friendly</span></label>
-      </div>
-    </div>
-    <div class="filter-group">
-      <label class="group-label">Dietary</label>
-      <div style="display:flex;flex-wrap:wrap;gap:6px">
-        <label class="toggle-chip"><input type="checkbox" id="filterVeggie" onchange="renderBrowse()"><span>Vegetarian</span></label>
-        <label class="toggle-chip"><input type="checkbox" id="filterOnePot" onchange="renderBrowse()"><span>One-pot</span></label>
-        <label class="toggle-chip"><input type="checkbox" id="filterMakeAhead" onchange="renderBrowse()"><span>Make-ahead</span></label>
-      </div>
-    </div>
-    <div class="filter-group">
       <label class="group-label">Recipe source</label>
       <div style="display:flex;flex-wrap:wrap;gap:6px">
         <label class="toggle-chip"><input type="checkbox" id="originGousto" checked onchange="renderBrowse()"><span>Gousto</span></label>
@@ -697,22 +681,6 @@ textarea{resize:vertical;min-height:80px}
       </div>
     </div>
     <div class="filter-group" style="display:flex;flex-wrap:wrap;gap:16px">
-      <div>
-        <label class="group-label">Heat</label>
-        <div class="seg" id="segSpicy">
-          <button class="seg-btn active" data-val="" onclick="cycleSeg('spicy',this)">Any</button>
-          <button class="seg-btn" data-val="spicy" onclick="cycleSeg('spicy',this)">Spicy</button>
-          <button class="seg-btn" data-val="mild" onclick="cycleSeg('spicy',this)">Mild</button>
-        </div>
-      </div>
-      <div>
-        <label class="group-label">Equipment</label>
-        <div class="seg" id="segBlender">
-          <button class="seg-btn active" data-val="" onclick="cycleSeg('blender',this)">Any</button>
-          <button class="seg-btn" data-val="blender" onclick="cycleSeg('blender',this)">Blender</button>
-          <button class="seg-btn" data-val="noblender" onclick="cycleSeg('blender',this)">No blender</button>
-        </div>
-      </div>
       <div>
         <label class="group-label">Rating</label>
         <div class="seg" id="filterRatingSeg">
@@ -823,6 +791,10 @@ textarea{resize:vertical;min-height:80px}
         <div class="ico">✅</div><h3>Recipe Manager</h3>
         <p>Complete methods &amp; per-portion amounts</p>
       </div>
+      <div class="card admin-menu-card" onclick="showAdminView('tags')">
+        <div class="ico">🏷️</div><h3>Tags</h3>
+        <p>Filter groups, behaviour &amp; bulk-tagging</p>
+      </div>
       <div class="card admin-menu-card" onclick="showAdminView('ingcheck')">
         <div class="ico">🔎</div><h3>Ingredient Check</h3>
         <p>Inconsistent names &amp; units across recipes</p>
@@ -915,6 +887,25 @@ textarea{resize:vertical;min-height:80px}
     </div>
     <div id="customList"></div>
     <div id="customEmpty" class="empty-state"><p>No custom recipes yet. Paste one in, or let ChatGPT turn a screenshot/caption into one.</p></div>
+  </div>
+
+  <!-- Tag manager -->
+  <div id="adminView-tags" class="admin-view" style="display:none">
+    <button class="btn btn-sm btn-outline admin-back" onclick="showAdminMenu()">← Admin</button>
+    <div class="card" style="margin-bottom:14px">
+      <h2 style="margin:0 0 4px">Tags</h2>
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:10px">Every tag in one place — where it sits in the filters, how it behaves, and which recipes have it.</p>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <input type="text" id="newTagLabel" placeholder="New tag name" style="flex:1;min-width:160px;margin:0">
+        <select id="newTagGroup" style="max-width:150px;margin:0"></select>
+        <select id="newTagControl" style="max-width:130px;margin:0">
+          <option value="chip">Chip (on/off)</option>
+          <option value="seg">Segment (is / isn't)</option>
+        </select>
+        <button class="btn btn-green" onclick="tagManagerAdd()">Add</button>
+      </div>
+    </div>
+    <div id="tagManagerBody"></div>
   </div>
 
   <!-- Ingredient check: naming and unit inconsistencies across the whole collection -->
@@ -1071,6 +1062,19 @@ textarea{resize:vertical;min-height:80px}
     <button class="seg-btn" onclick="setLiveTab('ingredients',this)">Ingredients</button>
   </div>
   <div id="liveBody"></div>
+</div>
+
+<div class="modal-overlay" id="tagBulkModal" style="z-index:272" onclick="if(event.target===this)closeTagBulk()">
+  <div class="modal" style="max-width:640px">
+    <button class="close" onclick="closeTagBulk()">&times;</button>
+    <h2 id="tagBulkTitle" style="font-size:1.15rem;margin-bottom:8px"></h2>
+    <input type="text" id="tagBulkSearch" placeholder="Search recipes…" oninput="renderTagBulk()" style="margin-bottom:8px">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+      <button class="btn btn-sm btn-outline" onclick="tagBulkAll(true)">Tag all shown</button>
+      <button class="btn btn-sm btn-outline" onclick="tagBulkAll(false)">Untag all shown</button>
+    </div>
+    <div id="tagBulkList"></div>
+  </div>
 </div>
 
 <div class="modal-overlay" id="cookSheetModal" style="z-index:262" onclick="if(event.target===this)closeCookSheet()">
@@ -1941,6 +1945,7 @@ function saveFilingCats(){save('gousto_filing_cat',filingCatOverride)}
 let filingNewFlags=JSON.parse(localStorage.getItem('gousto_filing_new')||'[]');
 let customTags=JSON.parse(localStorage.getItem('gousto_tags')||'{}');
 let tagVocab=JSON.parse(localStorage.getItem('gousto_tag_vocab')||'[]');
+let tagDefs=JSON.parse(localStorage.getItem('gousto_tag_defs')||'[]');
 // Free-text notes you add to a recipe: {name: "text"}
 let recipeNotes=JSON.parse(localStorage.getItem('gousto_notes')||'{}');
 let recipeYields=JSON.parse(localStorage.getItem('gousto_yields')||'{}');
@@ -2312,19 +2317,17 @@ function scaleAmountStr(s,factor){
 
 // Spicy detection — applies to all recipes including future additions
 const SPICY_RE=/\bchilli\b|\bchili\b|chillies|sriracha|gochujang|harissa|jerk|cayenne|nduja|sambal|chipotle|jalapen|scotch bonnet|peri.?peri|piri.?piri|vindaloo|madras|arrabbiata|szechuan|sichuan|gumbo|\bspic(y|e)\b|fiery|hot chilli|hot sauce|kimchi|wasabi|tabasco/i;
-function isSpicy(r){
-  const ov=recipeOver[r.n];
-  if(ov&&ov.spicy!==undefined&&ov.spicy!=='')return !!ov.spicy;   // you decided; the word-match doesn't get a vote
-  if(customTags['__spicy_off']&&customTags['__spicy_off'].includes(r.n))return false;
-  return SPICY_RE.test([r.n,r.t,r.o||'',...r.i].join(' '));
-}
+// Kept as thin wrappers: "spicy" is now an ordinary tag, so an explicit yes/no on the
+// recipe beats the word-match, and hasTag is the single place that decides.
+function isSpicy(r){return hasTag(r,'spicy')}
 
 const BLENDER_RE=/\bblend\b|blender|blitz|food processor|liquidis|liquidiz/i;
-function needsBlender(r){
+function blenderAuto(r){
   const steps=RECIPE_STEPS[r.n];
   if(steps)return BLENDER_RE.test(steps.s.flat().join(' '));
   return BLENDER_RE.test([r.n,...r.i].join(' '));
 }
+function needsBlender(r){return hasTag(r,'blender')}
 
 // Custom tags
 function getTags(name){return customTags[name]||[]}
@@ -2345,19 +2348,252 @@ function allCustomTags(){
   Object.entries(customTags).forEach(([k,arr])=>{if(k.startsWith('__'))return;arr.forEach(t=>s.add(t))});
   return [...s].sort((a,b)=>a.localeCompare(b));
 }
+// ===== TAGS =====
+// One system. "Freezable", "Spicy" and anything you invent are all just tags: they live in
+// the same registry, sit in the same filter groups and are set the same way on a recipe.
+// A tag may carry an `auto` rule that works it out from the recipe, and you can still say
+// otherwise on any individual dish — an explicit choice always beats the rule.
+const TAG_AUTO={
+  quick:r=>r.m<=25,
+  prep5:r=>(r.o||'').toLowerCase().includes('prepped in 5'),
+  freezable:r=>!!r.f,
+  bulk:r=>!!r.b,
+  makeahead:r=>isMakeAheadAuto(r),
+  veggie:r=>isVeggieAuto(r),
+  onepot:r=>isOnePotAuto(r),
+  spicy:r=>SPICY_RE.test([r.n,r.t,r.o||'',...r.i].join(' ')),
+  blender:r=>blenderAuto(r),
+};
+const DEFAULT_TAG_DEFS=[
+  {id:'quick',label:'Quick (≤25m)',group:'Time & effort',control:'chip',auto:'quick'},
+  {id:'prep5',label:'Prepped in 5',group:'Time & effort',control:'chip',auto:'prep5'},
+  {id:'freezable',label:'Freezable',group:'Storage & batch',control:'chip',auto:'freezable'},
+  {id:'bulk',label:'Bulk-friendly',group:'Storage & batch',control:'chip',auto:'bulk'},
+  {id:'makeahead',label:'Make-ahead',group:'Storage & batch',control:'chip',auto:'makeahead'},
+  {id:'veggie',label:'Vegetarian',group:'Dietary',control:'chip',auto:'veggie'},
+  {id:'onepot',label:'One-pot',group:'Dietary',control:'chip',auto:'onepot'},
+  {id:'spicy',label:'Spicy',group:'Heat',control:'seg',auto:'spicy'},
+  {id:'blender',label:'Blender',group:'Equipment',control:'seg',auto:'blender'},
+];
+const TAG_GROUPS=['Time & effort','Storage & batch','Dietary','Heat','Equipment','My tags'];
+function tagSlug(s){return String(s).toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'tag'}
+function tagDef(id){return tagDefs.find(t=>t.id===id)||null}
+function tagLabel(id){const d=tagDef(id);return d?d.label:capWords(String(id).replace(/-/g,' '))}
+function saveTagDefs(){save('gousto_tag_defs',tagDefs)}
+// Assignments live in `customTags[recipe]` as tag ids; "-id" records an explicit NO, which
+// is how you overrule an auto rule for one dish without disabling it everywhere.
+function hasTag(r,id){
+  const list=customTags[r.n]||[];
+  if(list.includes(id))return true;
+  if(list.includes('-'+id))return false;
+  const d=tagDef(id);
+  return !!(d&&d.auto&&TAG_AUTO[d.auto]&&TAG_AUTO[d.auto](r));
+}
+// 'on' | 'off' | 'auto' — auto only means anything for a tag that has a rule
+function tagStateOf(r,id){
+  const list=customTags[r.n]||[];
+  if(list.includes(id))return 'on';
+  if(list.includes('-'+id))return 'off';
+  return 'auto';
+}
+function setTagState(name,id,state){
+  let list=(customTags[name]||[]).filter(t=>t!==id&&t!=='-'+id);
+  if(state==='on')list.push(id);
+  else if(state==='off')list.push('-'+id);
+  if(list.length)customTags[name]=list;else delete customTags[name];
+  saveTags();
+}
+function toggleTag(name,id){
+  const r=getAllRecipes().find(x=>x.n===name);if(!r)return;
+  const d=tagDef(id);
+  const now=hasTag(r,id);
+  // With a rule behind it, returning to the rule is a meaningful third state
+  if(d&&d.auto)setTagState(name,id,now?'off':'on');
+  else setTagState(name,id,now?'auto':'on');
+}
+function tagsOn(r){return tagDefs.filter(d=>hasTag(r,d.id)).map(d=>d.id)}
+// Every tag that's actually in use, for the manager's counts
+function tagUseCount(id){return getAllRecipes().filter(r=>hasTag(r,id)).length}
+function addTagDef(label,group,control){
+  label=String(label||'').trim();if(!label)return null;
+  let id=tagSlug(label),n=2;
+  while(tagDef(id))id=tagSlug(label)+'-'+(n++);
+  tagDefs.push({id,label,group:group||'My tags',control:control||'chip'});
+  saveTagDefs();return id;
+}
+function deleteTagDef(id){
+  tagDefs=tagDefs.filter(t=>t.id!==id);saveTagDefs();
+  Object.keys(customTags).forEach(n=>{
+    const l=customTags[n].filter(t=>t!==id&&t!=='-'+id);
+    if(l.length)customTags[n]=l;else delete customTags[n];
+  });
+  saveTags();
+}
+// One-time move from the old world: free-text "My Tags" become real tag defs, and the
+// bespoke spicy-off list becomes an ordinary explicit NO.
+(function migrateTags(){
+  if(localStorage.getItem('gousto_tags_migrated'))return;
+  const seen=new Set(tagDefs.map(t=>t.id));
+  DEFAULT_TAG_DEFS.forEach(d=>{if(!seen.has(d.id)){tagDefs.push(Object.assign({},d));seen.add(d.id)}});
+  const off=customTags['__spicy_off']||[];
+  Object.entries(customTags).forEach(([name,arr])=>{
+    if(name.startsWith('__'))return;
+    customTags[name]=arr.map(t=>{
+      if(typeof t!=='string')return t;
+      if(tagDef(t)||t.startsWith('-'))return t;
+      const id=tagSlug(t);
+      if(!tagDef(id)){tagDefs.push({id,label:t,group:'My tags',control:'chip'});seen.add(id)}
+      return id;
+    });
+  });
+  off.forEach(n=>{if(!customTags[n])customTags[n]=[];if(!customTags[n].includes('-spicy'))customTags[n].push('-spicy')});
+  delete customTags['__spicy_off'];
+  // The old "Heat" dropdown stored yes/no on recipeOver; that's an explicit tag state now
+  Object.entries(recipeOver||{}).forEach(([n,o])=>{
+    if(!o||o.spicy===undefined||o.spicy==='')return;
+    const list=(customTags[n]||[]).filter(t=>t!=='spicy'&&t!=='-spicy');
+    list.push(o.spicy?'spicy':'-spicy');customTags[n]=list;
+  });
+  // Written straight to localStorage rather than through save(): this runs during module
+  // init, before the sync layer's own state exists, and save() reaches into it.
+  try{
+    localStorage.setItem('gousto_tag_defs',JSON.stringify(tagDefs));
+    localStorage.setItem('gousto_tags',JSON.stringify(customTags));
+    localStorage.setItem('gousto_tags_migrated','1');
+  }catch(e){}
+})();
+
+// ---- Tag manager ----
+let tagBulkId=null;
+function tagGroupOptions(sel){
+  const groups=[...new Set([...TAG_GROUPS,...tagDefs.map(d=>d.group)])];
+  return groups.map(g=>`<option value="${esc(g)}"${g===sel?' selected':''}>${esc(g)}</option>`).join('');
+}
+function renderTagManager(){
+  const gsel=document.getElementById('newTagGroup');
+  if(gsel&&!gsel.innerHTML)gsel.innerHTML=tagGroupOptions('My tags');
+  const groups={};
+  tagDefs.forEach(d=>{(groups[d.group]=groups[d.group]||[]).push(d)});
+  const order=[...TAG_GROUPS.filter(g=>groups[g]),...Object.keys(groups).filter(g=>!TAG_GROUPS.includes(g))];
+  document.getElementById('tagManagerBody').innerHTML=order.map(g=>`<div class="card" style="margin-bottom:12px">
+    <h3 style="margin:0 0 8px;font-size:1rem">${esc(g)}</h3>
+    ${groups[g].map(d=>{
+      const n=tagUseCount(d.id);
+      return `<div class="led-row" style="align-items:center;flex-wrap:wrap;gap:8px">
+        <span class="led-name">${esc(d.label)}
+          <span style="display:block;font-size:.74rem;color:var(--muted);font-weight:400">
+            ${n} recipe${n===1?'':'s'}${d.auto?' · has a rule':''}</span></span>
+        <select onchange="tagSetGroup('${escQ(d.id)}',this.value)" style="max-width:140px;margin:0;font-size:.8rem;padding:5px">${tagGroupOptions(d.group)}</select>
+        <select onchange="tagSetControl('${escQ(d.id)}',this.value)" style="max-width:120px;margin:0;font-size:.8rem;padding:5px">
+          <option value="chip"${d.control!=='seg'?' selected':''}>Chip</option>
+          <option value="seg"${d.control==='seg'?' selected':''}>Segment</option>
+        </select>
+        <button class="btn btn-sm btn-outline" onclick="openTagBulk('${escQ(d.id)}')">Bulk add</button>
+        <button class="btn btn-sm btn-outline" onclick="tagRename('${escQ(d.id)}')">Rename</button>
+        ${d.auto?'':`<button class="btn btn-sm btn-outline" style="color:var(--red);border-color:var(--red)" onclick="tagDelete('${escQ(d.id)}')">Delete</button>`}
+      </div>`;}).join('')}
+  </div>`).join('');
+}
+function tagManagerAdd(){
+  const el=document.getElementById('newTagLabel');
+  const id=addTagDef(el.value,document.getElementById('newTagGroup').value,document.getElementById('newTagControl').value);
+  if(!id){toast('Give it a name first');return}
+  el.value='';renderTagManager();toast('Tag created');
+}
+function tagSetGroup(id,g){const d=tagDef(id);if(!d)return;d.group=g;saveTagDefs();renderTagManager();}
+function tagSetControl(id,c){const d=tagDef(id);if(!d)return;d.control=c;saveTagDefs();renderTagManager();}
+function tagRename(id){
+  const d=tagDef(id);if(!d)return;
+  const v=prompt('Rename tag (the id stays the same, so nothing loses its tag):',d.label);
+  if(v==null)return;const label=v.trim();if(!label)return;
+  d.label=label;saveTagDefs();renderTagManager();
+}
+function tagDelete(id){
+  const d=tagDef(id);if(!d)return;
+  const n=tagUseCount(id);
+  askConfirm(`“${d.label}” will be removed from ${n} recipe${n===1?'':'s'} and from the filters.`,()=>{
+    deleteTagDef(id);renderTagManager();toast('Tag deleted');
+  },{title:'Delete tag?',okLabel:'Delete'});
+}
+// Bulk-tagging: the whole reason a tag is worth creating is putting it on many dishes at once
+function openTagBulk(id){
+  tagBulkId=id;
+  document.getElementById('tagBulkSearch').value='';
+  renderTagBulk();document.getElementById('tagBulkModal').classList.add('open');
+}
+function closeTagBulk(){document.getElementById('tagBulkModal').classList.remove('open');tagBulkId=null;}
+function renderTagBulk(){
+  const d=tagDef(tagBulkId);if(!d)return;
+  const q=(document.getElementById('tagBulkSearch').value||'').toLowerCase().trim();
+  let all=getAllRecipes();
+  if(q)all=all.filter(r=>[r.n,r.t,r.c].join(' ').toLowerCase().includes(q));
+  all=all.sort((a,b)=>a.n.localeCompare(b.n)).slice(0,200);
+  const on=getAllRecipes().filter(r=>hasTag(r,d.id)).length;
+  document.getElementById('tagBulkTitle').innerHTML=`Bulk-tag: <strong>${esc(d.label)}</strong>
+    <span style="font-weight:400;color:var(--muted);font-size:.85rem">· on ${on} recipe${on===1?'':'s'}</span>`;
+  document.getElementById('tagBulkList').innerHTML=all.map(r=>{
+    const st=tagStateOf(r,d.id),onNow=hasTag(r,d.id);
+    return `<label class="picker-row" style="cursor:pointer">
+      <input type="checkbox" ${onNow?'checked':''} onchange="tagBulkSet('${escQ(r.n)}',this.checked)"
+        style="width:20px;height:20px;accent-color:var(--green);margin:0 10px 0 0;flex:none">
+      <span style="flex:1;min-width:0">
+        <span class="picker-name">${esc(r.n)}</span>
+        <span class="picker-meta">${esc(capWords(r.t))}${st==='auto'&&d.auto?' · from the rule':(st!=='auto'?' · set by you':'')}</span>
+      </span>
+    </label>`;}).join('')||'<p style="color:var(--muted);font-size:.85rem">No matches.</p>';
+}
+function tagBulkSet(name,on){
+  if(!tagBulkId)return;
+  setTagState(name,tagBulkId,on?'on':'off');
+  renderTagBulk();
+}
+function tagBulkAll(on){
+  if(!tagBulkId)return;
+  const q=(document.getElementById('tagBulkSearch').value||'').toLowerCase().trim();
+  let all=getAllRecipes();
+  if(q)all=all.filter(r=>[r.n,r.t,r.c].join(' ').toLowerCase().includes(q));
+  all.forEach(r=>setTagState(r.n,tagBulkId,on?'on':'off'));
+  renderTagBulk();toast(`${all.length} recipe${all.length===1?'':'s'} updated`);
+}
+
+// Filter state per tag: '' (any) | 'yes' | 'no'
+let tagFilter={};
+function setTagFilter(id,val,btn){
+  if(!val)delete tagFilter[id];else tagFilter[id]=val;
+  if(btn){btn.parentElement.querySelectorAll('.seg-btn,.toggle-chip').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+  renderBrowse();
+}
+function toggleTagFilter(id,el){
+  if(el.checked)tagFilter[id]='yes';else delete tagFilter[id];
+  renderBrowse();
+}
 function renderTagFilters(){
   const wrap=document.getElementById('customTagFilterWrap');if(!wrap)return;
-  const active=[...wrap.querySelectorAll('input:checked')].map(c=>c.value);
-  const tags=allCustomTags();
-  if(!tags.length){wrap.innerHTML='';return}
-  wrap.innerHTML=`<label style="margin-bottom:6px">My Tags</label><div style="display:flex;flex-wrap:wrap;gap:6px">`+
-    tags.map(t=>`<label class="toggle-chip tag-filter-chip"><input type="checkbox" value="${esc(t)}" ${active.includes(t)?'checked':''} onchange="renderBrowse()"><span>${esc(t)}</span></label>`).join('')+`</div>`;
+  const groups={};
+  tagDefs.forEach(d=>{(groups[d.group]=groups[d.group]||[]).push(d)});
+  const order=[...TAG_GROUPS.filter(g=>groups[g]),...Object.keys(groups).filter(g=>!TAG_GROUPS.includes(g))];
+  wrap.innerHTML=order.map(g=>{
+    const chips=groups[g].filter(d=>d.control!=='seg');
+    const segs=groups[g].filter(d=>d.control==='seg');
+    return `<div class="filter-group">
+      <label class="group-label">${esc(g)}</label>
+      ${chips.length?`<div style="display:flex;flex-wrap:wrap;gap:6px">${chips.map(d=>
+        `<label class="toggle-chip"><input type="checkbox" ${tagFilter[d.id]==='yes'?'checked':''} onchange="toggleTagFilter('${escQ(d.id)}',this)"><span>${esc(d.label)}</span></label>`).join('')}</div>`:''}
+      ${segs.map(d=>`<div class="seg" style="margin-top:6px">
+        <button class="seg-btn ${!tagFilter[d.id]?'active':''}" onclick="setTagFilter('${escQ(d.id)}','',this)">Any</button>
+        <button class="seg-btn ${tagFilter[d.id]==='yes'?'active':''}" onclick="setTagFilter('${escQ(d.id)}','yes',this)">${esc(d.label)}</button>
+        <button class="seg-btn ${tagFilter[d.id]==='no'?'active':''}" onclick="setTagFilter('${escQ(d.id)}','no',this)">Not ${esc(d.label.toLowerCase())}</button>
+      </div>`).join('')}
+    </div>`;
+  }).join('');
 }
 
 // Stores that are a plain {name: value} map. Deleting a key out of one of these has to
 // leave a gravestone, or the union in mergeMap simply hands it back on the next sync from
 // any device that still has it — which is why a deleted rating or note kept reappearing.
-const MAP_STORES=['gousto_ratings','gousto_yields','gousto_notes','gousto_methods','gousto_amounts',
+// `var`, not `const`: save() is called during module init (migrations run before this line
+// is reached), and a const would still be in its temporal dead zone at that point.
+var MAP_STORES=['gousto_ratings','gousto_yields','gousto_notes','gousto_methods','gousto_amounts',
   'gousto_solo_steps','gousto_costs','gousto_tags','gousto_optional','gousto_removed',
   'gousto_hidden_steps','gousto_recipe_over','gousto_ing_meta','gousto_card_names','gousto_pantry_amounts'];
 // Diffing at save time catches every call site — there are dozens of `delete store[name]`
@@ -2366,7 +2602,7 @@ const MAP_STORES=['gousto_ratings','gousto_yields','gousto_notes','gousto_method
 // during module init, well before that `let` is initialised, so touching it directly would
 // throw on a temporal dead zone. The assignment below is guarded for the same reason.
 function recordMapDeletions(k,next){
-  if(!MAP_STORES.includes(k))return;
+  if(!MAP_STORES||!MAP_STORES.includes(k))return;
   let prev={};try{prev=JSON.parse(localStorage.getItem(k)||'{}')}catch(_){return}
   if(!prev||typeof prev!=='object'||Array.isArray(prev))return;
   if(!next||typeof next!=='object'||Array.isArray(next))return;
@@ -2800,6 +3036,7 @@ function showAdminView(view){
   if(view==='custom')renderCustomRecipes();
   if(view==='savings')renderSavings();
   if(view==='ingcheck')renderIngCheck();
+  if(view==='tags')renderTagManager();
 }
 // The pantry and the name/category list are one page now; kept as a no-op for old call sites
 function setIngManagerTab(){renderMappings()}
@@ -2995,21 +3232,21 @@ function cycleSeg(key,btn){
 }
 // Vegetarian heuristic: no meat/fish ingredient (ignoring stock, which is often the only "meat" mention)
 const MEAT_RE=/chicken|beef|steak|\bpork\b|sausage|bacon|chorizo|lardons|prosciutto|nduja|lamb|\bham\b|duck|turkey|prawn|\bfish\b|mackerel|haddock|basa|pollock|salmon|tuna|anchov|squid|seafood|meatball/i;
-function isVeggie(r){
+function isVeggieAuto(r){
   const s=(r.n+' '+r.i.join(' ')).toLowerCase()
     .replace(/(chicken|beef|pork|fish|vegetable)\s+stock[a-z ]*/g,'') // stock isn't the protein
     .replace(/fish sauce/g,'');
   return !MEAT_RE.test(s);
 }
 const ONEPOT_TYPES=['stew','soup','risotto','casserole','traybake','curry','noodle soup','biryani','curry/dal'];
-function isOnePot(r){
+function isOnePotAuto(r){
   if(ONEPOT_TYPES.includes(r.t))return true;
   const steps=RECIPE_STEPS[r.n];
   return steps?/one[- ]pot|one[- ]pan|single pan/i.test(steps.s.flat().join(' ')):false;
 }
 // Dishes that keep well: cook ahead & reheat (saucy/stewy types or explicitly freezable)
 const MAKEAHEAD_TYPES=['stew','curry','casserole','soup','pasta bake','meatballs','biryani','curry/dal','risotto','noodle soup','tart/pie','lamb dish','pork dish'];
-function isMakeAhead(r){return !!r.f||MAKEAHEAD_TYPES.includes(r.t)||/bolognese|chilli|ragu|ragù|dhal|dal|tagine|hotpot|hot pot|goulash|korma|masala|jambalaya/i.test(r.n);}
+function isMakeAheadAuto(r){return !!r.f||MAKEAHEAD_TYPES.includes(r.t)||/bolognese|chilli|ragu|ragù|dhal|dal|tagine|hotpot|hot pot|goulash|korma|masala|jambalaya/i.test(r.n);}
 function getFiltered(){
   const all=getAllRecipes();
   const search=document.getElementById('searchInput').value.toLowerCase();
@@ -3019,36 +3256,23 @@ function getFiltered(){
   const timeEl=document.getElementById('filterTime');
   const maxCal=calEl.type==='range'?(parseInt(calEl.value)>=parseInt(calEl.max)?9999:parseInt(calEl.value)):(parseInt(calEl.value)||9999);
   const maxTime=timeEl.type==='range'?(parseInt(timeEl.value)>=parseInt(timeEl.max)?9999:parseInt(timeEl.value)):(parseInt(timeEl.value)||9999);
-  const wantFreeze=document.getElementById('filterFreeze')?.checked;
-  const wantBulk=document.getElementById('filterBulk')?.checked;
-  const wantQuick=document.getElementById('filterQuick')?.checked;
-  const wantPrep5=document.getElementById('filterPrep5')?.checked;
-  const wantVeggie=document.getElementById('filterVeggie')?.checked;
-  const wantOnePot=document.getElementById('filterOnePot')?.checked;
-  const wantMakeAhead=document.getElementById('filterMakeAhead')?.checked;
   const origins=ORIGINS.filter(o=>document.getElementById('origin'+capFirst(o.key))?.checked).map(o=>o.key);
-  const activeTags=[...document.querySelectorAll('#customTagFilterWrap input:checked')].map(c=>c.value);
   const sort=document.getElementById('sortBy').value;
+  const tagChecks=Object.entries(tagFilter);
   let filtered=all.filter(r=>{
     if(!origins.includes(recipeOrigin(r)))return false; // source chips: Gousto on by default, basic/custom opt-in
     if(search&&![r.n,r.t,r.c,...r.i].join(' ').toLowerCase().includes(search))return false;
     if(cuisine&&r.t!==cuisine&&!(r.t2||[]).includes(cuisine))return false;
     if(country&&r.c!==country)return false;
     if(r.k>maxCal||r.m>maxTime)return false;
-    if(wantFreeze&&!r.f)return false;
-    if(wantBulk&&!r.b)return false;
-    if(wantQuick&&r.m>25)return false;
-    if(wantPrep5&&!isPrep5(r))return false;
     if(minRatingFilter===-1&&getRating(r.n)>0)return false;      // "Unrated" — the to-try pile
     if(minRatingFilter>0&&getRating(r.n)<minRatingFilter)return false;
-    if(wantVeggie&&!isVeggie(r))return false;
-    if(wantOnePot&&!isOnePot(r))return false;
-    if(wantMakeAhead&&!isMakeAhead(r))return false;
-    if(segState.spicy==='spicy'&&!isSpicy(r))return false;
-    if(segState.spicy==='mild'&&isSpicy(r))return false;
-    if(segState.blender==='blender'&&!needsBlender(r))return false;
-    if(segState.blender==='noblender'&&needsBlender(r))return false;
-    if(activeTags.length){const rt=getTags(r.n);if(!activeTags.some(t=>rt.includes(t)))return false;}
+    // Every remaining filter is a tag: chips ask for a yes, segments can also ask for a no
+    for(const [id,want] of tagChecks){
+      const on=hasTag(r,id);
+      if(want==='yes'&&!on)return false;
+      if(want==='no'&&on)return false;
+    }
     return true;
   });
   const sorts={'name':(a,b)=>a.n.localeCompare(b.n),'name-desc':(a,b)=>b.n.localeCompare(a.n),'cal-asc':(a,b)=>a.k-b.k,'cal-desc':(a,b)=>b.k-a.k,'time-asc':(a,b)=>a.m-b.m,'time-desc':(a,b)=>b.m-a.m,
@@ -3064,12 +3288,11 @@ function getFiltered(){
 function browseFilterCount(){
   let n=0;
   ['filterCuisine','filterCountry'].forEach(id=>{const e=document.getElementById(id);if(e&&e.value)n++});
-  ['filterQuick','filterPrepped','filterFreeze','filterBulk','filterVeg','filterOnePot','filterMakeAhead','filterBasics'].forEach(id=>{const e=document.getElementById(id);if(e&&e.checked)n++});
+  n+=Object.keys(tagFilter).length;
   if(minRatingFilter!==0)n++;
   const cal=document.getElementById('filterCal'),time=document.getElementById('filterTime');
   if(cal&&+cal.value<+cal.max)n++;
   if(time&&+time.value<+time.max)n++;
-  if(typeof segState==='object'&&segState)Object.values(segState).forEach(v=>{if(v)n++});
   // Source chips count as a filter whenever they differ from the default (Gousto only)
   if(document.getElementById('originGousto')&&!document.getElementById('originGousto').checked)n++;
   ['originBasic','originCustom'].forEach(id=>{const e=document.getElementById(id);if(e&&e.checked)n++});
@@ -3115,21 +3338,10 @@ function renderBrowse(){
   if(calEl.type==='range'&&parseInt(calEl.value)<parseInt(calEl.max))parts.push('≤'+calEl.value+' kcal');
   const timeEl=document.getElementById('filterTime');
   if(timeEl.type==='range'&&parseInt(timeEl.value)<parseInt(timeEl.max))parts.push('≤'+timeEl.value+' min');
-  if(document.getElementById('filterFreeze')?.checked)parts.push('Freezable');
-  if(document.getElementById('filterBulk')?.checked)parts.push('Bulk-friendly');
-  if(document.getElementById('filterQuick')?.checked)parts.push('Quick');
-  if(document.getElementById('filterPrep5')?.checked)parts.push('Prepped in 5');
   if(minRatingFilter===-1)parts.push('Unrated');
   else if(minRatingFilter>0)parts.push(minRatingFilter===5?'5 stars':minRatingFilter+' stars +');
-  if(document.getElementById('filterVeggie')?.checked)parts.push('Vegetarian');
-  if(document.getElementById('filterOnePot')?.checked)parts.push('One-pot');
-  if(document.getElementById('filterMakeAhead')?.checked)parts.push('Make-ahead');
   ORIGINS.forEach(o=>{if(document.getElementById('origin'+capFirst(o.key))?.checked)parts.push(o.label)});
-  if(segState.spicy==='spicy')parts.push('Spicy');
-  if(segState.spicy==='mild')parts.push('Mild');
-  if(segState.blender==='blender')parts.push('Needs Blender');
-  if(segState.blender==='noblender')parts.push('No Blender');
-  [...document.querySelectorAll('#customTagFilterWrap input:checked')].forEach(c=>parts.push(c.value));
+  Object.entries(tagFilter).forEach(([id,v])=>parts.push(v==='no'?'Not '+tagLabel(id).toLowerCase():tagLabel(id)));
   const summary=document.getElementById('filterSummary');
   if(summary)summary.textContent=parts.length?'Filters: '+parts.join(' · '):'';
 }
@@ -3164,9 +3376,8 @@ function recipeCard(r){
       <span class="pill pill-time">${r.m} min</span>
       <span class="pill pill-cal">${r.k} kcal</span>
       <span class="pill pill-country">${esc(r.c)}</span>
-      ${isSpicy(r)?'<span class="pill pill-spicy">Spicy</span>':''}
       ${r.o?`<span class="pill pill-note">${esc(r.o)}</span>`:''}
-      ${getTags(r.n).map(t=>`<span class="pill pill-tag">${esc(capWords(t))}</span>`).join('')}
+      ${tagsOn(r).map(id=>`<span class="pill pill-tag">${esc(tagLabel(id))}</span>`).join('')}
     </div>
   </div>`;
 }
@@ -3228,9 +3439,6 @@ function openRecipe(name,pc){
       <span class="pill pill-cal">${r.k} kcal</span>
       <span class="pill pill-country">${esc(r.c)}</span>
       ${r.basic?'<span class="pill pill-note">🍝 Basic</span>':r.custom?'<span class="pill pill-note">✦ Custom</span>':''}
-      ${isSpicy(r)?'<span class="pill pill-spicy">Spicy</span>':''}
-      ${r.f?'<span class="pill pill-freeze">Freezable</span>':''}
-      ${r.b?'<span class="pill pill-bulk">Bulk-friendly</span>':''}
       ${r.o?`<span class="pill pill-note">${esc(r.o)}</span>`:''}
     </div>
     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px">
@@ -3238,8 +3446,8 @@ function openRecipe(name,pc){
       <button class="btn ${inPlan?'btn-red':'btn-green'}" style="margin-left:auto" onclick="togglePlanRecipe('${escQ(name)}');openRecipe('${escQ(name)}')">${inPlan?'Remove from plan':'+ Add to plan'}</button>
     </div>
     <div style="margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-      <label style="margin:0">My Tags:</label>
-      ${getTags(name).length?getTags(name).map(t=>`<span class="pill pill-tag">${esc(capWords(t))}</span>`).join(''):'<span style="font-size:.82rem;color:var(--muted)">None yet</span>'}
+      <label style="margin:0">Tags:</label>
+      ${tagsOn(r).length?tagsOn(r).map(id=>`<span class="pill pill-tag">${esc(tagLabel(id))}</span>`).join(''):'<span style="font-size:.82rem;color:var(--muted)">None yet</span>'}
     </div>
     <p style="font-size:.85rem;color:var(--muted);margin-bottom:4px">Protein: <strong>${getProtein(r)}</strong></p>
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0 6px">
@@ -3574,13 +3782,10 @@ function renderRecipeEdit(){
   const r=getAllRecipes().find(x=>x.n===name);if(!r)return;
   const raw=rawRecipe(name)||r;
   const ov=recipeOver[name]||{};
-  const applied=getTags(name);
   const vocab=tagVocab.filter(t=>!applied.some(a=>a.toLowerCase()===t.toLowerCase())).sort((a,b)=>a.localeCompare(b));
   const all=getAllRecipes();
   const types=[...new Set(all.map(x=>x.t).filter(Boolean))].sort();
   const countries=[...new Set(all.map(x=>x.c).filter(Boolean))].sort();
-  const spicyAuto=SPICY_RE.test([raw.n,raw.t,raw.o||'',...raw.i].join(' '));
-  const spicyVal=ov.spicy===undefined||ov.spicy===''?'':(ov.spicy?'1':'0');
   const steps=methodSteps2(name);
   const fromGousto=!!RECIPE_STEPS[name];
   const mine=!!(customMethods[name]&&customMethods[name].length);
@@ -3589,31 +3794,12 @@ function renderRecipeEdit(){
     <h2 style="margin-bottom:2px">Edit recipe</h2>
     <p style="font-size:.9rem;color:var(--muted);margin-bottom:18px">${esc(name)}</p>
 
-    <div class="section" id="reSec-tags">
-      <h3 style="margin-bottom:10px">Tags</h3>
-      <label style="margin-bottom:6px">On this recipe</label>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">
-        ${applied.length?applied.map(t=>`<span class="modal-tag">${esc(capWords(t))}
-          <button title="Rename everywhere" onclick="renameTagPrompt('${escQ(t)}')">✎</button>
-          <button title="Remove from this recipe" onclick="tagUnapply('${escQ(t)}')">×</button></span>`).join(''):'<span style="font-size:.82rem;color:var(--muted)">No tags yet</span>'}
-      </div>
-      <label style="margin-bottom:4px">Add a tag</label>
-      <div style="display:flex;gap:6px;margin-bottom:16px">
-        <input type="text" id="tagAddInput" placeholder="e.g. Harry, Quick, Date night" style="flex:1" onkeydown="if(event.key==='Enter')tagAddFromInput()">
-        <button class="btn btn-sm btn-green" onclick="tagAddFromInput()">Add</button>
-      </div>
-      ${vocab.length?`<label style="margin-bottom:6px">Your tags <span style="font-weight:400;color:var(--muted)">(tap to add)</span></label>
-        <div style="display:flex;flex-wrap:wrap;gap:6px">
-          ${vocab.map(t=>`<span class="tag-suggest" onclick="tagApply('${escQ(t)}')">${esc(capWords(t))}<button title="Delete tag everywhere" onclick="event.stopPropagation();tagForget('${escQ(t)}')">×</button></span>`).join('')}
-        </div>`:''}
-    </div>
-
     <div class="section" id="reSec-details">
-      <h3 style="margin-bottom:4px">Details</h3>
-      <p style="font-size:.8rem;color:var(--muted);margin-bottom:12px">Everything the card claims, including what came off a scan. Change what you know better — 20 min if that's how long it really takes, not spicy if it isn't.</p>
+      <h3 style="margin-bottom:4px">Details &amp; tags</h3>
+      <p style="font-size:.8rem;color:var(--muted);margin-bottom:12px">Everything the card claims, including what came off a scan. Change what you know better — 20 min if that's how long it really takes.</p>
       <datalist id="reTypes">${types.map(t=>`<option value="${esc(t)}">`).join('')}</datalist>
       <datalist id="reCountries">${countries.map(c=>`<option value="${esc(c)}">`).join('')}</datalist>
-      <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px">
+      <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px">
         <div style="flex:1;min-width:140px"><label style="margin-bottom:6px">Cuisine/type</label>
           <input type="text" id="reType" list="reTypes" value="${esc(r.t||'')}"></div>
         <div style="flex:1;min-width:140px"><label style="margin-bottom:6px">Country</label>
@@ -3623,20 +3809,26 @@ function renderRecipeEdit(){
         <div style="min-width:110px"><label style="margin-bottom:6px">Calories</label>
           <input type="number" min="0" id="reCal" value="${r.k||''}"></div>
       </div>
-      <label style="margin-bottom:6px">Heat</label>
-      <select id="reSpicy" style="margin-bottom:12px">
-        <option value=""${spicyVal===''?' selected':''}>Automatic — ${spicyAuto?'spicy':'not spicy'}</option>
-        <option value="1"${spicyVal==='1'?' selected':''}>Spicy</option>
-        <option value="0"${spicyVal==='0'?' selected':''}>Not spicy</option>
-      </select>
-      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px">
-        <label class="toggle-chip"><input type="checkbox" id="reFreeze" ${r.f?'checked':''}><span>Freezable</span></label>
-        <label class="toggle-chip"><input type="checkbox" id="reBulk" ${r.b?'checked':''}><span>Bulk-friendly</span></label>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:18px">
         <button class="btn btn-green" onclick="saveRecipeDetails()">Save details</button>
         ${changed?`<button class="btn btn-outline" onclick="resetRecipeDetails()">Reset to original</button>
           <span style="font-size:.78rem;color:var(--muted)">${Object.keys(ov).length} field${Object.keys(ov).length!==1?'s':''} edited by you</span>`:''}
+      </div>
+
+      <label style="margin-bottom:2px">Tags</label>
+      <p style="font-size:.78rem;color:var(--muted);margin-bottom:8px">Tap to turn a tag on or off. Ones with a rule behind them show
+        <span style="color:var(--teal)">auto</span> until you overrule them — tap again to hand it back to the rule.
+        <a onclick="showPage('admin');showAdminView('tags')" style="cursor:pointer;color:var(--primary)">Manage tags →</a></p>
+      <div id="reSec-tags" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+        ${tagDefs.map(d=>{
+          const st=tagStateOf(r,d.id);const on=hasTag(r,d.id);
+          return `<button class="tag-pick${on?' on':''}${st==='auto'?' auto':''}" onclick="toggleTag('${escQ(name)}','${escQ(d.id)}');renderRecipeEdit()">
+            ${esc(d.label)}${st==='auto'&&d.auto?`<span class="tp-auto">${on?'auto':''}</span>`:''}${st!=='auto'?`<span class="tp-auto">${st==='on'?'yes':'no'}</span>`:''}
+          </button>`;}).join('')}
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <input type="text" id="tagAddInput" placeholder="New tag — available on every recipe" style="flex:1;min-width:180px" onkeydown="if(event.key==='Enter')tagAddFromInput()">
+        <button class="btn btn-sm btn-green" onclick="tagAddFromInput()">Add tag</button>
       </div>
     </div>
 
@@ -3675,12 +3867,9 @@ function saveRecipeDetails(){
   // The old "note badge" field is gone — notes live in one place now. Any badge a recipe
   // already carries is preserved rather than being cleared by the missing input.
   if(recipeOver[name]&&recipeOver[name].o!==undefined)ov.o=recipeOver[name].o;
-  const f=document.getElementById('reFreeze').checked?1:0;
-  const b=document.getElementById('reBulk').checked?1:0;
-  if(f!==(raw.f?1:0))ov.f=f;
-  if(b!==(raw.b?1:0))ov.b=b;
-  const sp=document.getElementById('reSpicy').value;
-  if(sp!=='')ov.spicy=sp==='1'?1:0;
+  // Freezable, bulk-friendly and spicy are tags now (see the picker above). Any override a
+  // recipe already carried is kept, since the freezable/bulk rules still read r.f / r.b.
+  ['f','b','spicy'].forEach(k=>{if(recipeOver[name]&&recipeOver[name][k]!==undefined)ov[k]=recipeOver[name][k]});
   if(Object.keys(ov).length)recipeOver[name]=ov;else delete recipeOver[name];
   saveRecipeOver();
   renderRecipeEdit();populateFilters();renderBrowse();
@@ -3716,22 +3905,17 @@ function resetRecipeMethod(){
   const name=editRecipeName;if(!name)return;
   delete customMethods[name];saveMethods();renderRecipeEdit();toast('Back to the Gousto method');
 }
-function tagAddFromInput(){const i=document.getElementById('tagAddInput');tagApply(i.value);i.value='';i.focus();}
-function tagApply(tag){tag=(tag||'').trim();if(!tag)return;const n=editRecipeName;
-  if(!customTags[n])customTags[n]=[];
-  if(!customTags[n].some(t=>t.toLowerCase()===tag.toLowerCase()))customTags[n].push(tag);
-  if(!tagVocab.some(t=>t.toLowerCase()===tag.toLowerCase()))tagVocab.push(tag);
-  saveTags();saveTagVocab();renderRecipeEdit();}
-function tagUnapply(tag){const n=editRecipeName;if(customTags[n]){customTags[n]=customTags[n].filter(t=>t!==tag);if(!customTags[n].length)delete customTags[n];saveTags();}renderRecipeEdit();}
-function tagForget(tag){
-  if(!confirm('Delete the tag “'+tag+'” from all recipes?'))return;
-  tagVocab=tagVocab.filter(t=>t!==tag);
-  Object.keys(customTags).forEach(n=>{customTags[n]=customTags[n].filter(t=>t!==tag);if(!customTags[n].length)delete customTags[n];});
-  saveTags();saveTagVocab();renderRecipeEdit();}
-function renameTagPrompt(oldTag){const nv=prompt('Rename tag (applies everywhere):',oldTag);if(nv==null)return;const newTag=nv.trim();if(!newTag||newTag===oldTag)return;
-  tagVocab=[...new Set(tagVocab.map(t=>t===oldTag?newTag:t))];
-  Object.keys(customTags).forEach(n=>{customTags[n]=[...new Set(customTags[n].map(t=>t===oldTag?newTag:t))];});
-  saveTags();saveTagVocab();renderRecipeEdit();}
+// Adding a tag here creates it site-wide and puts it on this recipe — that's the point:
+// there's no such thing as a tag that only one dish can have.
+function tagAddFromInput(){
+  const i=document.getElementById('tagAddInput');const label=(i.value||'').trim();
+  if(!label)return;
+  const existing=tagDefs.find(t=>t.label.toLowerCase()===label.toLowerCase());
+  const id=existing?existing.id:addTagDef(label,'My tags','chip');
+  if(id&&editRecipeName)setTagState(editRecipeName,id,'on');
+  i.value='';renderRecipeEdit();
+  toast(existing?`Added “${existing.label}”`:`Created “${label}” — now available on every recipe`);
+}
 
 // RANDOM
 function pickRandom(){
@@ -7857,7 +8041,7 @@ async function forceAppUpdate(){
   location.replace(location.pathname+'?u='+Date.now());
 }
 const SHARED_STORE='gousto-shared-ca873cfaae016299350bff25c0b9331bdd47cfe028dac4fd';
-const SYNC_KEYS=['gousto_custom','gousto_filing','gousto_filing_new','gousto_favs','gousto_ratings','gousto_plan','gousto_plan_portions','gousto_portions','gousto_checked','gousto_pantry','gousto_saved_plans','gousto_plan_history','gousto_tags','gousto_tag_vocab','gousto_notes','gousto_yields','gousto_hidden_steps','gousto_recipe_over','gousto_optional','gousto_removed','gousto_solo_steps','gousto_methods','gousto_amounts','gousto_bulk','gousto_bulk_saved','gousto_costs','gousto_pricing','gousto_plan_draft','gousto_plan_seq','gousto_pantry_amounts','gousto_ing_meta','gousto_ing_reviewed','gousto_card_names','gousto_cats','gousto_tombstones','gousto_filing_cat'];
+const SYNC_KEYS=['gousto_custom','gousto_filing','gousto_filing_new','gousto_favs','gousto_ratings','gousto_plan','gousto_plan_portions','gousto_portions','gousto_checked','gousto_pantry','gousto_saved_plans','gousto_plan_history','gousto_tags','gousto_tag_vocab','gousto_tag_defs','gousto_notes','gousto_yields','gousto_hidden_steps','gousto_recipe_over','gousto_optional','gousto_removed','gousto_solo_steps','gousto_methods','gousto_amounts','gousto_bulk','gousto_bulk_saved','gousto_costs','gousto_pricing','gousto_plan_draft','gousto_plan_seq','gousto_pantry_amounts','gousto_ing_meta','gousto_ing_reviewed','gousto_card_names','gousto_cats','gousto_tombstones','gousto_filing_cat'];
 let applyingRemote=false, syncing=false, syncTimer=null;
 
 function syncCode(){return localStorage.getItem('gousto_sync_code')||''}
@@ -8110,7 +8294,7 @@ function renderSyncSettings(){
 }
 
 // Seed tag vocabulary from any tags already applied to recipes
-(()=>{let changed=false;allCustomTags().forEach(t=>{if(!tagVocab.some(v=>v.toLowerCase()===t.toLowerCase())){tagVocab.push(t);changed=true;}});if(changed)saveTagVocab();})();
+
 migratePlans();
 // One-time seed of the 50 starter basic meals (deletions persist afterwards)
 if(!localStorage.getItem('gousto_basics_seeded')){
