@@ -1,0 +1,3 @@
+# Copy to .dev.vars for `wrangler pages dev .`. .dev.vars is gitignored; never commit a real key.
+# Optional: recipe-card scanning through functions/api/anthropic.js. On-device OCR and paste work without it.
+ANTHROPIC_API_KEY=

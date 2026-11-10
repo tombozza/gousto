@@ -5,3 +5,4 @@ node_modules/
 sync-worker/.wrangler/
 scratch_*.json
 .wrangler/
+.dev.vars

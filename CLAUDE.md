@@ -5,6 +5,15 @@ with two Functions and a separate KV-backed sync Worker.
 
 Live: https://gousto-6e5.pages.dev · Repo: `github.com/tombozza/gousto`
 
+**Read docs/HANDOVER.md first.** Retired 6 Oct 2026 (replaced by Food Planner). It is still deployed as a safety
+net. Don't develop it.
+
+## Keep the handover current
+
+At the end of any session that makes a decision or changes what works or what's next, add a dated line to
+`docs/HANDOVER.md` › Decisions ("YYYY-MM-DD: chose X over Y because Z", newest first) and update its Status and
+Parked ideas.
+
 ## Deploy from a staged clean directory — not the repo root
 
 **This is the one thing to get right here.** The `Recipe cards/` folder is ~1GB of scanned
