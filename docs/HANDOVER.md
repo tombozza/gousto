@@ -57,6 +57,7 @@ See `.dev.vars.example`.
 
 ## Decisions (newest first)
 
+- 2026-11-12: Claude key removed (estate audit): its `/api/anthropic` proxy had no origin check, so anyone could spend the key. `ANTHROPIC_API_KEY` deleted and redeployed; live status now says `serverKey: false`. Scanning falls back to the free route (on-device text + ChatGPT). Food Planner does the paid scanning now. Don't put the key back without adding the same-site check from `food-planner/functions/api/anthropic.js`.
 - 2026-10-06: Archived, and replaced by Food Planner. Kept deployed as a safety net. Deleting it is Tom's call.
 - 2026-09-15: Tom decided to rethink Gousto Planner and Soup Planner as one new app rather than rip them apart.
   That became Food Planner.
