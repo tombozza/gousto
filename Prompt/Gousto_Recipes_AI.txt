@@ -1,0 +1,3608 @@
+# GOUSTO RECIPE COLLECTION — AI MEAL PLANNING REFERENCE
+# 168 recipes. Format: Name | Country | Cuisine | Time (min) | Calories | Notes | Frozen? | Bulk?
+# Ingredients listed per 2 portions
+
+================================================================================
+
+## Creamy Fennel Sausage & Chilli Ragù With Mafaldine
+Country/Region: Italy
+Cuisine Type: pasta
+Time to Cook: 30 min
+Calories: 744 kcal per person
+Notes: None
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Baby leaf salad 50g
+  - Balsamic vinegar 15ml
+  - Brown onion 1
+  - Chicken stock mix (intense) 5.5g
+  - Chinese rice wine 15ml
+  - Cornish clotted cream 40g
+  - Fennel seeds 1tsp
+  - Garlic clove 2
+  - Grated Italian hard cheese 30g
+  - Mafaldine 200g
+  - Red chilli 1
+  - Sausage meat 150g
+------------------------------------------------------------
+
+## Creamy Chorizo & Butternut Squash Farfalle
+Country/Region: Spain
+Cuisine Type: pasta
+Time to Cook: 30 min
+Calories: 715 kcal per person
+Notes: Everyday Favourites
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Butternut squash cubes 160g
+  - Chicken stock mix 5.5g
+  - Diced chorizo 100g
+  - Farfalle 2x100g
+  - Garlic clove 1
+  - Shallot 1
+  - Soft cheese 2x50g
+------------------------------------------------------------
+
+## Sausage & Saffron Ragù With Fresh Orecchiette
+Country/Region: Italy
+Cuisine Type: pasta
+Time to Cook: 20 min
+Calories: 636 kcal per person
+Notes: Pasta Pronto
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Chicken stock mix (intense) 5.5g
+  - Chinese rice wine 15ml
+  - Cracked black pepper 2.5g
+  - Dried bay leaves 1
+  - Fresh orecchiette 250g
+  - Garlic clove 1
+  - Grated Italian hard cheese 30g
+  - Saffron 1pkt
+  - Sausage meat 150g
+  - Tomato paste 2x16g
+------------------------------------------------------------
+
+## Chicken Thigh Cacciatora-Style Sauce With Fresh Orecchiette
+Country/Region: Italy
+Cuisine Type: pasta
+Time to Cook: 20 min
+Calories: 689 kcal per person
+Notes: Pasta Pronto
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Balsamic sun-dried tomato paste 30g
+  - Chicken stock mix (intense) 5.5g
+  - Diced chicken thigh 250g
+  - Fresh orecchiette 250g
+  - Garlic clove 2
+  - Grated Italian hard cheese 30g
+  - Pepper 1
+  - Shallot 1
+  - Tomato paste 32g
+------------------------------------------------------------
+
+## Sausage, Leek & Fennel Sauce With Fresh Orecchiette
+Country/Region: Italy
+Cuisine Type: pasta
+Time to Cook: 20 min
+Calories: 725 kcal per person
+Notes: Pasta Pronto
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Chicken stock mix 11g
+  - Fennel seeds 1tsp
+  - Fresh orecchiette 250g
+  - Garlic clove 1
+  - Grated Italian hard cheese 30g
+  - Leek 1
+  - Sausage meat 150g
+  - Soft cheese 50g
+------------------------------------------------------------
+
+## Creamy Bacon & Pea Sauce With Fresh Orecchiette
+Country/Region: Italy
+Cuisine Type: pasta
+Time to Cook: 20 min
+Calories: 581 kcal per person
+Notes: Pasta Pronto
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Bacon lardons 100g
+  - Basil 5g
+  - Blanched peas 160g
+  - Fresh orecchiette 250g
+  - Garlic clove 2
+  - Grated Italian hard cheese 30g
+------------------------------------------------------------
+
+## Creamy Korean King Prawn Rose Pasta
+Country/Region: Korea / UK
+Cuisine Type: pasta
+Time to Cook: 25 min
+Calories: 717 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Conchiglie 200g
+  - Cornish clotted cream 2x40g
+  - Dried chilli flakes 0.5tsp
+  - Garlic clove 2
+  - Gochujang paste 30g
+  - Raw peeled king prawns 171g
+  - Spinach 80g
+  - Tomato paste 32g
+  - Vegetable stock mix 5.5g
+------------------------------------------------------------
+
+## Pork, Fennel & Red Wine Ragu With Tortiglioni
+Country/Region: Italy
+Cuisine Type: pasta
+Time to Cook: 30 min
+Calories: 654 kcal per person
+Notes: None
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Beef stock mix (intense) 5.5g
+  - Fennel seeds 1tsp
+  - Finely chopped tomatoes 200g
+  - Garlic clove 3
+  - Italian hard cheese 20g
+  - Parsley 5g
+  - Pork mince 250g
+  - Red wine paste 10g
+  - Shallot 1
+  - Tomato paste 32g
+  - Tortiglioni 200g
+------------------------------------------------------------
+
+## One Pot Pork Shoulder Ragu
+Country/Region: Italy
+Cuisine Type: pasta
+Time to Cook: 70 min
+Calories: 689 kcal per person
+Notes: Prepped in 5
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Carrot 1
+  - Chicken stock mix (intense) 5.5g
+  - Diced pork shoulder 250g
+  - Dried oregano 1tsp
+  - Finely chopped tomatoes 200g
+  - Garlic clove 2
+  - Grated Italian hard cheese 30g
+  - Henderson's Relish 15ml
+  - Soy sauce 15ml
+  - Tomato paste 16g
+  - Tortiglioni 200g
+------------------------------------------------------------
+
+## Creamy Gochujang Sausage & Leek Tortiglioni
+Country/Region: Korea / Italy
+Cuisine Type: pasta
+Time to Cook: 30 min
+Calories: 753 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Chicken stock mix 5.5g
+  - Garlic clove 3
+  - Gochujang paste 30g
+  - Grated Italian hard cheese 30g
+  - Leek 1
+  - Sausage meat 150g
+  - Soft cheese 50g
+  - Spinach 80g
+  - Spring onion 1
+  - Tortiglioni 200g
+------------------------------------------------------------
+
+## Creamy Chicken & Pesto Wholewheat Tortiglioni With Basil
+Country/Region: Italy
+Cuisine Type: pasta
+Time to Cook: 30 min
+Calories: 693 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Basil 10g
+  - Cheddar cheese 40g
+  - Chicken breast strips 250g
+  - Chicken stock mix 5.5g
+  - Red onion 1
+  - Soft cheese 50g
+  - Spinach 80g
+  - Traditional Italian pesto 45g
+  - Wholewheat tortiglioni 2x75g
+------------------------------------------------------------
+
+## Spicy Sausage & Creamy Tomato Sauce With Fresh Tagliatelle
+Country/Region: Italy
+Cuisine Type: pasta
+Time to Cook: 20 min
+Calories: 700 kcal per person
+Notes: Pasta Pronto
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Chicken stock mix (intense) 5.5g
+  - Dried chilli flakes 0.5tsp
+  - Finely chopped tomatoes 200g
+  - Fresh tagliatelle 250g
+  - Garlic clove 1
+  - Grated Italian hard cheese 30g
+  - Sausage meat 150g
+  - Soft cheese 50g
+  - Spinach 80g
+------------------------------------------------------------
+
+## Pork & Beef Bolognese Ragù Sauce With Fresh Tagliatelle
+Country/Region: Italy
+Cuisine Type: pasta
+Time to Cook: 20 min
+Calories: 690 kcal per person
+Notes: Pasta Pronto
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Beef stock mix 5.5g
+  - Dried basil 1tsp
+  - Dried oregano 1tsp
+  - Fresh tagliatelle 250g
+  - Garlic clove 1
+  - Grated Italian hard cheese 30g
+  - Pork & beef mince 250g
+  - Soy sauce 8ml
+  - Tomato 1
+  - Tomato paste 32g
+------------------------------------------------------------
+
+## Spicy 'Nduja & Pesto Ragù With Fresh Tagliatelle
+Country/Region: Italy
+Cuisine Type: pasta
+Time to Cook: 20 min
+Calories: 750 kcal per person
+Notes: Pasta Pronto
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - 'Nduja 40g
+  - Baby leaf salad 50g
+  - Balsamic vinegar 15ml
+  - Cherry tomatoes 125g
+  - Chicken stock mix (intense) 5.5g
+  - Chinese rice wine 15ml
+  - Fresh tagliatelle 250g
+  - Grated Italian hard cheese 30g
+  - Soft cheese 50g
+  - Tomato paste 32g
+  - Traditional Italian pesto 45g
+------------------------------------------------------------
+
+## Spaghetti Amatriciana With Crispy Bacon
+Country/Region: Italy
+Cuisine Type: pasta
+Time to Cook: 40 min
+Calories: 569 kcal per person
+Notes: None
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Bacon lardons 100g
+  - Basil 10g
+  - Brown onion 1
+  - Cherry tomatoes 125g
+  - Chicken stock mix 5.5g
+  - Dried chilli flakes 0.5tsp
+  - Dried oregano 1tsp
+  - Garlic clove 2
+  - Grated Italian hard cheese 30g
+  - Spaghetti 190g
+  - Tomato paste 32g
+------------------------------------------------------------
+
+## Chicken Milanese & Spaghetti Pomodoro
+Country/Region: Italy
+Cuisine Type: pasta
+Time to Cook: 40 min
+Calories: 640 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Chicken breast portion 2
+  - Chicken stock mix (intense) 5.5g
+  - Dried oregano 1tsp
+  - Finely chopped tomatoes 200g
+  - Garlic clove 2
+  - Italian hard cheese 20g
+  - Panko breadcrumbs 40g
+  - Spaghetti 190g
+  - Tomato paste 32g
+------------------------------------------------------------
+
+## Spicy Sardinian-Style Lamb & Chilli Spaghetti
+Country/Region: Italy
+Cuisine Type: pasta
+Time to Cook: 20 min
+Calories: 695 kcal per person
+Notes: 10-Minute
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Beef stock mix (intense) 5.5g
+  - Dried chilli flakes 0.5tsp
+  - Dried oregano 1tsp
+  - Grated Italian hard cheese 30g
+  - Lamb mince 250g
+  - Red wine paste 10g
+  - Roasted garlic paste 15g
+  - Shallot 1
+  - Spaghetti 190g
+  - Tomato paste 32g
+------------------------------------------------------------
+
+## Smoked Mackerel Puttanesca With Crispy Capers
+Country/Region: Italy
+Cuisine Type: pasta
+Time to Cook: 35 min
+Calories: 536 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Black olives 40g
+  - Capers 20g
+  - Dried chilli flakes 0.5tsp
+  - Finely chopped tomatoes 200g
+  - Garlic clove 1
+  - Linguine 190g
+  - Red onion 1
+  - Smoked mackerel fillet 1
+  - Tomato paste 32g
+------------------------------------------------------------
+
+## Creamy Chicken Thigh & Mushroom Stroganoff
+Country/Region: Russia
+Cuisine Type: pasta
+Time to Cook: 45 min
+Calories: 707 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Chestnut mushrooms 80g
+  - Chicken stock mix (intense) 5.5g
+  - Creme fraiche 80g
+  - Garlic clove 1
+  - Ground smoked paprika 2tsp
+  - Linguine 190g
+  - Red onion 1
+  - Skinless chicken thighs 320g
+  - Thyme 5g
+------------------------------------------------------------
+
+## One Pot Prosciutto & Tarragon Spring Mac 'N' Cheese
+Country/Region: UK
+Cuisine Type: pasta
+Time to Cook: 30 min
+Calories: 772 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Baby leaf salad 50g
+  - Balsamic vinegar 15ml
+  - Blanched peas 160g
+  - Cheddar cheese 2x40g
+  - Cornflour 1tsp
+  - Crispy onions 15g
+  - Garlic clove 2
+  - Macaroni 150g
+  - Parsley & tarragon pesto 40g
+  - Sliced prosciutto 52g
+  - Soft cheese 50g
+------------------------------------------------------------
+
+## One Pot Pork & Beef 'Cheeseburger' Macaroni
+Country/Region: USA
+Cuisine Type: pasta
+Time to Cook: 45 min
+Calories: 729 kcal per person
+Notes: Prepped in 5
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Baby leaf salad 50g
+  - Beef stock mix (intense) 5.5g
+  - Brown onion 1
+  - Cheddar cheese 40g
+  - Garlic clove 1
+  - Grated Italian hard cheese 30g
+  - Macaroni 150g
+  - Mustard ketchup 20g
+  - Pork & beef mince 250g
+  - Tomato 1
+  - Tomato ketchup 30ml
+  - Tomato paste 32g
+------------------------------------------------------------
+
+## Chorizo, Conchiglie & Spinach Pasta Bake
+Country/Region: Spain / Italy
+Cuisine Type: pasta bake
+Time to Cook: 40 min
+Calories: 825 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Cheddar cheese 2x40g
+  - Conchiglie 200g
+  - Diced chorizo 100g
+  - Finely chopped tomatoes 200g
+  - Garlic clove 1
+  - Soft cheese 50g
+  - Spinach 120g
+------------------------------------------------------------
+
+## Greek-Style Lamb Pastitsio Bake With Salad
+Country/Region: Greece
+Cuisine Type: pasta bake
+Time to Cook: 55 min
+Calories: 637 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Balsamic vinegar 15ml
+  - Beef stock mix (intense) 5.5g
+  - Brown onion 1
+  - Cheddar cheese 40g
+  - Dried oregano 1tsp
+  - Garlic clove 1
+  - Ground cinnamon 0.5tsp
+  - Lamb mince 250g
+  - Rocket 50g
+  - Tomato paste 32g
+  - Tortiglioni 150g
+------------------------------------------------------------
+
+## One Pan Creamy Sausage, Mushroom & Spinach Orzo
+Country/Region: Italy
+Cuisine Type: orzo
+Time to Cook: 35 min
+Calories: 613 kcal per person
+Notes: One Pan Wonders
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Chestnut mushrooms 160g
+  - Chicken stock mix (intense) 5.5g
+  - Chinese rice wine 15ml
+  - Creme fraiche 80g
+  - Dijon mustard 5.5g
+  - Garlic clove 3
+  - Italian hard cheese 20g
+  - Orzo 150g
+  - Sausage meat 150g
+  - Spinach 80g
+------------------------------------------------------------
+
+## One Pan Basil Pork Meatballs With Creamy Pesto Orzo
+Country/Region: Italy
+Cuisine Type: orzo
+Time to Cook: 40 min
+Calories: 768 kcal per person
+Notes: One Pan Wonders
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Chicken stock mix (intense) 5.5g
+  - Courgette 1
+  - Dried basil 1tsp
+  - Garlic clove 2
+  - Italian hard cheese 20g
+  - Orzo 150g
+  - Pork mince 250g
+  - Rocket 20g
+  - Soft cheese 50g
+  - Traditional Italian pesto 45g
+------------------------------------------------------------
+
+## One Pan Basil Pork Meatballs With Creamy Tarragon Pesto Orzo
+Country/Region: Italy
+Cuisine Type: orzo
+Time to Cook: 40 min
+Calories: 750 kcal per person
+Notes: One Pan Wonders
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Chicken stock mix (intense) 5.5g
+  - Courgette 1
+  - Dried basil 1tsp
+  - Garlic clove 2
+  - Italian hard cheese 20g
+  - Orzo 150g
+  - Parsley & tarragon pesto 40g
+  - Pork mince 250g
+  - Rocket 20g
+  - Soft cheese 50g
+------------------------------------------------------------
+
+## Crispy Chicken With Mushroom & Parsley Orzo
+Country/Region: UK
+Cuisine Type: orzo
+Time to Cook: 55 min
+Calories: 779 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Cheddar cheese 2x40g
+  - Chicken stock mix (intense) 5.5g
+  - Garlic clove 1
+  - Leek 1
+  - Orzo 150g
+  - Parsley 5g
+  - Skin-on chicken thighs 320g
+  - White cup mushrooms 160g
+------------------------------------------------------------
+
+## Chicken & Pea Pesto Orzo With Chilli Oil
+Country/Region: UK
+Cuisine Type: orzo
+Time to Cook: 40 min
+Calories: 564 kcal per person
+Notes: Family Kitchen
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Basil 10g
+  - Blanched peas 160g
+  - Chicken breast strips 250g
+  - Chicken stock mix (intense) 5.5g
+  - Dried chilli flakes 1tsp
+  - Flaked almonds 15g
+  - Garlic clove 1
+  - Italian hard cheese 20g
+  - Orzo 150g
+  - Spinach 80g
+------------------------------------------------------------
+
+## Garlicky Chicken With Tomato & Green Butter Orzo
+Country/Region: UK
+Cuisine Type: orzo
+Time to Cook: 45 min
+Calories: 436 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Basil 10g
+  - Cherry tomatoes 250g
+  - Chicken breast portion 2
+  - Chicken stock mix (intense) 5.5g
+  - Garlic clove 1
+  - Orzo 150g
+  - Red wine vinegar 15ml
+------------------------------------------------------------
+
+## One Pot Pulled Chicken, Red Pepper & Pesto Orzo
+Country/Region: UK
+Cuisine Type: orzo
+Time to Cook: 35 min
+Calories: 614 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Basil 5g
+  - Cheddar cheese 40g
+  - Chicken breast portion 2
+  - Chicken stock mix (intense) 5.5g
+  - Garlic clove 1
+  - Orzo 150g
+  - Red onion 1
+  - Red pepper 1
+  - Sun-dried tomato pesto 45g
+  - Tomato paste 16g
+------------------------------------------------------------
+
+## Creamy Red Pesto Chicken Orzo
+Country/Region: UK / Italy
+Cuisine Type: orzo
+Time to Cook: 20 min
+Calories: 667 kcal per person
+Notes: 10-Minute
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Cheddar cheese 40g
+  - Chicken stock mix (intense) 5.5g
+  - Creme fraiche 80g
+  - Diced chicken breast 250g
+  - Orzo 150g
+  - Sun-dried tomato pesto 45g
+  - Sweet pointed pepper 1
+  - Tomato paste 16g
+------------------------------------------------------------
+
+## Herby Chicken Meatballs with Creamy Lemon Orzo
+Country/Region: UK
+Cuisine Type: orzo
+Time to Cook: 30 min
+Calories: 506 kcal per person
+Notes: Delish & Healthy-ish
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Chicken stock mix (intense) 5.5g
+  - Garlic clove 2
+  - Lemon 1
+  - Orzo 150g
+  - Parsley & mint 10g
+  - Seasoned chicken mince 250g
+  - Soft cheese 50g
+  - Spinach 120g
+------------------------------------------------------------
+
+## Romesco Pork Meatballs, Orzo & Five Bean Stew
+Country/Region: Spain
+Cuisine Type: stew
+Time to Cook: 35 min
+Calories: 663 kcal per person
+Notes: Fibre Fix
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - 5 bean medley 240g
+  - Chicken stock mix (intense) 5.5g
+  - Dried oregano 1tsp
+  - Garlic clove 3
+  - Ground smoked paprika 2tsp
+  - Orzo 100g
+  - Pork mince 250g
+  - Romesco sauce 40g
+  - Spinach 80g
+  - Tomato paste 32g
+------------------------------------------------------------
+
+## Greek-Style Red Wine Pork, Orzo & Bean Stew
+Country/Region: Greece
+Cuisine Type: stew
+Time to Cook: 65 min
+Calories: 551 kcal per person
+Notes: Fibre Fix
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Beef stock mix 11g
+  - Cannellini beans 390g
+  - Diced pork shoulder 250g
+  - Dried oregano 1tsp
+  - Finely chopped tomatoes 200g
+  - Garlic clove 2
+  - Ground paprika 2tsp
+  - Ground sumac 1tsp
+  - Natural yoghurt 80g
+  - Orzo 75g
+  - Red onion 1
+  - Red wine paste 10g
+------------------------------------------------------------
+
+## Baked Harissa & Red Wine Orzo With Honey Greek Cheese (V)
+Country/Region: Greece
+Cuisine Type: orzo
+Time to Cook: 40 min
+Calories: 509 kcal per person
+Notes: None
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Cherry tomatoes 125g
+  - Garlic clove 2
+  - Greek salad cheese 100g
+  - Harissa paste 20g
+  - Honey 25g
+  - Orzo 150g
+  - Parsley 5g
+  - Red onion 1
+  - Red pepper 1
+  - Red wine paste 10g
+  - Tomato paste 16g
+------------------------------------------------------------
+
+## Creamy Carbonara Risotto With Balsamic Tomatoes
+Country/Region: Italy
+Cuisine Type: risotto
+Time to Cook: 50 min
+Calories: 575 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Arborio rice 160g
+  - Bacon lardons 100g
+  - Balsamic vinegar 15ml
+  - Brown onion 1
+  - Cherry tomatoes 125g
+  - Chicken stock mix (intense) 5.5g
+  - Chinese rice wine 15ml
+  - Free range egg 2
+  - Garlic clove 2
+  - Grated pecorino cheese 30g
+  - Rocket 20g
+------------------------------------------------------------
+
+## Easy Mushroom Risotto With Crispy Bacon
+Country/Region: Italy
+Cuisine Type: risotto
+Time to Cook: 35 min
+Calories: 488 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Arborio rice 160g
+  - Bacon lardons 100g
+  - Brown onion 1
+  - Chestnut mushrooms 160g
+  - Chinese rice wine 15ml
+  - Garlic clove 1
+  - Grated Italian hard cheese 30g
+  - Parsley 5g
+  - Vegetable stock mix 11g
+------------------------------------------------------------
+
+## Creamy Bacon & Butternut Squash Risotto
+Country/Region: Italy
+Cuisine Type: risotto
+Time to Cook: 50 min
+Calories: 508 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Arborio rice 160g
+  - Butternut squash cubes 160g
+  - Chicken stock mix (intense) 5.5g
+  - Dried sage 1tsp
+  - Garlic clove 1
+  - Grated Italian hard cheese 30g
+  - Shallot 1
+  - Smoked streaky bacon 90g
+------------------------------------------------------------
+
+## Creamy Chicken, Mushroom & Thyme Risotto
+Country/Region: Italy
+Cuisine Type: risotto
+Time to Cook: 45 min
+Calories: 595 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Arborio rice 160g
+  - Brown onion 1
+  - Cheddar cheese 40g
+  - Chestnut mushrooms 160g
+  - Chicken breast strips 250g
+  - Chicken stock mix (intense) 5.5g
+  - Garlic clove 2
+  - Soft cheese 50g
+  - Thyme 5g
+------------------------------------------------------------
+
+## One Pan Creamy Mustard Chicken Thigh & Corn Gnocchi
+Country/Region: UK
+Cuisine Type: gnocchi
+Time to Cook: 35 min
+Calories: 663 kcal per person
+Notes: One Pan Wonders
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Chicken stock mix (intense) 5.5g
+  - Cornish clotted cream 40g
+  - Diced chicken thigh 250g
+  - Dijon mustard 5.5g
+  - Gnocchi 350g
+  - Parsley 5g
+  - Sweetcorn 150g
+------------------------------------------------------------
+
+## Simple Chicken Thigh, Leek & Gnocchi Bake
+Country/Region: UK
+Cuisine Type: gnocchi
+Time to Cook: 50 min
+Calories: 596 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Carrot 1
+  - Chicken stock mix 5.5g
+  - Diced chicken thigh 250g
+  - Garlic clove 1
+  - Gnocchi 350g
+  - Leek 1
+  - Soft cheese 50g
+  - Spring greens 150g
+------------------------------------------------------------
+
+## Harissa Lamb Meatballs With Turmeric Mash And Feta
+Country/Region: Middle East
+Cuisine Type: mash
+Time to Cook: 40 min
+Calories: 469 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Chicken stock mix 5.5g
+  - Feta 30g
+  - Garlic clove 2
+  - Ground turmeric 0.5tsp
+  - Harissa paste 20g
+  - Lamb mince 250g
+  - Shallot 1
+  - Tomato 1
+  - Tomato paste 32g
+  - White potato 3
+------------------------------------------------------------
+
+## Greek-Style Lamb Meatball Bake With Bulgur And Greek Cheese
+Country/Region: Greece
+Cuisine Type: meatball bake
+Time to Cook: 60 min
+Calories: 656 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Beef stock mix 5.5g
+  - Bulgur wheat 130g
+  - Carrot 1
+  - Dried oregano 1tsp
+  - Finely chopped tomatoes 200g
+  - Greek salad cheese 100g
+  - Lamb mince 250g
+  - Parsley 5g
+  - Red onion 1
+------------------------------------------------------------
+
+## Turkish-Style Harissa Lamb With Herbed Bulgur
+Country/Region: Turkey
+Cuisine Type: rice dish
+Time to Cook: 30 min
+Calories: 578 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Bulgur wheat 130g
+  - Cherry tomatoes 250g
+  - Dill 5g
+  - Garlic clove 2
+  - Ground sumac 1tsp
+  - Harissa paste 40g
+  - Lamb mince 250g
+  - Natural yoghurt 80g
+------------------------------------------------------------
+
+## Beef Kofte Wraps With Pickled Salad And Sumac Yoghurt
+Country/Region: Turkey / Middle East
+Cuisine Type: wraps
+Time to Cook: 50 min
+Calories: 715 kcal per person
+Notes: Prepped in 5
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Beef mince 250g
+  - Beef stock mix 5.5g
+  - Carrot 1
+  - Cider vinegar 15ml
+  - Garlic clove 2
+  - Gem lettuce 1
+  - Ground cumin 1tsp
+  - Ground sumac 1tsp
+  - Ground turmeric 0.5tsp
+  - Harissa paste 20g
+  - Natural yoghurt 80g
+  - Plain tortillas 6
+  - Red onion 1
+  - Tomato 1
+------------------------------------------------------------
+
+## Saucy Onion Gravy Beef Meatballs & Crushed Potatoes
+Country/Region: UK
+Cuisine Type: mash
+Time to Cook: 25 min
+Calories: 504 kcal per person
+Notes: Prepped in 5
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Beef mince 250g
+  - Brown onion 1
+  - Cornflour 1tsp
+  - Garlic clove 1
+  - Gravy base 14g
+  - Onion marmalade 20g
+  - Tenderstem broccoli 160g
+  - Tomato paste 16g
+  - White potato 3
+------------------------------------------------------------
+
+## Beef Bourguignon With Creamy Mash
+Country/Region: France
+Cuisine Type: stew
+Time to Cook: 80 min
+Calories: 368 kcal per person
+Notes: Prepped in 5
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Beef stock mix (intense) 5.5g
+  - Carrot 1
+  - Crispy onions 15g
+  - Diced beef 200g
+  - Dried bay leaves 2
+  - Dried thyme 0.5tsp
+  - Garlic clove 2
+  - Red wine paste 10g
+  - Shallot 2
+  - Tomato paste 32g
+  - White potato 3
+------------------------------------------------------------
+
+## Beef Bourguignon with Mash
+Country/Region: France
+Cuisine Type: stew
+Time to Cook: 85 min
+Calories: 420 kcal per person
+Notes: Prepped in 5
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Beef stock mix 11g
+  - Carrot 2
+  - Diced beef 200g
+  - Dried bay leaves 2
+  - Dried thyme 0.5tsp
+  - Garlic clove 3
+  - Parsley 5g
+  - Red wine paste 10g
+  - Shallot 2
+  - Tomato paste 32g
+  - White potato 3
+------------------------------------------------------------
+
+## Oven Baked Coq Au Vin With Buttery Crushed Potatoes
+Country/Region: France
+Cuisine Type: stew
+Time to Cook: 55 min
+Calories: 423 kcal per person
+Notes: Prepped in 5
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Beef stock mix (intense) 5.5g
+  - Dried bay leaves 1
+  - Dried thyme 0.5tsp
+  - Garlic clove 2
+  - Parsley 5g
+  - Red wine paste 10g
+  - Shallot 3
+  - Skinless chicken thighs 320g
+  - Tomato paste 32g
+  - White cup mushrooms 80g
+  - White potato 3
+------------------------------------------------------------
+
+## French-Style Mustard & Garlic Chicken With Rice
+Country/Region: France
+Cuisine Type: rice dish
+Time to Cook: 20 min
+Calories: 644 kcal per person
+Notes: 10-Minute
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Chicken stock mix (intense) 5.5g
+  - Cooked white long grain rice 280g
+  - Cornflour 1tsp
+  - Diced chicken thigh 250g
+  - Dried thyme 0.5tsp
+  - Green lentils 185g
+  - Roasted garlic paste 15g
+  - Soft cheese 50g
+  - Spinach 80g
+  - Wholegrain mustard 21g
+------------------------------------------------------------
+
+## One Pot Creamy Chicken Thigh & Vegetable Fricassee
+Country/Region: France / UK
+Cuisine Type: stew
+Time to Cook: 45 min
+Calories: 516 kcal per person
+Notes: Prepped in 5
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Blanched peas 160g
+  - Chicken stock mix (intense) 5.5g
+  - Chinese rice wine 15ml
+  - Garlic clove 2
+  - Skinless chicken thighs 320g
+  - Soft cheese 50g
+  - White cup mushrooms 80g
+  - White potato 3
+------------------------------------------------------------
+
+## Creamy Wild Garlic Chicken Stew With Waxy Potatoes
+Country/Region: UK
+Cuisine Type: stew
+Time to Cook: 20 min
+Calories: 447 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Blanched broad beans 160g
+  - Brown onion 1
+  - Chicken stock mix 5.5g
+  - Diced chicken thigh 250g
+  - Fine green beans 80g
+  - Garlic clove 2
+  - Waxy potatoes 350g
+  - Wild garlic paste 40g
+------------------------------------------------------------
+
+## Creamy Chicken & Cranberry Stew With Crushed Potatoes
+Country/Region: UK
+Cuisine Type: stew
+Time to Cook: 20 min
+Calories: 430 kcal per person
+Notes: The Christmas Express
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Chantenay carrots 160g
+  - Chicken stock mix 11g
+  - Diced chicken thigh 250g
+  - Dried cranberries 30g
+  - Dried thyme 0.5tsp
+  - Roasted garlic paste 15g
+  - Soft cheese 50g
+  - Spinach 80g
+  - Waxy potatoes 350g
+------------------------------------------------------------
+
+## Stuffing Crusted Chicken With Buttery Veg And Onion Gravy
+Country/Region: UK
+Cuisine Type: traybake
+Time to Cook: 60 min
+Calories: 523 kcal per person
+Notes: The Christmas Express
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Carrot 2
+  - Cheddar cheese 40g
+  - Chicken breast portion 2
+  - Chicken stock mix 5.5g
+  - Dried sage 1tsp
+  - Leek 1
+  - Marmite 8g
+  - Onion marmalade 20g
+  - Panko breadcrumbs 40g
+  - White potato 3
+------------------------------------------------------------
+
+## Venetian-Style Chicken Scaloppine With Crispy Potatoes
+Country/Region: Italy
+Cuisine Type: traybake
+Time to Cook: 45 min
+Calories: 364 kcal per person
+Notes: Everyday Favourites
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Chicken breast portion 2
+  - Creme fraiche 40g
+  - Fine green beans 160g
+  - Lemon 1
+  - White potato 4
+------------------------------------------------------------
+
+## Pork Scaloppine With Creamy Sauce & Crackling Mash
+Country/Region: Italy / UK
+Cuisine Type: mash
+Time to Cook: 50 min
+Calories: 593 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Blanched peas 160g
+  - Chicken stock mix 11g
+  - Dried sage 1tsp
+  - Garlic clove 1
+  - Pork loin steaks 300g
+  - Shallot 1
+  - Soft cheese 50g
+  - White potato 3
+------------------------------------------------------------
+
+## Pork Loin With Crushed Potatoes And Peppercorn Sauce
+Country/Region: UK
+Cuisine Type: mash
+Time to Cook: 45 min
+Calories: 545 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Chinese rice wine 15ml
+  - Cracked black pepper 2.5g
+  - Dijon mustard 5.5g
+  - Fine green beans 160g
+  - Pork loin steaks 300g
+  - Shallot 1
+  - Soft cheese 50g
+  - Waxy potatoes 350g
+------------------------------------------------------------
+
+## Pork Shoulder Ragu Bianco With Pecorino Mash & Green Beans
+Country/Region: Italy
+Cuisine Type: mash
+Time to Cook: 70 min
+Calories: 537 kcal per person
+Notes: Cucina Paradiso
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Chicken stock mix (intense) 5.5g
+  - Chinese rice wine 15ml
+  - Diced pork shoulder 250g
+  - Fine green beans 80g
+  - Garlic clove 2
+  - Grated pecorino cheese 30g
+  - Soft cheese 50g
+  - White potato 4
+------------------------------------------------------------
+
+## Creamy Chicken, Bacon & Mushroom Stew
+Country/Region: UK
+Cuisine Type: stew
+Time to Cook: 20 min
+Calories: 506 kcal per person
+Notes: 10-Minute
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Bacon lardons 100g
+  - Chestnut mushrooms 160g
+  - Chicken stock mix 5.5g
+  - Cornflour 1tsp
+  - Diced chicken breast 250g
+  - Fine green beans 160g
+  - Onion marmalade 40g
+  - Parsley 5g
+  - Soft cheese 50g
+  - Waxy potatoes 350g
+------------------------------------------------------------
+
+## Extra Special Bangers 'N' Mash
+Country/Region: UK
+Cuisine Type: mash
+Time to Cook: 45 min
+Calories: 698 kcal per person
+Notes: Everyday Favourites
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Beef stock mix 5.5g
+  - Carrot 2
+  - Fine green beans 80g
+  - Onion marmalade 20g
+  - Proper Porker sausages 6
+  - Red onion 1
+  - White potato 4
+------------------------------------------------------------
+
+## Spiced Honey Chicken Thigh With Green Harissa, Yoghurt And Rice
+Country/Region: Middle East
+Cuisine Type: rice dish
+Time to Cook: 30 min
+Calories: 662 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Coriander & parsley 10g
+  - Dried chilli flakes 0.5tsp
+  - Ground coriander 1tsp
+  - Ground smoked paprika 2tsp
+  - Honey 25g
+  - Lime 1
+  - Natural yoghurt 80g
+  - Red onion 1
+  - Pepper 1
+  - Skinless chicken thighs 320g
+  - Sultanas 30g
+  - White long grain rice 130g
+  - White wine vinegar 15ml
+------------------------------------------------------------
+
+## Oven Baked Spicy Lamb Stew With Pickled Onion, Rice & Pitta
+Country/Region: Middle East
+Cuisine Type: stew
+Time to Cook: 55 min
+Calories: 730 kcal per person
+Notes: Prepped in 5
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Beef stock mix (intense) 5.5g
+  - Finely chopped tomatoes 200g
+  - Garlic clove 2
+  - Harissa paste 20g
+  - Lamb mince 250g
+  - Natural yoghurt 80g
+  - Ras el hanout 1tbsp
+  - Red onion 1
+  - Red wine vinegar 15ml
+  - White long grain rice 130g
+  - Wholemeal pittas 2
+------------------------------------------------------------
+
+## Oven Baked Beef Goulash With Basmati Rice And Soured Cream
+Country/Region: Hungary
+Cuisine Type: stew
+Time to Cook: 75 min
+Calories: 549 kcal per person
+Notes: Prepped in 5
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Beef stock mix 2x5.5g
+  - Brown onion 1
+  - Carrot 1
+  - Cornflour 1tbsp
+  - Diced beef 200g
+  - Pepper 1
+  - Ground smoked paprika 2tsp
+  - Henderson's Relish 15ml
+  - Soured cream 80g
+  - Tomato paste 32g
+  - White basmati rice 130g
+------------------------------------------------------------
+
+## Chicken Thigh & Mushroom Stroganoff
+Country/Region: Russia
+Cuisine Type: rice dish
+Time to Cook: 20 min
+Calories: 536 kcal per person
+Notes: 10-Minute
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Chicken stock mix (intense) 5.5g
+  - Cooked white long grain rice 280g
+  - Diced chicken thigh 250g
+  - Dijon mustard 5.5g
+  - Ground smoked paprika 2tsp
+  - Henderson's Relish 15ml
+  - Soured cream 80g
+  - Spinach 80g
+  - White cup mushrooms 80g
+------------------------------------------------------------
+
+## Oat Crusted Chicken With Creamy Tarragon Cannellini Beans
+Country/Region: UK
+Cuisine Type: stew
+Time to Cook: 40 min
+Calories: 516 kcal per person
+Notes: Fibre Fix
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Cannellini beans 390g
+  - Chicken breast portion 2
+  - Chicken stock mix (intense) 5.5g
+  - Garlic clove 2
+  - Oats 50g
+  - Parsley & tarragon pesto 40g
+  - Soft cheese 50g
+  - Spinach 80g
+------------------------------------------------------------
+
+## Swedish-Style Pork Meatballs With Mash And Peas
+Country/Region: Sweden
+Cuisine Type: mash
+Time to Cook: 45 min
+Calories: 615 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Blanched peas 160g
+  - Chicken stock mix (intense) 5.5g
+  - Dijon mustard 18g
+  - Dill 5g
+  - Dried cranberries 30g
+  - Henderson's Relish 15ml
+  - Panko breadcrumbs 20g
+  - Pork mince 250g
+  - Redcurrant jelly 25g
+  - White potato 4
+------------------------------------------------------------
+
+## Creamy Sausage & Red Onion Tart
+Country/Region: UK
+Cuisine Type: pie
+Time to Cook: 45 min
+Calories: 578 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Baby leaf salad 50g
+  - Puff pastry 160g
+  - Red onion 1
+  - Red wine vinegar 15ml
+  - Sausage meat 150g
+  - Soft cheese 50g
+------------------------------------------------------------
+
+## Baked Spring Veg Casserole With Honey Chicken
+Country/Region: UK
+Cuisine Type: casserole
+Time to Cook: 55 min
+Calories: 572 kcal per person
+Notes: Prepped in 5
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Blanched peas 160g
+  - Chicken stock mix (intense) 5.5g
+  - Dijon mustard 5.5g
+  - Honey 25g
+  - Leek 1
+  - Lemon 1
+  - Skin-on chicken thighs 320g
+  - White potato 3
+------------------------------------------------------------
+
+## Creamy Pork & Cannellini Bean Stew With Parsley
+Country/Region: UK
+Cuisine Type: stew
+Time to Cook: 60 min
+Calories: 487 kcal per person
+Notes: Prepped in 5
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Cannellini beans 185g
+  - Chicken stock mix (intense) 5.5g
+  - Diced pork shoulder 250g
+  - Dried oregano 1tsp
+  - Garlic clove 1
+  - Grated Italian hard cheese 30g
+  - Parsley 5g
+  - Soft cheese 50g
+  - White potato 2
+------------------------------------------------------------
+
+## Oven Baked Normandy-Style Chicken Thigh & Apple Casserole
+Country/Region: France
+Cuisine Type: casserole
+Time to Cook: 50 min
+Calories: 543 kcal per person
+Notes: None
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Apple 1
+  - Brown onion 1
+  - Chicken stock mix (intense) 5.5g
+  - Chinese rice wine 15ml
+  - Chives 5g
+  - Ciabatta 2
+  - Diced chicken thigh 250g
+  - Fine green beans 80g
+  - Garlic clove 2
+  - Soft cheese 50g
+  - Wholegrain mustard 21g
+------------------------------------------------------------
+
+## Creamy Pork, Apple & Mustard Casserole
+Country/Region: UK
+Cuisine Type: casserole
+Time to Cook: 70 min
+Calories: 475 kcal per person
+Notes: Prepped in 5
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Apple 1
+  - Carrot 2
+  - Chicken stock mix (intense) 5.5g
+  - Creme fraiche 80g
+  - Diced pork shoulder 250g
+  - Dried sage 1tsp
+  - Leek 1
+  - White potato 2
+  - Wholegrain mustard 21g
+------------------------------------------------------------
+
+## Baked Tuscan-Style Beef Peposo With Saffron Butter Orzo
+Country/Region: Italy
+Cuisine Type: orzo
+Time to Cook: 65 min
+Calories: 466 kcal per person
+Notes: Prepped in 5
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Beef stock mix (intense) 5.5g
+  - Cracked black pepper 2x2.5g
+  - Diced beef 200g
+  - Dried bay leaves 1
+  - Garlic clove 2
+  - Leek 1
+  - Orzo 150g
+  - Red wine paste 10g
+  - Saffron 1pkt
+  - Tomato paste 32g
+------------------------------------------------------------
+
+## Creamy Tuscan-Style Pork Meatball & Butter Bean Stew
+Country/Region: Italy
+Cuisine Type: stew
+Time to Cook: 45 min
+Calories: 628 kcal per person
+Notes: None
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Butter beans 390g
+  - Carrot 1
+  - Chicken stock mix (intense) 5.5g
+  - Ciabatta 2
+  - Dried oregano 1tsp
+  - Garlic clove 2
+  - Leek 1
+  - Parsley 5g
+  - Pork mince 250g
+  - Soft cheese 50g
+  - Tomato paste 32g
+------------------------------------------------------------
+
+## Baked Chilli & Sage Pork Shoulder And Creamy Mushroom Stew
+Country/Region: UK
+Cuisine Type: stew
+Time to Cook: 70 min
+Calories: 455 kcal per person
+Notes: Prepped in 5
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Chicken stock mix (intense) 5.5g
+  - Mirin 15ml
+  - Creme fraiche 80g
+  - Diced pork shoulder 250g
+  - Dried chilli flakes 0.5tsp
+  - Dried sage 1tsp
+  - Garlic clove 2
+  - Parsley 5g
+  - White cup mushrooms 160g
+  - White potato 3
+------------------------------------------------------------
+
+## One Pot Creamy Sun-Dried Tomato & Chicken Thigh Stew
+Country/Region: Italy / UK
+Cuisine Type: stew
+Time to Cook: 45 min
+Calories: 508 kcal per person
+Notes: Prepped in 5
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Basil 5g
+  - Cherry tomatoes 125g
+  - Chicken stock mix (intense) 5.5g
+  - Creme fraiche 80g
+  - Diced chicken thigh 250g
+  - Dried oregano 1tsp
+  - Garlic clove 2
+  - Grated Italian hard cheese 30g
+  - Sun-dried tomatoes 30g
+  - Tomato paste 16g
+  - White potato 3
+------------------------------------------------------------
+
+## Creamy Chorizo & Bean Stew With Ciabatta
+Country/Region: Spain
+Cuisine Type: stew
+Time to Cook: 40 min
+Calories: 643 kcal per person
+Notes: One Pan Wonders
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Cannellini beans 390g
+  - Carrot 1
+  - Chicken stock mix (intense) 5.5g
+  - Ciabatta 2
+  - Diced chorizo 100g
+  - Dried thyme 0.5tsp
+  - Garlic clove 2
+  - Soft cheese 50g
+  - White potato 1
+------------------------------------------------------------
+
+## One Pot Spicy Gumbo-Inspired Sausage Stew With Rice
+Country/Region: USA
+Cuisine Type: rice dish
+Time to Cook: 35 min
+Calories: 510 kcal per person
+Notes: One Pan Wonders
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Beef stock mix (intense) 5.5g
+  - Brown onion 1
+  - Cooked white long grain rice 280g
+  - Garlic clove 2
+  - Parsley 5g
+  - Pepper 1
+  - Sausage meat 150g
+  - Southern fried seasoning 1tbsp
+  - Tomato paste 16g
+------------------------------------------------------------
+
+## Creamy Chicken Thigh & Sweetcorn Chowder
+Country/Region: UK
+Cuisine Type: soup
+Time to Cook: 35 min
+Calories: 436 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Canned sweetcorn 150g
+  - Chicken stock mix 11g
+  - Chinese rice wine 15ml
+  - Diced chicken thigh 250g
+  - Garlic clove 2
+  - Ground smoked paprika 1tsp
+  - Soft cheese 50g
+  - Spinach 80g
+  - Thyme 5g
+  - White potato 3
+------------------------------------------------------------
+
+## One Pot Jerk-Spiced Fish Chowder With Sweet Potato & Corn
+Country/Region: Caribbean
+Cuisine Type: soup
+Time to Cook: 45 min
+Calories: 576 kcal per person
+Notes: One Pan Wonders
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Basa fillets 2
+  - Brown onion 1
+  - Caribbean jerk paste 24g
+  - Ciabatta 2
+  - Garlic clove 2
+  - Green chilli 1
+  - Soft cheese 50g
+  - Sweet potato 1
+  - Sweetcorn 150g
+  - Vegetable stock mix 11g
+  - White potato 1
+------------------------------------------------------------
+
+## Hearty Chicken & Spelt Soup With Parsley Oil
+Country/Region: UK
+Cuisine Type: soup
+Time to Cook: 50 min
+Calories: 497 kcal per person
+Notes: None
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Carrot 1
+  - Chicken breast strips 250g
+  - Chicken stock mix (intense) 5.5g
+  - Ciabatta 1
+  - Dried bay leaves 1
+  - Garlic clove 3
+  - Parsley 5g
+  - Soy sauce 8ml
+  - Spelt 120g
+  - Spinach 80g
+------------------------------------------------------------
+
+## Brothy Fragrant Chicken Thigh & Spinach Noodle Soup
+Country/Region: Vietnam
+Cuisine Type: noodles
+Time to Cook: 20 min
+Calories: 526 kcal per person
+Notes: 10-Minute
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Diced chicken thigh 250g
+  - Dried chilli flakes 0.5tsp
+  - Fine egg noodle nests 2
+  - Ginger & garlic paste 15g
+  - Pho broth paste 25g
+  - Soy sauce 8ml
+  - Spinach 80g
+  - Toasted sesame oil 10ml
+------------------------------------------------------------
+
+## French Onion And Beef Pho
+Country/Region: France / Vietnam
+Cuisine Type: noodles
+Time to Cook: 45 min
+Calories: 648 kcal per person
+Notes: One Pan Wonders
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Beef mince 250g
+  - Beef stock mix 5.5g
+  - Brown onion 2
+  - Chinese rice wine 15ml
+  - Ginger & garlic paste 15g
+  - Ketjap manis 20g
+  - Pho broth paste 25g
+  - Rice noodles 150g
+  - Soy sauce 15ml
+  - Spring onion 1
+------------------------------------------------------------
+
+## Pork & Black Bean Stir-Fry With Rice
+Country/Region: China
+Cuisine Type: stir-fry
+Time to Cook: 30 min
+Calories: 558 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Black bean paste 40g
+  - Brown onion 1
+  - Fine green beans 80g
+  - Garlic clove 2
+  - Pork mince 250g
+  - Soy sauce 8ml
+  - Toasted sesame oil 10ml
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Chinese-Style Cashew Chicken Thigh With Rice
+Country/Region: China
+Cuisine Type: stir-fry
+Time to Cook: 40 min
+Calories: 711 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Carrot 1
+  - Cashew nuts 2x25g
+  - Chinese rice wine 15ml
+  - Cornflour 4tbsp
+  - Diced chicken thigh 250g
+  - Fresh root ginger 15g
+  - Garlic clove 2
+  - Hoisin sauce 20g
+  - Pepper 1
+  - Soy sauce 30ml
+  - Spring onion 2
+  - Toasted sesame oil 10ml
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Salt & Pepper Chicken Thigh With Egg Fried Rice
+Country/Region: China
+Cuisine Type: rice dish
+Time to Cook: 45 min
+Calories: 600 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Blanched peas 160g
+  - Cornflour 4tbsp
+  - Diced chicken thigh 250g
+  - Five-spice mix 1tsp
+  - Free range egg 1
+  - Fresh root ginger 15g
+  - Garlic clove 1
+  - Red chilli 1
+  - Soy sauce 15ml
+  - Spring onion 3
+  - Toasted sesame oil 10ml
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Chinese-Style Salt & Pepper Pork With Sesame Rice
+Country/Region: China
+Cuisine Type: stir-fry
+Time to Cook: 20 min
+Calories: 578 kcal per person
+Notes: 10-Minute
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Blanched peas 160g
+  - Cooked white long grain rice 280g
+  - Cornflour 1tbsp
+  - Five-spice mix 1tsp
+  - Pork strips 250g
+  - Red chilli 1
+  - Soy sauce 30ml
+  - Spring onion 1
+  - Toasted sesame oil 10ml
+------------------------------------------------------------
+
+## Sticky Chilli Chicken Thigh With Salt & Pepper Chips
+Country/Region: China / UK
+Cuisine Type: traybake
+Time to Cook: 45 min
+Calories: 469 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Chinese rice wine 15ml
+  - Coriander 5g
+  - Cornflour 4tbsp
+  - Diced chicken thigh 250g
+  - Five-spice mix 1tsp
+  - Fresh root ginger 15g
+  - Garlic clove 2
+  - Honey 25g
+  - Pepper 1
+  - Red chilli 1
+  - Red chilli relish 25g
+  - Soy sauce 15ml
+  - Spring onion 1
+  - White potato 4
+------------------------------------------------------------
+
+## Cantonese-Style Chicken Ho Fun Noodles
+Country/Region: China
+Cuisine Type: noodles
+Time to Cook: 30 min
+Calories: 582 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Cornflour 1tsp
+  - Diced chicken thigh 250g
+  - Dried chilli flakes 0.5tsp
+  - Fresh root ginger 15g
+  - Garlic clove 2
+  - Ketjap manis 2x20g
+  - Rice noodles 150g
+  - Spring onion 1
+  - Toasted sesame oil 10ml
+  - White cup mushrooms 80g
+------------------------------------------------------------
+
+## Spicy Xinjiang-Style Cumin Lamb Noodles
+Country/Region: China
+Cuisine Type: noodles
+Time to Cook: 30 min
+Calories: 559 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Beef stock mix 5.5g
+  - Brown onion 1
+  - Carrot 1
+  - Dried chilli flakes 0.5tsp
+  - Ginger & garlic paste 15g
+  - Ground cumin 1tsp
+  - Lamb mince 250g
+  - Medium egg noodle nests 2
+  - Soy sauce 30ml
+  - Spring onion 1
+------------------------------------------------------------
+
+## Sweet Chilli & Sesame Chicken Udon
+Country/Region: Japan / Korea
+Cuisine Type: noodles
+Time to Cook: 20 min
+Calories: 534 kcal per person
+Notes: 10-Minute
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Crispy onions 15g
+  - Diced chicken breast 250g
+  - Ginger & garlic paste 15g
+  - Red chilli relish 40g
+  - Soy sauce 8ml
+  - Spinach 80g
+  - Spring onion 1
+  - Toasted sesame oil 10ml
+  - Udon noodles 2x200g
+------------------------------------------------------------
+
+## Spicy Peanut Chicken Thigh Noodles
+Country/Region: Southeast Asia
+Cuisine Type: noodles
+Time to Cook: 20 min
+Calories: 684 kcal per person
+Notes: 10-Minute
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Diced chicken thigh 250g
+  - Dried chilli flakes 0.5tsp
+  - Fine green beans 160g
+  - Ginger & garlic paste 15g
+  - Honey 25g
+  - Medium egg noodle nests 2
+  - Rice vinegar 15ml
+  - Roasted peanuts 25g
+  - Smooth peanut butter 26g
+  - Soy sauce 15ml
+  - Spring onion 1
+  - Sriracha hot chilli sauce 8ml
+------------------------------------------------------------
+
+## Fiery Xi'an-Inspired Salt & Pepper Fried Chicken
+Country/Region: China
+Cuisine Type: rice dish
+Time to Cook: 40 min
+Calories: 608 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Cornflour 4tbsp
+  - Cracked black pepper 2.5g
+  - Cucumber 0.5
+  - Cumin seeds 1tsp
+  - Dried chilli flakes 0.5tsp
+  - Fennel seeds 1tsp
+  - Garlic clove 2
+  - Ketjap manis 20g
+  - Red chilli 1
+  - Rice vinegar 15ml
+  - Skinless chicken thighs 320g
+  - Umami seasoning 1tbsp
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Oven Baked Chinese-Style Pork Belly With Rice
+Country/Region: China
+Cuisine Type: rice dish
+Time to Cook: 75 min
+Calories: 712 kcal per person
+Notes: Prepped in 5
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Carrot 1
+  - Chinese rice wine 15ml
+  - Five-spice mix 1tsp
+  - Ginger & garlic paste 15g
+  - Green pepper 1
+  - Ground smoked paprika 1tsp
+  - Pork belly 300g
+  - Soy sauce 30ml
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Oven Baked Chinese-Style Braised Beef & Broccoli With Rice
+Country/Region: China
+Cuisine Type: rice dish
+Time to Cook: 75 min
+Calories: 481 kcal per person
+Notes: Prepped in 5
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Beef stock mix (intense) 5.5g
+  - Brown onion 1
+  - Cornflour 1tsp
+  - Diced beef 200g
+  - Garlic clove 2
+  - Ginger paste 15g
+  - Gluten free soy sauce 15ml
+  - Hoisin sauce 20g
+  - Tenderstem broccoli 160g
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Taiwanese-Style Basil Chicken Thigh Stir-Fry & Sticky Rice
+Country/Region: Taiwan
+Cuisine Type: stir-fry
+Time to Cook: 40 min
+Calories: 561 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Basil 20g
+  - Chinese rice wine 30ml
+  - Diced chicken thigh 250g
+  - Dried chilli flakes 0.5tsp
+  - Fresh root ginger 15g
+  - Garlic clove 2
+  - Pak choi 200g
+  - Soy sauce 30ml
+  - Sushi rice 150g
+  - Toasted sesame oil 20ml
+------------------------------------------------------------
+
+## Korean-Style Rose Chicken With Sesame Soy Spinach & Rice
+Country/Region: Korea
+Cuisine Type: rice dish
+Time to Cook: 25 min
+Calories: 661 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Chicken breast strips 250g
+  - Chinese rice wine 15ml
+  - Cornish clotted cream 40g
+  - Crispy onions 15g
+  - Garlic clove 2
+  - Gochujang paste 30g
+  - Soy sauce 8ml
+  - Spinach 120g
+  - Toasted sesame oil 10ml
+  - Tomato paste 32g
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Korean-Style Chicken Thigh Tacos with Sesame Slaw
+Country/Region: Korea
+Cuisine Type: tacos
+Time to Cook: 35 min
+Calories: 710 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Carrot 1
+  - Chicken stock mix 5.5g
+  - Diced chicken thigh 250g
+  - Gochujang paste 30g
+  - Ground paprika 1tsp
+  - Mayonnaise 30ml
+  - Plain tortillas 6
+  - Rice vinegar 15ml
+  - Shredded red cabbage 150g
+  - Spring onion 1
+  - Toasted sesame oil 10ml
+  - Toasted sesame seeds 5g
+------------------------------------------------------------
+
+## Korean-Style Yang-Nyum Fried Chicken Thigh
+Country/Region: Korea
+Cuisine Type: rice dish
+Time to Cook: 50 min
+Calories: 788 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Carrot 1
+  - Cornflour 4tbsp
+  - Garlic clove 3
+  - Gem lettuce 1
+  - Gochujang paste 30g
+  - Honey 25g
+  - Mayonnaise 25ml
+  - Rice vinegar 15ml
+  - Skinless chicken thighs 320g
+  - Soy sauce 15ml
+  - Spring onion 1
+  - Sushi rice 150g
+  - Toasted sesame seeds 5g
+  - Tomato ketchup 15ml
+------------------------------------------------------------
+
+## Creamy Carbonara-Style Bacon & Gochujang Udon
+Country/Region: Korea / Japan
+Cuisine Type: noodles
+Time to Cook: 20 min
+Calories: 607 kcal per person
+Notes: 10-Minute
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Bacon lardons 100g
+  - Blanched peas 160g
+  - Creme fraiche 80g
+  - Garlic clove 1
+  - Gochujang paste 30g
+  - Grated Italian hard cheese 30g
+  - Spring onion 1
+  - Toasted sesame seeds 5g
+  - Udon noodles 2x200g
+------------------------------------------------------------
+
+## Marmite & Peanut Butter Pork Udon
+Country/Region: UK / Japan
+Cuisine Type: noodles
+Time to Cook: 20 min
+Calories: 733 kcal per person
+Notes: 10-Minute
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Ginger & garlic paste 15g
+  - Marmite 2x8g
+  - Pork mince 250g
+  - Red chilli relish 25g
+  - Roasted peanuts 25g
+  - Smooth peanut butter 26g
+  - Soy sauce 15ml
+  - Spinach 120g
+  - Spring onion 1
+  - Udon noodles 2x200g
+------------------------------------------------------------
+
+## Honey Miso & Peanut Chicken Thigh Stir-Fry
+Country/Region: Japan
+Cuisine Type: stir-fry
+Time to Cook: 20 min
+Calories: 586 kcal per person
+Notes: 10-Minute
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Diced chicken thigh 250g
+  - Fine egg noodle nests 2
+  - Ginger & garlic paste 15g
+  - Honey 25g
+  - Pak choi 200g
+  - Roasted peanuts 25g
+  - Soy sauce 15ml
+  - Spring onion 2
+  - Toasted sesame oil 10ml
+  - White miso paste 17g
+------------------------------------------------------------
+
+## Crispy Chicken Katsu Curry Burritos
+Country/Region: Japan / Mexico
+Cuisine Type: wraps
+Time to Cook: 50 min
+Calories: 751 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Carrot 1
+  - Chicken breast strips 250g
+  - Curry powder 1tbsp
+  - Gem lettuce 1
+  - Ginger & garlic paste 15g
+  - Panko breadcrumbs 40g
+  - Plain tortillas 4
+  - Solid creamed coconut 25g
+  - Soy sauce 15ml
+------------------------------------------------------------
+
+## Ponzu Chicken Burger With Spiced Potatoes & Smashed Cucumber
+Country/Region: Japan
+Cuisine Type: burger
+Time to Cook: 20 min
+Calories: 551 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Chicken breast strips 250g
+  - Cucumber 0.5
+  - Lemon 1
+  - Mayonnaise 25ml
+  - Rocket 20g
+  - Shichimi togarashi 2g
+  - Soy sauce 8ml
+  - Vegan brioche buns 2
+  - Waxy potatoes 350g
+  - White wine vinegar 15ml
+------------------------------------------------------------
+
+## Crispy Pepper Chicken Thigh With Rice And Sticky Hoisin Sauce
+Country/Region: China
+Cuisine Type: rice dish
+Time to Cook: 50 min
+Calories: 529 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Cornflour 4tbsp
+  - Diced chicken thigh 250g
+  - Fine green beans 160g
+  - Fresh lemongrass stalk 1
+  - Garlic clove 2
+  - Hoisin sauce 40g
+  - Red chilli 1
+  - Rice vinegar 15ml
+  - Shallot 1
+  - Soy sauce 15ml
+  - Toasted sesame seeds 5g
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Hoisin Pork Stir-Fry With Chilli & Garlic Oil And Steamed Rice
+Country/Region: China
+Cuisine Type: stir-fry
+Time to Cook: 30 min
+Calories: 480 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Fine green beans 80g
+  - Garlic clove 2
+  - Hoisin sauce 40g
+  - Pork strips 250g
+  - Red chilli 1
+  - Soy sauce 15ml
+  - Spinach 80g
+  - Spring onion 1
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Creamy King Prawn Tom Yum With Lemongrass Rice
+Country/Region: Thailand
+Cuisine Type: curry
+Time to Cook: 35 min
+Calories: 512 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Baby button mushrooms 80g
+  - Fish sauce 8ml
+  - Fresh lemongrass stalk 1
+  - Fresh root ginger 15g
+  - Garlic clove 2
+  - Lime 1
+  - Raw peeled king prawns 171g
+  - Red chilli 1
+  - Solid creamed coconut 50g
+  - Tomato 2
+  - Vegetable stock mix 5.5g
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Fragrant Thai Green Chicken Curry
+Country/Region: Thailand
+Cuisine Type: curry
+Time to Cook: 40 min
+Calories: 496 kcal per person
+Notes: None
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Cardamom pod 3
+  - Coriander 2x10g
+  - Diced chicken breast 250g
+  - Fine green beans 160g
+  - Fresh lemongrass stalk 1
+  - Fresh root ginger 15g
+  - Garlic clove 1
+  - Lime 1
+  - Red chilli 1
+  - Shallot 1
+  - Solid creamed coconut 25g
+  - Vegetable stock mix (intense) 5.5g
+  - White basmati rice 130g
+------------------------------------------------------------
+
+## Fragrant Thai-Style Green King Prawn Curry
+Country/Region: Thailand
+Cuisine Type: curry
+Time to Cook: 35 min
+Calories: 410 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Coriander 2x10g
+  - Fine green beans 160g
+  - Fish sauce 8ml
+  - Fresh lemongrass stalk 1
+  - Fresh root ginger 15g
+  - Garlic clove 1
+  - Lime 1
+  - Raw peeled king prawns 171g
+  - Red chilli 1
+  - Shallot 1
+  - Solid creamed coconut 25g
+  - White basmati rice 130g
+------------------------------------------------------------
+
+## Oven Baked Beef Panang Curry With Rice
+Country/Region: Thailand
+Cuisine Type: curry
+Time to Cook: 70 min
+Calories: 623 kcal per person
+Notes: Prepped in 5
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Diced beef 200g
+  - Dried chilli flakes 0.5tsp
+  - Fine green beans 160g
+  - Fish sauce 8ml
+  - Garlic clove 2
+  - Ground coriander 1tsp
+  - Ground cumin 1tsp
+  - Red Thai curry paste 40g
+  - Roasted peanuts 25g
+  - Solid creamed coconut 25g
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Southern Thai-Style Haddock Panang Curry
+Country/Region: Thailand
+Cuisine Type: curry
+Time to Cook: 35 min
+Calories: 660 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Crispy onions 15g
+  - Fish sauce 8ml
+  - Ground turmeric 1tsp
+  - Haddock bites 200g
+  - Lime 1
+  - Pepper 1
+  - Red Thai curry paste 20g
+  - Smooth peanut butter 26g
+  - Solid creamed coconut 50g
+  - White basmati rice 130g
+------------------------------------------------------------
+
+## Southern Thai-Style Chicken Panang Curry
+Country/Region: Thailand
+Cuisine Type: curry
+Time to Cook: 40 min
+Calories: 713 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Chicken breast strips 250g
+  - Chicken stock mix (intense) 5.5g
+  - Crispy onions 15g
+  - Fish sauce 8ml
+  - Pepper 1
+  - Ground turmeric 1tsp
+  - Lime 1
+  - Red Thai curry paste 20g
+  - Smooth peanut butter 26g
+  - Solid creamed coconut 50g
+  - White basmati rice 130g
+------------------------------------------------------------
+
+## Thai-Style Yellow Chicken Curry With Rice
+Country/Region: Thailand
+Cuisine Type: curry
+Time to Cook: 35 min
+Calories: 528 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Carrot 1
+  - Chicken breast strips 250g
+  - Chicken stock mix 5.5g
+  - Curry powder 0.5tbsp
+  - Fish sauce 8ml
+  - Garlic clove 2
+  - Ginger paste 15g
+  - Ground turmeric 0.5tsp
+  - Lime 1
+  - Red chilli 1
+  - Shallot 2
+  - Solid creamed coconut 25g
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Coconutty Red Thai Curry Chicken Noodle Stir Fry
+Country/Region: Thailand
+Cuisine Type: noodles
+Time to Cook: 20 min
+Calories: 560 kcal per person
+Notes: 10-Minute
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Diced chicken thigh 250g
+  - Ginger & garlic paste 15g
+  - Ketjap manis 20g
+  - Medium egg noodle nests 2
+  - Red Thai curry paste 40g
+  - Shredded veg mix 160g
+  - Solid creamed coconut 25g
+------------------------------------------------------------
+
+## Chicken Satay Noodles
+Country/Region: Malaysia
+Cuisine Type: noodles
+Time to Cook: 20 min
+Calories: 535 kcal per person
+Notes: No Cook
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Cooked shredded chicken 170g
+  - Dried chilli flakes 0.5tsp
+  - Ketjap manis 20g
+  - Red chilli relish 25g
+  - Rice noodles 150g
+  - Smooth peanut butter 26g
+  - Spinach 80g
+------------------------------------------------------------
+
+## Chicken Satay With Pickled Chilli Cucumber
+Country/Region: Malaysia
+Cuisine Type: rice dish
+Time to Cook: 30 min
+Calories: 645 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Cooked white long grain rice 280g
+  - Cucumber 0.5
+  - Diced chicken breast 250g
+  - Dried chilli flakes 0.5tsp
+  - Red chilli relish 25g
+  - Rice vinegar 15ml
+  - Smooth peanut butter 26g
+  - Solid creamed coconut 25g
+  - Soy sauce 15ml
+------------------------------------------------------------
+
+## Chicken Satay Curry With Brown Rice & Kale
+Country/Region: Malaysia
+Cuisine Type: curry
+Time to Cook: 45 min
+Calories: 603 kcal per person
+Notes: None
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Brown long grain rice 130g
+  - Brown onion 1
+  - Chicken breast strips 250g
+  - Chicken stock mix (intense) 5.5g
+  - Curry powder 1tbsp
+  - Garlic clove 1
+  - Gluten free soy sauce 15ml
+  - Lime 1
+  - Shredded kale 80g
+  - Smooth peanut butter 26g
+  - Solid creamed coconut 25g
+------------------------------------------------------------
+
+## Thai-Style Basil Pork With Green Beans & Brown Rice
+Country/Region: Thailand
+Cuisine Type: stir-fry
+Time to Cook: 20 min
+Calories: 619 kcal per person
+Notes: 10-Minute
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Basil 2x5g
+  - Cooked brown long grain rice 280g
+  - Crispy onions 15g
+  - Fine green beans 160g
+  - Fish sauce 8ml
+  - Ginger paste 15g
+  - Hoisin sauce 40g
+  - Pork mince 250g
+  - Red chilli 1
+  - Roasted garlic paste 15g
+  - Soy sauce 8ml
+------------------------------------------------------------
+
+## Sticky Chilli & Lemongrass Chicken Mince Stir-Fry & Veggie Rice
+Country/Region: Thailand
+Cuisine Type: stir-fry
+Time to Cook: 30 min
+Calories: 501 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Carrot 1
+  - Dried chilli flakes 0.5tsp
+  - Garlic clove 1
+  - Gluten free soy sauce 15ml
+  - Honey 25g
+  - Lemongrass & lime leaf paste 20g
+  - Red onion 1
+  - Sambal oelek 20g
+  - Seasoned chicken mince 250g
+  - Spinach 80g
+  - Spring onion 1
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Thai-Style Hat Yai Garlic Fried Chicken
+Country/Region: Thailand
+Cuisine Type: rice dish
+Time to Cook: 50 min
+Calories: 701 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Carrot 1
+  - Coriander 10g
+  - Cornflour 4tbsp
+  - Crispy onions 15g
+  - Garlic clove 4
+  - Gem lettuce 1
+  - Red chilli relish 40g
+  - Pepper 1
+  - Rice vinegar 15ml
+  - Skinless chicken thighs 320g
+  - Soy sauce 15ml
+  - Sriracha hot chilli sauce 8ml
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Thai-Style Pork Belly Moo Hong With Rice
+Country/Region: Thailand
+Cuisine Type: rice dish
+Time to Cook: 60 min
+Calories: 708 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Carrot 1
+  - Coriander 5g
+  - Coriander seeds 1tsp
+  - Cornflour 1tsp
+  - Fennel seeds 0.5tsp
+  - Fresh root ginger 15g
+  - Garlic clove 2
+  - Ketjap manis 20g
+  - Pork belly 300g
+  - Rice vinegar 15ml
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Fragrant Chicken Massaman With Peanuts & Rice
+Country/Region: Thailand
+Cuisine Type: curry
+Time to Cook: 20 min
+Calories: 801 kcal per person
+Notes: 10-Minute
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Cooked white long grain rice 280g
+  - Diced chicken thigh 250g
+  - Fine green beans 80g
+  - Massaman curry paste 30g
+  - Red chilli 1
+  - Roasted peanuts 25g
+  - Solid creamed coconut 25g
+  - Tomato paste 16g
+  - White potato 2
+------------------------------------------------------------
+
+## Vietnamese-Style Pork With Sesame Tenderstem Broccoli
+Country/Region: Vietnam
+Cuisine Type: rice dish
+Time to Cook: 20 min
+Calories: 693 kcal per person
+Notes: 10-Minute
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Cooked white long grain rice 280g
+  - Cornflour 1tsp
+  - Ginger & garlic paste 15g
+  - Pork mince 250g
+  - Red chilli relish 40g
+  - Soy sauce 15ml
+  - Tenderstem broccoli 160g
+  - Toasted sesame oil 10ml
+------------------------------------------------------------
+
+## Vietnamese-Style Chilli Beef Meatball Noodles
+Country/Region: Vietnam
+Cuisine Type: noodles
+Time to Cook: 40 min
+Calories: 675 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - British beef mince 250g
+  - Beef stock mix 5.5g
+  - Carrot 1
+  - Dried chilli flakes 0.5tsp
+  - Fresh root ginger 15g
+  - Garlic clove 1
+  - Rice noodles 150g
+  - Roasted peanuts 25g
+  - Soy sauce 30ml
+  - Sugar snap peas 80g
+------------------------------------------------------------
+
+## Filipino-Style Chicken Thigh Adobo With Rice
+Country/Region: Philippines
+Cuisine Type: rice dish
+Time to Cook: 40 min
+Calories: 554 kcal per person
+Notes: None
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Cider vinegar 30ml
+  - Cornflour 1tbsp
+  - Dried bay leaves 2
+  - Garlic clove 2
+  - Ginger paste 15g
+  - Skinless chicken thighs 320g
+  - Soy sauce 30ml
+  - Spring onion 1
+  - Tenderstem broccoli 160g
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Filipino-Style Sticky Chicken Thigh With Egg Fried Rice
+Country/Region: Philippines
+Cuisine Type: rice dish
+Time to Cook: 50 min
+Calories: 611 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Cornflour 1tbsp
+  - Free range egg 1
+  - Garden veg mix 160g
+  - Garlic clove 3
+  - Ketjap manis 20g
+  - Rice vinegar 30ml
+  - Skinless chicken thighs 320g
+  - Soy sauce 8ml
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Aji De Gallina-Style Chicken Stew With Rice
+Country/Region: Peru
+Cuisine Type: stew
+Time to Cook: 25 min
+Calories: 545 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Chicken breast strips 250g
+  - Chicken stock mix (intense) 5.5g
+  - Garlic clove 1
+  - Italian hard cheese 20g
+  - Parsley 5g
+  - Red chilli 1
+  - Walnuts 25g
+  - White long grain rice 130g
+  - Yellow pepper 1
+------------------------------------------------------------
+
+## Malaysian-Style Turmeric Chicken With Pickled Cucumber
+Country/Region: Malaysia
+Cuisine Type: rice dish
+Time to Cook: 30 min
+Calories: 542 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Chicken breast portion 2
+  - Chicken stock mix (intense) 5.5g
+  - Cucumber 0.5
+  - Fresh lemongrass stalk 1
+  - Ginger & garlic paste 15g
+  - Ground turmeric 1tsp
+  - Red chilli 1
+  - Solid creamed coconut 25g
+  - Sweet pea pods 80g
+  - White long grain rice 130g
+  - White wine vinegar 15ml
+------------------------------------------------------------
+
+## Indonesian-Style King Prawn Curry & Green Bean Rice
+Country/Region: Indonesia
+Cuisine Type: curry
+Time to Cook: 40 min
+Calories: 430 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Cardamom pod 1
+  - Chipotle paste 20g
+  - Dried chilli flakes 0.5tsp
+  - Fine green beans 80g
+  - Fish sauce 8ml
+  - Fresh root ginger 15g
+  - Garlic clove 2
+  - Raw peeled king prawns 171g
+  - Red onion 2
+  - Solid creamed coconut 25g
+  - White basmati rice 130g
+------------------------------------------------------------
+
+## Paneer Butter Masala With Rice (V)
+Country/Region: India
+Cuisine Type: curry
+Time to Cook: 40 min
+Calories: 708 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Cardamom pod 2
+  - Cashew nuts 25g
+  - Finely chopped tomatoes 200g
+  - Garam masala 1tbsp
+  - Garden veg mix 160g
+  - Garlic clove 1
+  - Ginger paste 15g
+  - Natural yoghurt 80g
+  - Paneer 200g
+  - Vegetable stock mix 11g
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Mild Chicken Thigh Korma With Cardamom Rice
+Country/Region: India
+Cuisine Type: curry
+Time to Cook: 35 min
+Calories: 647 kcal per person
+Notes: Prepped in 5
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Cardamom pod 1
+  - Chicken stock mix 5.5g
+  - Fresh root ginger 15g
+  - Garam masala 1tbsp
+  - Garlic clove 2
+  - Ground almonds 25g
+  - Ground turmeric 0.5tsp
+  - Natural yoghurt 80g
+  - Skinless chicken thighs 320g
+  - Sultanas 30g
+  - White basmati rice 130g
+------------------------------------------------------------
+
+## One Pot Chicken Rogan Josh With Yoghurt
+Country/Region: India
+Cuisine Type: curry
+Time to Cook: 40 min
+Calories: 495 kcal per person
+Notes: Prepped in 5
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Cardamom pod 3
+  - Chicken stock mix (intense) 5.5g
+  - Curry powder 1tbsp
+  - Diced chicken breast 250g
+  - Dried chilli flakes 0.5tsp
+  - Finely chopped tomatoes 200g
+  - Garlic clove 3
+  - Ground coriander 1tsp
+  - Ground turmeric 1tsp
+  - Natural yoghurt 80g
+  - Plain naan 2
+  - Tomato 1
+------------------------------------------------------------
+
+## Creamy Chicken Pasanda Curry With Crispy Onion Rice
+Country/Region: India
+Cuisine Type: curry
+Time to Cook: 60 min
+Calories: 753 kcal per person
+Notes: Spice Trail
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Chicken stock mix (intense) 5.5g
+  - Cornish clotted cream 40g
+  - Crispy onions 15g
+  - Flaked almonds 15g
+  - Garam masala 1tsp
+  - Ginger & garlic paste 15g
+  - Ground coriander 1tsp
+  - Ground smoked paprika 1tsp
+  - Ground turmeric 0.5tsp
+  - Skinless chicken thighs 320g
+  - Tomato 1
+  - Tomato paste 16g
+  - White basmati rice 130g
+------------------------------------------------------------
+
+## Butter Chicken With Coriander Rice
+Country/Region: India
+Cuisine Type: curry
+Time to Cook: 50 min
+Calories: 467 kcal per person
+Notes: None
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Chicken breast portion 2
+  - Chicken stock mix 5.5g
+  - Coriander 2x5g
+  - Creme fraiche 40g
+  - Fresh root ginger 15g
+  - Garam masala 1tbsp
+  - Garlic clove 2
+  - Ground coriander 1tsp
+  - Ground turmeric 1tsp
+  - Tomato paste 32g
+  - White basmati rice 130g
+------------------------------------------------------------
+
+## Chicken Tamarind Curry With Turmeric Rice
+Country/Region: India
+Cuisine Type: curry
+Time to Cook: 40 min
+Calories: 583 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Black sesame seeds 5g
+  - Chicken breast strips 250g
+  - Chicken stock mix (intense) 5.5g
+  - Coriander 5g
+  - Curry powder 1tbsp
+  - Fresh root ginger 15g
+  - Garlic clove 1
+  - Ground turmeric 0.5tsp
+  - Natural yoghurt 80g
+  - Solid creamed coconut 25g
+  - Spinach 80g
+  - Tamarind paste 15g
+  - Tomato paste 32g
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Creamy Chicken Makhani With Cucumber Salad
+Country/Region: India
+Cuisine Type: curry
+Time to Cook: 40 min
+Calories: 556 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Cashew nuts 25g
+  - Cayenne pepper 0.5tsp
+  - Chicken breast strips 250g
+  - Chicken stock mix (intense) 5.5g
+  - Cucumber 0.5
+  - Fresh root ginger 15g
+  - Garam masala 1tbsp
+  - Garlic clove 1
+  - Ground turmeric 0.5tsp
+  - Natural yoghurt 80g
+  - Red onion 1
+  - Tomato paste 32g
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Baked Classic Chicken Thigh Tikka Masala & Rice
+Country/Region: India
+Cuisine Type: curry
+Time to Cook: 60 min
+Calories: 682 kcal per person
+Notes: Prepped in 5
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Chicken stock mix (intense) 5.5g
+  - Coriander 5g
+  - Cornish clotted cream 40g
+  - Curry powder 0.5tbsp
+  - Finely chopped tomatoes 200g
+  - Garam masala 1tsp
+  - Garlic clove 2
+  - Ginger paste 15g
+  - Ground smoked paprika 1tsp
+  - Red chilli 1
+  - Skinless chicken thighs 320g
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Green Tikka Masala Chicken Thigh W. Rice And Tomato & Mint Salad
+Country/Region: India
+Cuisine Type: curry
+Time to Cook: 30 min
+Calories: 644 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Chicken stock mix (intense) 5.5g
+  - Coriander & mint 10g
+  - Curry powder 0.5tbsp
+  - Diced chicken thigh 250g
+  - Garam masala 1tsp
+  - Garlic clove 2
+  - Green chilli 1
+  - Mango chutney 20g
+  - Natural yoghurt 80g
+  - Solid creamed coconut 25g
+  - Spinach 80g
+  - Tomato 2
+  - Tomato paste 32g
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Coconut Chicken Meatballs & Courgette Curry With Rice
+Country/Region: India
+Cuisine Type: curry
+Time to Cook: 30 min
+Calories: 543 kcal per person
+Notes: Delish & Healthy-ish
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Chicken stock mix (intense) 5.5g
+  - Courgette 1
+  - Curry powder 1tbsp
+  - Garam masala 1tsp
+  - Garlic clove 3
+  - Ginger paste 15g
+  - Lime 1
+  - Seasoned chicken mince 250g
+  - Solid creamed coconut 25g
+  - Tomato paste 32g
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Saucy Lamb Keema-Style Meatballs With Turmeric Rice
+Country/Region: India
+Cuisine Type: curry
+Time to Cook: 30 min
+Calories: 619 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Beef stock mix (intense) 5.5g
+  - Black sesame seeds 5g
+  - Blanched peas 160g
+  - Curry powder 1tbsp
+  - Finely chopped tomatoes 200g
+  - Ginger & garlic paste 15g
+  - Ground turmeric 0.5tsp
+  - Lamb mince 250g
+  - Shallot 1
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Bangladeshi-Style Beef Kofta Curry With Fragrant Rice
+Country/Region: Bangladesh
+Cuisine Type: curry
+Time to Cook: 45 min
+Calories: 572 kcal per person
+Notes: None
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Beef mince 250g
+  - Brown onion 1
+  - Cardamom pod 4
+  - Chicken stock mix (intense) 5.5g
+  - Dried bay leaves 1
+  - Garam masala 1tsp
+  - Garlic clove 3
+  - Green chilli 1
+  - Ground coriander 1tsp
+  - Tomato 2
+  - Tomato paste 16g
+  - White basmati rice 130g
+------------------------------------------------------------
+
+## Jewelled Chicken, Pistachio & Cranberry Pilaf
+Country/Region: Middle East
+Cuisine Type: rice dish
+Time to Cook: 20 min
+Calories: 590 kcal per person
+Notes: 10-Minute
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Cooked white long grain rice 280g
+  - Diced chicken thigh 250g
+  - Dried cranberries 30g
+  - Ground cumin 1tsp
+  - Ground turmeric 0.5tsp
+  - Pistachios 25g
+  - Roasted garlic paste 15g
+  - Soy sauce 30ml
+  - Spinach 120g
+------------------------------------------------------------
+
+## One-Pot Easy Chicken Biryani
+Country/Region: India
+Cuisine Type: rice dish
+Time to Cook: 35 min
+Calories: 513 kcal per person
+Notes: None
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Chicken breast strips 250g
+  - Chicken stock mix 11g
+  - Curry powder 1tbsp
+  - Fine green beans 160g
+  - Natural yoghurt 80g
+  - Sultanas 30g
+  - Tomato paste 16g
+  - White basmati rice 130g
+------------------------------------------------------------
+
+## Lamb Meatball Biryani With Minty Mayo And Pickled Onion
+Country/Region: India
+Cuisine Type: rice dish
+Time to Cook: 35 min
+Calories: 661 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - British lamb mince 250g
+  - Chicken stock mix 11g
+  - Curry powder 1tbsp
+  - Garlic clove 2
+  - Ground turmeric 0.5tsp
+  - Mayonnaise 30ml
+  - Mint sauce 20g
+  - Red onion 1
+  - Spinach 80g
+  - White basmati rice 130g
+  - White wine vinegar 15ml
+------------------------------------------------------------
+
+## Oven Baked Chicken Thigh Biryani With Yoghurt
+Country/Region: India
+Cuisine Type: rice dish
+Time to Cook: 35 min
+Calories: 587 kcal per person
+Notes: Prepped in 5
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Butternut squash cubes 160g
+  - Cardamom pod 3
+  - Chicken stock mix (intense) 5.5g
+  - Crispy onions 15g
+  - Curry powder 1tbsp
+  - Diced chicken thigh 250g
+  - Dried bay leaves 1
+  - Garlic clove 1
+  - Ginger paste 15g
+  - Green chilli 1
+  - Ground turmeric 0.5tsp
+  - Natural yoghurt 80g
+  - Tomato 2
+  - White basmati rice 130g
+------------------------------------------------------------
+
+## One Pot Black Pepper Chicken Dal With Naan
+Country/Region: India
+Cuisine Type: curry
+Time to Cook: 40 min
+Calories: 752 kcal per person
+Notes: Prepped in 5
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Cardamom pod 2
+  - Chicken stock mix (intense) 5.5g
+  - Coriander 5g
+  - Cracked black pepper 2.5g
+  - Crispy onions 15g
+  - Curry powder 1tbsp
+  - Diced chicken thigh 250g
+  - Fresh root ginger 15g
+  - Garlic clove 1
+  - Green lentils 185g
+  - Ground turmeric 0.5tsp
+  - Mint 5g
+  - Plain naan 2
+  - Red lentils 100g
+  - Solid creamed coconut 25g
+------------------------------------------------------------
+
+## Mixed Lentil Dal With Pan-Fried Chicken & Coriander Chutney
+Country/Region: India
+Cuisine Type: curry
+Time to Cook: 40 min
+Calories: 601 kcal per person
+Notes: None
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Chicken breast strips 250g
+  - Chicken stock mix (intense) 5.5g
+  - Coriander 20g
+  - Curry powder 1tbsp
+  - Dried chilli flakes 0.5tsp
+  - Fresh root ginger 15g
+  - Garlic clove 1
+  - Green lentils 390g
+  - Red lentils 100g
+  - Rice vinegar 15ml
+  - Solid creamed coconut 2x25g
+------------------------------------------------------------
+
+## Loaded Coconutty Palak Chicken Thigh Roti
+Country/Region: India
+Cuisine Type: wraps
+Time to Cook: 30 min
+Calories: 652 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Chicken stock mix (intense) 5.5g
+  - Coriander 5g
+  - Curry powder 1tbsp
+  - Diced chicken thigh 250g
+  - Garam masala 1tsp
+  - Garlic clove 1
+  - Ginger paste 15g
+  - Natural yoghurt 80g
+  - Red onion 1
+  - Roti 4
+  - Solid creamed coconut 25g
+  - Spinach 80g
+  - Tomato paste 32g
+  - White wine vinegar 15ml
+------------------------------------------------------------
+
+## Lamb Tortilla Samosas With Mango Mayo
+Country/Region: India / UK
+Cuisine Type: snack
+Time to Cook: 45 min
+Calories: 741 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Black sesame seeds 5g
+  - Carrot 1
+  - Cider vinegar 15ml
+  - Curry powder 1tbsp
+  - Garlic clove 1
+  - Gem lettuce 1
+  - Ground cumin 1tsp
+  - Lamb mince 250g
+  - Mango chutney 20g
+  - Mayonnaise 25ml
+  - Plain tortillas 6
+  - Shallot 1
+------------------------------------------------------------
+
+## Chicken Tikka Burger With Jeera Potatoes
+Country/Region: India / UK
+Cuisine Type: burger
+Time to Cook: 45 min
+Calories: 521 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Chicken breast portion 2
+  - Cucumber 0.5
+  - Cumin seeds 1tsp
+  - Fresh root ginger 15g
+  - Garam masala 1tsp
+  - Garlic clove 1
+  - Ground paprika 1tsp
+  - Ground turmeric 0.5tsp
+  - Lemon 1
+  - Mint sauce 20g
+  - Natural yoghurt 80g
+  - Vegan brioche buns 2
+  - Waxy potatoes 350g
+------------------------------------------------------------
+
+## Butter Chicken Caesar Salad
+Country/Region: India / UK
+Cuisine Type: salad
+Time to Cook: 40 min
+Calories: 583 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Chicken breast portion 2
+  - Curry powder 1tbsp
+  - Garlic clove 1
+  - Gem lettuce 2
+  - Grated Italian hard cheese 30g
+  - Ground cumin 1tsp
+  - Mayonnaise 50ml
+  - Mini garlic & coriander naans 2
+  - Tomato paste 32g
+  - White wine vinegar 15ml
+------------------------------------------------------------
+
+## Keralan-Style Fried Chicken Thigh With Turmeric Coconut Mayo
+Country/Region: India (Kerala)
+Cuisine Type: rice dish
+Time to Cook: 40 min
+Calories: 815 kcal per person
+Notes: Spice Trail
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Carrot & cabbage slaw mix 160g
+  - Coconut & turmeric sprinkle 8g
+  - Cornflour 4tbsp
+  - Mayonnaise 50ml
+  - Rice vinegar 15ml
+  - Skinless chicken thighs 320g
+  - Tamarind & coconut curry paste 40g
+  - White basmati rice 130g
+------------------------------------------------------------
+
+## Goan-Style Basa & Spinach Curry With Coriander Rice
+Country/Region: India (Goa)
+Cuisine Type: curry
+Time to Cook: 35 min
+Calories: 428 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Basa fillets 2
+  - Coriander 10g
+  - Cultured coconut 80g
+  - Curry powder 1tbsp
+  - Fresh root ginger 15g
+  - Garlic clove 1
+  - Ground turmeric 1tsp
+  - Red chilli 1
+  - Red onion 1
+  - Spinach 80g
+  - Tomato paste 16g
+  - Vegetable stock mix 5.5g
+  - White basmati rice 130g
+------------------------------------------------------------
+
+## Oven Baked Sri Lankan-Style Chicken Curry
+Country/Region: Sri Lanka
+Cuisine Type: curry
+Time to Cook: 50 min
+Calories: 615 kcal per person
+Notes: Prepped in 5
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Chicken breast strips 250g
+  - Chicken stock mix (intense) 5.5g
+  - Curry powder 1tbsp
+  - Finely chopped tomatoes 200g
+  - Garlic clove 1
+  - Green chilli 1
+  - Ground turmeric 0.5tsp
+  - Shallot 1
+  - Solid creamed coconut 50g
+  - Spinach 80g
+  - Tamarind paste 15g
+  - White basmati rice 130g
+------------------------------------------------------------
+
+## One Pot Lebanese-Style Spiced Lamb & Rice
+Country/Region: Lebanon
+Cuisine Type: rice dish
+Time to Cook: 30 min
+Calories: 559 kcal per person
+Notes: None
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Beef stock mix (intense) 5.5g
+  - Ground coriander 1tsp
+  - Ground paprika 2tsp
+  - Lamb mince 250g
+  - Mint 5g
+  - Natural yoghurt 80g
+  - Red onion 1
+  - Spinach 80g
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Creamy Chicken Chilaquiles
+Country/Region: Mexico
+Cuisine Type: tortilla dish
+Time to Cook: 35 min
+Calories: 668 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Cayenne pepper 0.5tsp
+  - Chicken breast portion 2
+  - Chipotle paste 20g
+  - Creme fraiche 80g
+  - Feta 30g
+  - Ground smoked paprika 1tsp
+  - Plain tortillas 6
+  - Radishes 125g
+  - Red onion 1
+  - Soy sauce 8ml
+  - Tomato paste 32g
+------------------------------------------------------------
+
+## Pulled Chicken Thigh & Sweetcorn Quesadillas
+Country/Region: Mexico
+Cuisine Type: quesadilla
+Time to Cook: 45 min
+Calories: 884 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Baby leaf salad 50g
+  - Cheddar cheese 2x40g
+  - Chipotle paste 20g
+  - Garlic clove 2
+  - Ground cumin 1tsp
+  - Ground smoked paprika 1tsp
+  - Lime 1
+  - Mayonnaise 25ml
+  - Plain tortillas 6
+  - Skinless chicken thighs 320g
+  - Spring onion 1
+  - Sweetcorn 150g
+------------------------------------------------------------
+
+## Smoky Chicken Thigh Quesadillas With Zingy Mayo & Salsa
+Country/Region: Mexico
+Cuisine Type: quesadilla
+Time to Cook: 50 min
+Calories: 891 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Cheddar cheese 40g
+  - Garlic clove 2
+  - Ground cumin 1tsp
+  - Ground smoked paprika 2tsp
+  - Mayonnaise 50ml
+  - Plain tortillas 6
+  - Red onion 1
+  - Skinless chicken thighs 320g
+  - Soy sauce 8ml
+  - Tomato 1
+  - Tomato paste 32g
+  - White wine vinegar 15ml
+------------------------------------------------------------
+
+## Pork & Refried Bean Tacos With Zesty Apple Slaw
+Country/Region: Mexico
+Cuisine Type: tacos
+Time to Cook: 45 min
+Calories: 788 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Apple 1
+  - Black beans 390g
+  - Chipotle paste 20g
+  - Garlic clove 2
+  - Ground smoked paprika 2tsp
+  - Lime 1
+  - Mayonnaise 25ml
+  - Plain tortillas 6
+  - Pork mince 250g
+  - Red onion 2
+  - Red wine vinegar 30ml
+  - Soy sauce 15ml
+------------------------------------------------------------
+
+## One Pot Smoky Coriander Chicken & Rice With Esquites
+Country/Region: Mexico
+Cuisine Type: rice dish
+Time to Cook: 45 min
+Calories: 604 kcal per person
+Notes: Prepped in 5
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Chicken stock mix (intense) 5.5g
+  - Coriander 10g
+  - Dried chilli flakes 0.5tsp
+  - Dried oregano 1tsp
+  - Feta 30g
+  - Ground coriander 1tsp
+  - Ground smoked paprika 2tsp
+  - Lime 1
+  - Red pepper 1
+  - Skinless chicken thighs 320g
+  - Sweetcorn 150g
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Chipotle Mexican-Style Chicken Stew With Buttered Corn & Rice
+Country/Region: Mexico
+Cuisine Type: stew
+Time to Cook: 45 min
+Calories: 584 kcal per person
+Notes: Prepped in 5
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Chicken stock mix (intense) 5.5g
+  - Chipotle paste 20g
+  - Garlic clove 2
+  - Ground coriander 1tsp
+  - Ground smoked paprika 2tsp
+  - Lime 1
+  - Skinless chicken thighs 320g
+  - Sweetcorn cobettes 2
+  - Tomato paste 32g
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Fiery Jerk-Spiced Pork Meatball Curry With Garlic & Lime Rice
+Country/Region: Caribbean
+Cuisine Type: curry
+Time to Cook: 50 min
+Calories: 556 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Caribbean jerk paste 24g
+  - Chicken stock mix (intense) 5.5g
+  - Cultured coconut 80g
+  - Curry powder 0.5tbsp
+  - Fresh root ginger 15g
+  - Garlic clove 3
+  - Ground turmeric 1tsp
+  - Lime 1
+  - Pork mince 250g
+  - Red pepper 1
+  - Shallot 1
+  - Spring onion 2
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Jerk-Spiced Chicken & Zingy Sweetcorn Rice Bowl
+Country/Region: Caribbean
+Cuisine Type: rice dish
+Time to Cook: 20 min
+Calories: 606 kcal per person
+Notes: 10-Minute
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Caribbean jerk paste 24g
+  - Chicken breast strips 250g
+  - Cooked white long grain rice 280g
+  - Lime 1
+  - Mayonnaise 25ml
+  - Spring onion 1
+  - Sweetcorn 150g
+  - Tomato 1
+------------------------------------------------------------
+
+## Mango & Lime Chicken, Lime Rice And Pineapple Salsa
+Country/Region: Caribbean
+Cuisine Type: rice dish
+Time to Cook: 40 min
+Calories: 704 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Coriander 5g
+  - Ground turmeric 0.5tsp
+  - Lime 1
+  - Mango chutney 20g
+  - Mayonnaise 25ml
+  - Pineapple slices 220g
+  - Red chilli 1
+  - Skinless chicken thighs 320g
+  - Spring onion 2
+  - Tomato 1
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Nutty Brazilian-Style Pollock Stew
+Country/Region: Brazil
+Cuisine Type: stew
+Time to Cook: 45 min
+Calories: 597 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Diced pollock 200g
+  - Fresh root ginger 15g
+  - Garlic clove 2
+  - Green chilli 1
+  - Ground almonds 25g
+  - Ground turmeric 1tsp
+  - Roasted peanuts 25g
+  - Solid creamed coconut 25g
+  - Tomato 1
+  - Vegetable stock mix (intense) 5.5g
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Feijoada-Style Pork Belly & Black Bean Stew With Rice
+Country/Region: Brazil
+Cuisine Type: stew
+Time to Cook: 70 min
+Calories: 786 kcal per person
+Notes: Prepped in 5
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Beef stock mix (intense) 5.5g
+  - Black beans 390g
+  - Brown onion 1
+  - Cider vinegar 15ml
+  - Garlic clove 2
+  - Ground smoked paprika 2tsp
+  - Parsley 5g
+  - Pork belly 300g
+  - Red chilli 1
+  - Umami seasoning 1tbsp
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## Suya-Style Chicken Skewers With Coconut Fried Rice
+Country/Region: West Africa / Nigeria
+Cuisine Type: rice dish
+Time to Cook: 50 min
+Calories: 715 kcal per person
+Notes: None
+Can Be Frozen: No
+Can Be Made in Bulk: No
+Ingredients (x2 portions):
+  - Blanched peas 160g
+  - Cayenne pepper 0.5tsp
+  - Chicken breast portion 2
+  - Chicken stock mix (intense) 5.5g
+  - Crispy onions 15g
+  - Curry powder 1tbsp
+  - Ginger & garlic paste 15g
+  - Ground smoked paprika 2tsp
+  - Natural yoghurt 80g
+  - Roasted peanuts 25g
+  - Solid creamed coconut 25g
+  - White long grain rice 130g
+------------------------------------------------------------
+
+## West African Maffe-Style Chicken Thigh Stew
+Country/Region: West Africa
+Cuisine Type: stew
+Time to Cook: 45 min
+Calories: 698 kcal per person
+Notes: None
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Brown long grain rice 130g
+  - Chicken stock mix (intense) 5.5g
+  - Coriander 5g
+  - Diced chicken thigh 250g
+  - Flaked almonds 15g
+  - Ras el hanout 1tbsp
+  - Red onion 1
+  - Smooth peanut butter 26g
+  - Sweet potato 1
+  - Tomato 2
+  - Tomato paste 16g
+------------------------------------------------------------
+
+## Mozambican-Style Chicken & Peanut Stew With Coriander Rice
+Country/Region: Mozambique
+Cuisine Type: stew
+Time to Cook: 45 min
+Calories: 761 kcal per person
+Notes: None
+Can Be Frozen: Yes
+Can Be Made in Bulk: Yes
+Ingredients (x2 portions):
+  - Brown onion 1
+  - Chicken stock mix (intense) 5.5g
+  - Coriander 5g
+  - Dried chilli flakes 0.5tsp
+  - Garlic clove 2
+  - Ground coriander 1tsp
+  - Roasted peanuts 25g
+  - Skinless chicken thighs 320g
+  - Smooth peanut butter 26g
+  - Solid creamed coconut 25g
+  - Tomato 2
+  - Tomato paste 32g
+  - White long grain rice 130g
+------------------------------------------------------------

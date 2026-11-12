@@ -50,7 +50,9 @@ export default {
         return json({ ok: false, conflict: true, ...current });
       }
 
-      const record = { version: incomingVer, data: body.data, updatedAt: Date.now() };
+      // meta = per-key edit timestamps; the client merge needs them to tell which
+      // device's copy of a value is the newer one.
+      const record = { version: incomingVer, data: body.data, meta: body.meta || {}, updatedAt: Date.now() };
       await env.KV.put(key, JSON.stringify(record));
       return json({ ok: true, version: record.version, updatedAt: record.updatedAt });
     }
