@@ -1,8 +1,8 @@
 # Gousto Meal Planner: handover (retired app)
 
 Written 10 Nov 2026. **This app is retired.** It was replaced by Food Planner (`../../food-planner`,
-https://food-planner-dez.pages.dev) on 6 Oct 2026. It is still deployed as a read-only safety net, and it
-is off the App Hub. Don't develop it. Anything wanted "from the Gousto app" gets built in Food Planner.
+https://food-planner-dez.pages.dev) on 6 Oct 2026. It was taken offline on 12 Nov 2026 (site and sync Worker deleted; final data in
+`archive-2026-11-12/`), and it is off the App Hub. Don't develop it. Anything wanted "from the Gousto app" gets built in Food Planner.
 Shared rules for all apps: [`../../CLAUDE.md`](../../CLAUDE.md). How this app works: [`../CLAUDE.md`](../CLAUDE.md).
 
 ## What it was
@@ -12,7 +12,7 @@ Tom's meal planner built around his Gousto recipe cards. It had recipe browsing 
 scanning (on-device OCR, or Claude via a locked proxy). It was a single-file PWA: `index.html` is about 1 MB, with
 the recipe data embedded as JSON.
 
-Live (read-only safety net): https://gousto-6e5.pages.dev
+Was live at https://gousto-6e5.pages.dev until 12 Nov 2026 (deleted).
 
 ## Where its data went
 
@@ -57,6 +57,7 @@ See `.dev.vars.example`.
 
 ## Decisions (newest first)
 
+- 2026-11-12: Taken offline (Tom approved retiring it). Final backup first: every key of KV `gousto-sync-kv` saved to `archive-2026-11-12/` (see its README; the real store is version 555, 90 custom recipes, all already in Food Planner). Then deleted the Pages project `gousto` and the Worker `gousto-sync`. The KV namespace was left in place on Cloudflare as a second copy. Also committed `Prompt/`, `Spreadsheets/` and the sync-worker `meta` change on `live-cooking-mode` and pushed it; branches not merged.
 - 2026-11-12: Claude key removed (estate audit): its `/api/anthropic` proxy had no origin check, so anyone could spend the key. `ANTHROPIC_API_KEY` deleted and redeployed; live status now says `serverKey: false`. Scanning falls back to the free route (on-device text + ChatGPT). Food Planner does the paid scanning now. Don't put the key back without adding the same-site check from `food-planner/functions/api/anthropic.js`.
 - 2026-10-06: Archived, and replaced by Food Planner. Kept deployed as a safety net. Deleting it is Tom's call.
 - 2026-09-15: Tom decided to rethink Gousto Planner and Soup Planner as one new app rather than rip them apart.
@@ -69,7 +70,7 @@ See `.dev.vars.example`.
 
 ## Status
 
-Works read-only as a safety net. No known bugs being tracked. Nothing half-done that matters.
+Offline since 12 Nov 2026; the code and the data archive are here. No known bugs being tracked. Nothing half-done that matters.
 
 ## Parked ideas
 
