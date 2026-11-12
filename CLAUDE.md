@@ -5,8 +5,8 @@ with two Functions and a separate KV-backed sync Worker.
 
 Offline since 12 Nov 2026 (was gousto-6e5.pages.dev; final data in `archive-2026-11-12/`) · Repo: `github.com/tombozza/gousto`
 
-**Read docs/HANDOVER.md first.** Retired 6 Oct 2026 (replaced by Food Planner). It was taken offline on 12 Nov 2026 (Pages project and `gousto-sync` deleted, KV kept) — a safety
-net. Don't develop it.
+**Read docs/HANDOVER.md first.** Retired 6 Oct 2026 (replaced by Food Planner). It was taken offline on 12 Nov 2026 (Pages project and `gousto-sync` deleted, KV kept).
+Don't develop it.
 
 ## Keep the handover current
 
